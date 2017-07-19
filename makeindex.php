@@ -21,6 +21,7 @@ while ($A = DB_fetchArray($res, false)) {
     Indexer::IndexDoc(array(
         'item_id' => $A['sid'],
         'type'  => 'article',
+        'title' => $A['title'],
         'author' => COM_getDisplayName($A['uid']),
         'content' => $A['introtext'] . ' ' . $A['bodytext'],
         'perms' => array(
