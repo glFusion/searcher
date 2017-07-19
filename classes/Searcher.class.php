@@ -442,8 +442,8 @@ class Searcher extends Common
 
         if ($this->countResults() == 0) {
             $T->set_var('message', $LANG_ADMIN['no_results']);
-            $T->set_var('list_top', $list_top);
-            $T->set_var('list_bottom', $list_bottom);
+            //$T->set_var('list_top', $list_top);
+            //$T->set_var('list_bottom', $list_bottom);
             $T->parse('output', 'list');
 
             // No results to show so quickly print a message and exit
@@ -463,7 +463,8 @@ class Searcher extends Common
         $r = 1;
         foreach ($this->results as $row) {
             $fieldvalue = $row['title'] . '<br />' . $row['excerpt'];
-            $T->set_var('field_text', $fieldvalue);
+            //$T->set_var('field_text', $fieldvalue);
+            $dt = new \Date($row['ts'], $_CONF['timezone']);
             $T->set_var(array(
                 'title' => self::Highlight($row['title'], $this->tokens),
                 'excerpt' => self::Highlight($row['excerpt'], $this->tokens),
@@ -471,8 +472,8 @@ class Searcher extends Common
                 'uid'   => $row['uid'],
                 'hits'  => $row['hits'],
                 'item_url' => $row['url'],
+                'date'  => $dt->format($_CONF['date']),
             ) );
-
             $T->parse('item_field', 'field', true);
 
             // Write row
@@ -489,7 +490,7 @@ class Searcher extends Common
 
         if ($this->countResults() > 0) {
             $first = (($this->page - 1) * $_SRCH_CONF['perpage']) + 1;
-            $last = min($first + $_SRCH_CONF['perpage'], $this->totalResults());
+            $last = min($first + $_SRCH_CONF['perpage'] - 1, $this->totalResults());
             $T->set_var(array(
                 'first_result' => $first,
                 'last_result' => $last,
