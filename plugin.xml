@@ -1,0 +1,10 @@
+<plugin>
+    <id>searcher</id>
+    <name>Searcher</name>
+    <description>Improved search function for glFusion</description>
+    <version>0.0.1</version>
+    <glfusionversion>1.6.0</glfusionversion>
+    <phpversion>5.6.0</phpversion>
+    <url>http://www.leegarner.com</url>
+    <maintainer>Lee Garner</maintainer>
+</plugin>
