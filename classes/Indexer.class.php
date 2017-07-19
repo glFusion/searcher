@@ -19,25 +19,6 @@ require_once __DIR__ . '/Common.class.php';
 */
 class Indexer extends Common
 {
-    public static $values = NULL;
-
-
-    /**
-    *   Init static variables.
-    */
-    public static function Init()
-    {
-        global $_SRCH_CONF, $_CONF;
-
-        self::$values = array(
-            'content'   => $_SRCH_CONF['wt_content'],
-            'title'     => $_SRCH_CONF['wt_title'],
-            //'comment'   => 3,
-            'author'    => $_SRCH_CONF['wt_author'],
-        );
-        parent::Init();
-    }
-
 
     /**
     *   Index a single document
@@ -54,28 +35,21 @@ class Indexer extends Common
             self::Init();
         }
 
-    	// index author
-        if (isset($content['author'])) {
-    		$names = self::Tokenize($content['author'], false);
-    		foreach($names as $name => $count) {
-	    		isset($insert_data[$name]['author']) ?
-                    $insert_data[$name]['author'] += $count : $insert_data[$name]['author'] = $count;
-		    }
-	    }
-
-        // index content
-        $tokens = self::Tokenize($content['content']);
-        foreach ($tokens as $token=>$count) {
-	    	isset($insert_data[$token]['content']) ?
-                $insert_data[$name]['content'] += $count : $insert_data[$token]['content'] = $count;
+        $insert_data = array();     // data to be inserted into DB
+        foreach(self::$fields as $fld=>$weight) {
+            // index content
+            $tokens = self::Tokenize($content[$fld]);
+            foreach ($tokens as $token=>$count) {
+                isset($insert_data[$token][$fld]) ?
+                $insert_data[$name][$fld] += $count : $insert_data[$token][$fld] = $count;
+            }
         }
 
         $item_id = DB_escapeString($content['item_id']);
         $type = DB_escapeString($content['type']);
-
         $values = array();
         foreach ($insert_data as $term => $data) {
-            foreach (array('content', 'title', 'author') as $var) {
+            foreach (self::$fields as $var=>$weight) {
                 $$var = isset($data[$var]) ? (int)$data[$var] : 0;
             }
             $term = DB_escapeString($term);

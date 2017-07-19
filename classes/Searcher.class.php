@@ -71,8 +71,11 @@ class Searcher extends Common
         $this->page = $page > 0 ? $page : 1;
         $start = $page < 2 ? 0 : ($page - 1) * $_SRCH_CONF['perpage'];
         if (!is_null($query)) $this->setQuery($query);
-
-        $sql = "SELECT type, item_id, term, sum(title * 5 + content + author) as relevance
+        foreach (self::$fields as $fld=>$weight) {
+            $wts[] = '(' . $fld . ' * ' . $weight . ')';
+        }
+        $wts = implode(' + ' , $wts);
+        $sql = "SELECT type, item_id, term, sum($wts) as relevance
             FROM {$_TABLES['searcher_index']}
             WHERE term in ({$this->sql_tokens}) " .
             $this->_getPermSQL() .

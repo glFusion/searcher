@@ -23,6 +23,7 @@ class Common
     protected static $strrpos;
     protected static $min_word_len = 3; // default
     protected static $stopwords = NULL;
+    protected static $fields = array();
 
     /**
     *   Initialize static variables
@@ -38,6 +39,13 @@ class Common
         self::$substr = function_exists('mb_substr') ? 'mb_substr' : 'substr';
         self::$strrpos = function_exists('mb_strrpos') ? 'mb_strrpos' : 'strrpos';
         self::$min_word_len = $_SRCH_CONF['min_word_len'];
+        // set supported fields
+        self::$fields = array(
+            'content'   => $_SRCH_CONF['wt_content'],
+            'title'     => $_SRCH_CONF['wt_title'],
+            //'comment'   => 3,
+            'author'    => $_SRCH_CONF['wt_author'],
+        );
     }
 
 
