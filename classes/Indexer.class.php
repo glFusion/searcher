@@ -171,6 +171,22 @@ class Indexer extends Common
         return trim($str);
     }
 
+
+    /**
+    *   Remove a document from the index
+    *   Deletes all records that match $type and $item_id
+    *
+    *   @param  string  $type       Type of document
+    *   @param  string  $item_id    Document ID
+    */
+    public static function RemoveDoc($type, $item_id)
+    {
+        global $_TABLES;
+
+        DB_delete($_TABLES['searcher_index'],
+                array('type', 'item_id'),
+                array($type, $item_id) );
+    }
 }
 
 ?>

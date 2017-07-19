@@ -232,27 +232,154 @@ function plugin_getSearchInfo_article($id)
 
     $retval = array();
     $sql = "SELECT title, uid, introtext, bodytext, hits,
-                FROM_UNIXTIME(date) as ts
+                UNIX_TIMESTAMP(date) as ts, attribution_author
             FROM {$_TABLES['stories']}
             WHERE sid= '" . DB_escapeString($id) . "'" .
             COM_getPermSQL('AND');
     $res = DB_query($sql);
     if (DB_numRows($res) == 1) {
         $A = DB_fetchArray($res, false);
-        if (!isset($names[$A['uid']])) {
-            $names[$A['uid']] = COM_getDisplayName($A['uid']);
-        }
+        $author = empty($A['attribution_author']) ?
+                SRCH_getAuthorName($A['uid']) : $A['attribution_author'];
         $retval = array(
             'title' => $A['title'],
             'content' => $A['introtext'] . ' ' . $A['bodytext'],
             'uid' => $A['uid'],
-            'author' => $names[$A['uid']],
+            'author' => $author,
             'date' => $A['ts'],
             'hits' => $A['hits'],
             'url' => $_CONF['site_url'] . '/article.php?story=' . urlencode($id),
         );
     }
     return $retval;
+}
+
+
+/**
+*   Provides the getSearchInfo function for staticpages.
+*   This should move to the staticpages plugin.
+*
+*   @param  string  $id     Article ID
+*   @return array           Article information for search display
+*/
+function plugin_getSearchInfo_staticpages($id)
+{
+    global $_TABLES, $_CONF;
+
+    static $names = array();
+
+    $retval = array();
+    $sql = "SELECT sp_title, sp_uid, sp_content, sp_hits,
+                UNIX_TIMESTAMP(sp_date) as ts
+            FROM {$_TABLES['staticpage']}
+            WHERE sp_id = '" . DB_escapeString($id) . "'" .
+            COM_getPermSQL('AND');
+    $res = DB_query($sql);
+    if (DB_numRows($res) == 1) {
+        $A = DB_fetchArray($res, false);
+        $retval = array(
+            'title' => $A['sp_title'],
+            'content' => $A['sp_content'],
+            'uid' => $A['sp_id'],
+            'author' => SRCH_getAuthorName($A['sp_uid']),
+            'date' => $A['ts'],
+            'hits' => $A['sp_hits'],
+            'url' => $_CONF['site_url'] . '/page.php?id=' . urlencode($id),
+        );
+    }
+    return $retval;
+}
+
+function SRCH_getAuthorName($uid)
+{
+    static $names = array();
+    if (!isset($names[$uid])) {
+        $names[$uid] = COM_getDisplayName($uid);
+    }
+    return $names[$uid];
+}
+
+
+function plugin_itemsaved_searcher($id, $type)
+{
+    global $_TABLES;
+
+    $id = DB_escapeString($id);
+    switch($type) {
+    case 'article':
+        USES_searcher_class_indexer();
+        $sql = "SELECT sid, uid, title, introtext, bodytext,
+                owner_id, group_id,
+                perm_owner, perm_group, perm_members, perm_anon
+            FROM {$_TABLES['stories']}
+            WHERE sid = '$id' AND draft_flag = 0";
+        $res = DB_query($sql);
+        if (DB_numRows($res) == 1) {
+            $A = DB_fetchArray($res, false);
+            \Searcher\Indexer::RemoveDoc($type, $id);
+            \Searcher\Indexer::IndexDoc(array(
+                'item_id' => $A['sid'],
+                'type'  => 'article',
+                'title' => $A['title'],
+                'author' => COM_getDisplayName($A['uid']),
+                'content' => $A['introtext'] . ' ' . $A['bodytext'],
+                'perms' => array(
+                    'owner_id' => $A['owner_id'],
+                    'group_id' => $A['group_id'],
+                    'perm_owner' => $A['perm_owner'],
+                    'perm_group' => $A['perm_group'],
+                    'perm_members' => $A['perm_members'],
+                    'perm_anon' => $A['perm_anon'],
+                ),
+            ) );
+        }
+        break;
+    case 'staticpages':
+        USES_searcher_class_indexer();
+        $sql = "SELECT sp_id, sp_title, sp_content,
+                owner_id, group_id,
+                perm_owner, perm_group, perm_members, perm_anon
+                FROM {$_TABLES['staticpage']}
+                WHERE sp_id = '$id' AND sp_status = 1 AND sp_search = 1";
+        $res = DB_query($sql, 1);
+        if (DB_numRows($res) == 1) {
+            $A = DB_fetchArray($res, false);
+            \Searcher\Indexer::RemoveDoc($type, $id);
+            \Searcher\Indexer::IndexDoc(array(
+                'item_id' => $A['sp_id'],
+                'type'  => $type,
+                'title' => $A['sp_title'],
+                'content' => $A['sp_content'],
+                'perms' => array(
+                    'owner_id' => $A['owner_id'],
+                    'group_id' => $A['group_id'],
+                    'perm_owner' => $A['perm_owner'],
+                    'perm_group' => $A['perm_group'],
+                    'perm_members' => $A['perm_members'],
+                    'perm_anon' => $A['perm_anon'],
+                ),
+            ) );
+        }
+        break;
+     default:
+        $id_fld = '';
+        break;
+    }
+}
+
+
+function plugin_itemdeleted_searcher($id, $type)
+{
+    switch ($type) {
+    case 'article':
+    case 'staticpage':
+    case 'staticpages':
+        USES_searcher_class_indexer();
+        \Searcher\Indexer::RemoveDoc($type, $id);
+        break;
+    default:
+        break;
+    }
 }
 
 ?>
