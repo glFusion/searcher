@@ -36,4 +36,17 @@ $_SQL['searcher_index'] = "CREATE TABLE `{$_TABLES['searcher_index']}` (
   KEY `parent` (`parent_type`,`parent_id`)
 )";
 
+/*
+    Schema updates:
+
+alter table gl_searcher_index add parent_id varchar(128) not null default '' after term;
+alter table gl_searcher_index add parent_type varchar(50) not null default '' after parent_id;
+alter table gl_searcher_index add key parent(parent_type,parent_id);
+alter table gl_searcher_index add key terms_pid (term, parent_id);
+alter table gl_searcher_index add key type_pid(type,parent_id);
+update gl_searcher_index set parent_id = item_id;
+update gl_searcher_index set parent_type = item_type;
+
+*/
+
 ?>
