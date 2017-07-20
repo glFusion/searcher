@@ -253,6 +253,8 @@ function plugin_getheadercss_searcher()
     }
     return $styles;
 }
+
+
 /**
 *   Provides the getSearchInfo function for the built-in article type
 *
@@ -325,6 +327,14 @@ function plugin_getSearchInfo_staticpages($id)
     return $retval;
 }
 
+
+/**
+*   Get the author display name from the user ID.
+*   Stores names in a static variable since this can be called many times.
+*
+*   @param  integer $uid    User ID
+*   @return string          Display name
+*/
 function SRCH_getAuthorName($uid)
 {
     static $names = array();
@@ -335,6 +345,13 @@ function SRCH_getAuthorName($uid)
 }
 
 
+/**
+*   Index an item when it is saved.
+*   First deletes any existing index records, then creates new ones.
+*
+*   @param  string  $id     Item ID
+*   @param  string  $type   Item Type
+*/
 function plugin_itemsaved_searcher($id, $type)
 {
     global $_TABLES;
@@ -403,6 +420,12 @@ function plugin_itemsaved_searcher($id, $type)
 }
 
 
+/**
+*   Delete index records for a deleted item.
+*
+*   @param  string  $id     Item ID
+*   @param  string  $type   Item Type, e.g. plugin name
+*/
 function plugin_itemdeleted_searcher($id, $type)
 {
     switch ($type) {
@@ -418,6 +441,11 @@ function plugin_itemdeleted_searcher($id, $type)
 }
 
 
+/**
+*   Called from the plugin admin page to re-index all staticpages.
+*
+*   @return integer     Count of articles indexed
+*/
 function plugin_IndexAll_staticpages()
 {
     global $_TABLES;
@@ -426,16 +454,15 @@ function plugin_IndexAll_staticpages()
     $sql = "SELECT sp_id, sp_title, sp_content,
                 owner_id, group_id,
                 perm_owner, perm_group, perm_members, perm_anon
-                FROM {$_TABLES['staticpage']}
-                WHERE sp_status = 1 AND sp_search = 1";
+            FROM {$_TABLES['staticpage']}
+            WHERE sp_status = 1 AND sp_search = 1";
     //echo $sql;die;
     $res = DB_query($sql, 1);
     \Searcher\Indexer::Removeall('staticpages');
     $count = 0;
     while ($A = DB_fetchArray($res, false)) {
         $count++;
-        $args = array(
-        //\Searcher\Indexer::IndexDoc(array(
+        \Searcher\Indexer::IndexDoc(array(
             'item_id' => $A['sp_id'],
             'type'  => $type,
             'title' => $A['sp_title'],
@@ -448,13 +475,17 @@ function plugin_IndexAll_staticpages()
                 'perm_members' => $A['perm_members'],
                 'perm_anon' => $A['perm_anon'],
             ),
-        );
-        PLG_invokeService('searcher', 'indexDoc', $args, $output, $svc_msg);
-        //) );
+        ) );
     }
     return $count;
 }
 
+
+/**
+*   Called from the plugin admin page to re-index all articles.
+*
+*   @return integer     Count of articles indexed
+*/
 function plugin_IndexAll_article()
 {
     global $_TABLES;
@@ -506,6 +537,7 @@ function service_indexDoc_searcher($args, &$output, &$svc_msg)
     if (!isset($args['item_id']) || !isset($args['type']) || !isset($args['content'])) {
         return PLG_RET_ERROR;
     }
+    USES_searcher_class_indexer();
     \Searcher\Indexer::RemoveDoc($type, $id);
     return \Searcher\Indexer::IndexDoc($args) ? PLG_RET_OK : PLG_RET_ERROR;
 }
@@ -525,6 +557,7 @@ function service_removeDoc_searcher($args, &$output, &$svc_msg)
     if (!isset($args['item_id']) || !isset($args['type'])) {
         return PLG_RET_ERROR;
     }
+    USES_searcher_class_indexer();
     return \Searcher\Indexer::RemoveDoc($type, $id) ? PLG_RET_OK : PLG_RET_ERROR;
 }
 
@@ -542,9 +575,10 @@ function service_removeDoc_searcher($args, &$output, &$svc_msg)
 {
     // Check that the minimum required fields are set. Don't allwow plugins
     // to accidentally delete all.
-    if (!isset($args['type'])i || $args['type'] == 'all') {
+    if (!isset($args['type']) || $args['type'] == 'all') {
         return PLG_RET_ERROR;
     }
+    USES_searcher_class_indexer();
     return \Searcher\Indexer::RemoveAll($type) ? PLG_RET_OK : PLG_RET_ERROR;
 }
 
