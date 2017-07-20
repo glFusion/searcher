@@ -1,0 +1,9 @@
+.srch_result_row {
+    padding: 5px;
+    margin-top: 15px;
+}
+
+.srch_result_title {
+    font-size: larger;
+    font-weight: bold;
+}

@@ -1,7 +1,7 @@
 {# begin {templatelocation} #}
-<div class="uk-panel uk-panel-box uk-panel-box-secondary uk-margin-small" style="padding:5px;margin-top:10px;">
+<div class="uk-panel uk-panel-box uk-panel-box-secondary uk-margin-small srch_result_row">
   <div class="uk-text-left">
-    <span style="font-size:larger; font-weight:bold"><a href="{item_url}">{title}</a></span><br />
+    <span class="srch_result_title"><a href="{item_url}">{title}</a></span><br />
     {excerpt}<br />
     by <a href="{site_url}/users.php?mode=profile&uid={uid}">{author}</a> on {date}
 {!if hits}
