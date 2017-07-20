@@ -256,6 +256,40 @@ function plugin_getheadercss_searcher()
 
 
 /**
+*   Provides the getSearchInfo function for the built-in comment type
+*
+*   @param  string  $id     Comment ID
+*   @return array           Article information for search display
+*/
+function plugin_getSearchInfo_comment($id)
+{
+    global $_TABLES, $_CONF;
+
+    static $names = array();
+
+    $retval = array();
+    $sql = "SELECT sid, title, uid, comment,
+                UNIX_TIMESTAMP(date) as ts
+            FROM {$_TABLES['comments']}
+            WHERE cid= '" . DB_escapeString($id) . "'";
+    $res = DB_query($sql);
+    if (DB_numRows($res) == 1) {
+        $A = DB_fetchArray($res, false);
+        $author = SRCH_getAuthorName($A['uid']);
+        $retval = array(
+            'title' => $A['title'],
+            'content' => $A['comment'],
+            'uid' => $A['uid'],
+            'author' => $author,
+            'date' => $A['ts'],
+            'url' => $_CONF['site_url'] . '/article.php?story=' . urlencode($A['sid']),
+        );
+    }
+    return $retval;
+}
+
+
+/**
 *   Provides the getSearchInfo function for the built-in article type
 *
 *   @param  string  $id     Article ID
@@ -373,7 +407,7 @@ function plugin_itemsaved_searcher($id, $type)
                 'item_id' => $A['sid'],
                 'type'  => 'article',
                 'title' => $A['title'],
-                'author' => COM_getDisplayName($A['uid']),
+                'author' => SRCH_getAuthorName($A['uid']),
                 'content' => $A['introtext'] . ' ' . $A['bodytext'],
                 'perms' => array(
                     'owner_id' => $A['owner_id'],
@@ -410,6 +444,27 @@ function plugin_itemsaved_searcher($id, $type)
                     'perm_members' => $A['perm_members'],
                     'perm_anon' => $A['perm_anon'],
                 ),
+            ) );
+        }
+        break;
+    case 'comments':
+    case 'comment':
+        USES_searcher_class_indexer();
+        $sql = "SELECT cid, sid, uid, title, comment
+            FROM {$_TABLES['comments']}
+            WHERE cid = '$id'";
+        //echo $sql;die;
+        $res = DB_query($sql, 1);
+        if (DB_numRows($res) == 1) {
+            $A = DB_fetchArray($res, false);
+            \Searcher\Indexer::RemoveDoc('comment');
+            \Searcher\Indexer::IndexDoc(array(
+                'item_id' => $A['cid'],
+                'parent_id' => $A['sid'],
+                'type'  => 'comment',
+                'title' => $A['title'],
+                'author' => SRCH_getAuthorName($A['uid']),
+                'content' => $A['comment'],
             ) );
         }
         break;
@@ -462,9 +517,9 @@ function plugin_IndexAll_staticpages()
     $count = 0;
     while ($A = DB_fetchArray($res, false)) {
         $count++;
-        \Searcher\Indexer::IndexDoc(array(
+        $props = array(
             'item_id' => $A['sp_id'],
-            'type'  => $type,
+            'type'  => 'staticpages',
             'title' => $A['sp_title'],
             'content' => $A['sp_content'],
             'perms' => array(
@@ -475,7 +530,58 @@ function plugin_IndexAll_staticpages()
                 'perm_members' => $A['perm_members'],
                 'perm_anon' => $A['perm_anon'],
             ),
-        ) );
+        );
+        \Searcher\Indexer::IndexDoc($props);
+        plugin_IndexAll_comments('staticpages', $A['sp_id'], $props['perms']);
+    }
+    return $count;
+}
+
+
+/**
+*   Called from the plugin admin page to re-index all articles.
+*
+*   @return integer     Count of articles indexed
+*/
+function plugin_IndexAll_comments($type, $pid, $perms=NULL)
+{
+    global $_TABLES;
+
+    USES_searcher_class_indexer();
+
+    $type = DB_escapeString($type);
+    $pid = DB_escapeString($pid);
+    $sql = "SELECT cid, sid, uid, title, comment
+        FROM {$_TABLES['comments']}
+        WHERE type = '$type' AND sid = '$pid'";
+    //echo $sql;die;
+    $res = DB_query($sql);
+    $count = 0;
+    // Remove all existing index records for this content
+    \Searcher\Indexer::RemoveComments($type, $pid);
+    while ($A = DB_fetchArray($res, false)) {
+COM_errorLog("indexing comment {$A['cid']}, type $type, pid $pid");
+        $count++;
+        $props = array(
+            'item_id' => $A['cid'],
+            'parent_id' => $A['sid'],
+            'parent_type' => $type,
+            'type'  => 'comment',
+            //'title' => $A['title'],
+            'author' => SRCH_getAuthorName($A['uid']),
+            'content' => $A['comment'],
+        );
+        if (is_array($perms)) {
+            $props['perms'] = array(
+                'owner_id' => $perms['owner_id'],
+                'group_id' => $perms['group_id'],
+                'perm_owner' => $perms['perm_owner'],
+                'perm_group' => $perms['perm_group'],
+                'perm_members' => $perms['perm_members'],
+                'perm_anon' => $perms['perm_anon'],
+            );
+        }
+        \Searcher\Indexer::IndexDoc($props);
     }
     return $count;
 }
@@ -502,12 +608,13 @@ function plugin_IndexAll_article()
     $count = 0;
     \Searcher\Indexer::RemoveAll('article');
     while ($A = DB_fetchArray($res, false)) {
+COM_errorLog("Indexing article {$A['sid']}");
         $count++;
-        \Searcher\Indexer::IndexDoc(array(
+        $props = array(
             'item_id' => $A['sid'],
             'type'  => 'article',
             'title' => $A['title'],
-            'author' => COM_getDisplayName($A['uid']),
+            'author' => SRCH_getAuthorName($A['uid']),
             'content' => $A['introtext'] . ' ' . $A['bodytext'],
             'perms' => array(
                 'owner_id' => $A['owner_id'],
@@ -517,7 +624,9 @@ function plugin_IndexAll_article()
                 'perm_members' => $A['perm_members'],
                 'perm_anon' => $A['perm_anon'],
             ),
-        ) );
+        );
+        \Searcher\Indexer::IndexDoc($props);
+        plugin_IndexAll_comments('article', $A['sid'], $props['perms']);
     }
     return $count;
 }
@@ -538,13 +647,19 @@ function service_indexDoc_searcher($args, &$output, &$svc_msg)
         return PLG_RET_ERROR;
     }
     USES_searcher_class_indexer();
-    \Searcher\Indexer::RemoveDoc($type, $id);
-    return \Searcher\Indexer::IndexDoc($args) ? PLG_RET_OK : PLG_RET_ERROR;
+    \Searcher\Indexer::RemoveDoc($args['type'], $args['item_id']);
+    if (!\Searcher\Indexer::IndexDoc($args))
+        return PLG_RET_ERROR;
+    // Index comments here.
+    $perms = isset($args['perms']) ? $args['perms'] : NULL;
+    plugin_IndexAll_comments($args['type'], $args['item_id'], $props['perms']);
+    return PLG_RET_OK;
 }
 
 
 /**
 *   Service function to remove an item from the index.
+*   Makes sure that a valid type and item_id are set to remove one item.
 *
 *   @param  array   $args       Array of item info.
 *   @param  mixed   $output     Output to set (not used)
@@ -554,7 +669,7 @@ function service_indexDoc_searcher($args, &$output, &$svc_msg)
 function service_removeDoc_searcher($args, &$output, &$svc_msg)
 {
     // Check that the minimum required fields are set
-    if (!isset($args['item_id']) || !isset($args['type'])) {
+    if (!isset($args['item_id']) || !isset($args['type']) || $args['type'] == 'all') {
         return PLG_RET_ERROR;
     }
     USES_searcher_class_indexer();
@@ -565,13 +680,14 @@ function service_removeDoc_searcher($args, &$output, &$svc_msg)
 /**
 *   Service function to remove all items for a plugin from the index.
 *   May be called during plugin removal.
+*   Makes sure that a valid type is set to remove all items for a single type.
 *
 *   @param  array   $args       Array of item info.
 *   @param  mixed   $output     Output to set (not used)
 *   @param  mixed   $svc_msg    Service message (not used)
 *   @return integer     PLG_RET_OK on success, PLG_RET_ERROR on error
 */
-function service_removeDoc_searcher($args, &$output, &$svc_msg)
+function service_removeAll_searcher($args, &$output, &$svc_msg)
 {
     // Check that the minimum required fields are set. Don't allwow plugins
     // to accidentally delete all.

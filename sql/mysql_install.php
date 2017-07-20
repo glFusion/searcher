@@ -18,6 +18,8 @@ $_SQL['searcher_index'] = "CREATE TABLE `{$_TABLES['searcher_index']}` (
   `item_id` varchar(128) NOT NULL DEFAULT '',
   `type` varchar(20) NOT NULL DEFAULT '',
   `term` varchar(50) NOT NULL DEFAULT '',
+  `parent_id` varchar(128) NOT NULL DEFAULT '',
+  `parent_type` varchar(50) NOT NULL DEFAULT '',
   `content` mediumint(9) NOT NULL DEFAULT '0',
   `title` mediumint(9) NOT NULL DEFAULT '0',
   `author` mediumint(9) NOT NULL DEFAULT '0',
@@ -28,7 +30,10 @@ $_SQL['searcher_index'] = "CREATE TABLE `{$_TABLES['searcher_index']}` (
   `perm_members` tinyint(1) unsigned NOT NULL DEFAULT '2',
   `perm_anon` tinyint(1) unsigned NOT NULL DEFAULT '2',
   UNIQUE KEY `itemterm` (`type`,`item_id`,`term`),
-  KEY `terms` (`term`)
+  KEY `terms` (`term`),
+  KEY `terms_pid` (`term`,`parent_id`),
+  KEY `type_pid` (`type`,`parent_id`),
+  KEY `parent` (`parent_type`,`parent_id`)
 )";
 
 ?>
