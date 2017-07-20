@@ -434,7 +434,8 @@ function plugin_IndexAll_staticpages()
     $count = 0;
     while ($A = DB_fetchArray($res, false)) {
         $count++;
-        \Searcher\Indexer::IndexDoc(array(
+        $args = array(
+        //\Searcher\Indexer::IndexDoc(array(
             'item_id' => $A['sp_id'],
             'type'  => $type,
             'title' => $A['sp_title'],
@@ -447,7 +448,9 @@ function plugin_IndexAll_staticpages()
                 'perm_members' => $A['perm_members'],
                 'perm_anon' => $A['perm_anon'],
             ),
-        ) );
+        );
+        PLG_invokeService('searcher', 'indexDoc', $args, $output, $svc_msg);
+        //) );
     }
     return $count;
 }
@@ -486,6 +489,63 @@ function plugin_IndexAll_article()
         ) );
     }
     return $count;
+}
+
+
+/**
+*   Service function to be invoked when an item is saved.
+*
+*   @param  array   $args       Array of item info.
+*   @param  mixed   $output     Output to set (not used)
+*   @param  mixed   $svc_msg    Service message (not used)
+*   @return integer     PLG_RET_OK on success, PLG_RET_ERROR on error
+*/
+function service_indexDoc_searcher($args, &$output, &$svc_msg)
+{
+    // Check that the minimum required fields are set
+    if (!isset($args['item_id']) || !isset($args['type']) || !isset($args['content'])) {
+        return PLG_RET_ERROR;
+    }
+    \Searcher\Indexer::RemoveDoc($type, $id);
+    return \Searcher\Indexer::IndexDoc($args) ? PLG_RET_OK : PLG_RET_ERROR;
+}
+
+
+/**
+*   Service function to remove an item from the index.
+*
+*   @param  array   $args       Array of item info.
+*   @param  mixed   $output     Output to set (not used)
+*   @param  mixed   $svc_msg    Service message (not used)
+*   @return integer     PLG_RET_OK on success, PLG_RET_ERROR on error
+*/
+function service_removeDoc_searcher($args, &$output, &$svc_msg)
+{
+    // Check that the minimum required fields are set
+    if (!isset($args['item_id']) || !isset($args['type'])) {
+        return PLG_RET_ERROR;
+    }
+    return \Searcher\Indexer::RemoveDoc($type, $id) ? PLG_RET_OK : PLG_RET_ERROR;
+}
+
+
+/**
+*   Service function to remove all items for a plugin from the index.
+*   May be called during plugin removal.
+*
+*   @param  array   $args       Array of item info.
+*   @param  mixed   $output     Output to set (not used)
+*   @param  mixed   $svc_msg    Service message (not used)
+*   @return integer     PLG_RET_OK on success, PLG_RET_ERROR on error
+*/
+function service_removeDoc_searcher($args, &$output, &$svc_msg)
+{
+    // Check that the minimum required fields are set. Don't allwow plugins
+    // to accidentally delete all.
+    if (!isset($args['type'])i || $args['type'] == 'all') {
+        return PLG_RET_ERROR;
+    }
+    return \Searcher\Indexer::RemoveAll($type) ? PLG_RET_OK : PLG_RET_ERROR;
 }
 
 ?>

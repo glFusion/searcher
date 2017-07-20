@@ -25,7 +25,7 @@ class Indexer extends Common
     *
     *   @param  array   $content    Array of text elements:
     *               'author', 'content' currently supported
-    *   @return none
+    *   @return boolean     True on success, False on DB error
     */
     public static function IndexDoc($content)
     {
@@ -79,96 +79,13 @@ class Indexer extends Common
                 owner_id, group_id, perm_owner, perm_group,
                 perm_members, perm_anon)
                 VALUES $values";
-        $res = DB_query($sql);
-    }
-
-
-    /**
-    *   */
-    private static function XXXTokenize($str, $skip_stop = true)
-    {
-        //function relevanssi_tokenize($str, $remove_stops = true, $min_word_length = -1) {
-        $tokens = array();
-        if (is_array($str)) {
-            foreach ($str as $part) {
-                $tokens = array_merge($tokens, self::Tokenize($part));
-            }
+        $res = DB_query($sql, 1);
+        if (DB_error()) {
+            COM_errorLog("Searcher Error Indexing $type, ID $item_id");
+            return false;
+        } else {
+            return true;
         }
-        if (is_array($str)) return $tokens;
-
-        if (function_exists('mb_internal_encoding'))
-            mb_internal_encoding('UTF-8');
-
-        $str = self::_remove_punctuation($str);
-
-        $str = function_exists('mb_strtolower') ?
-                mb_strtolower($str) : strtolower($str);
-
-        $t = strtok($str, "\n\t ");
-        while ($t !== false) {
-            $t = strval($t);
-            $accept = true;
-
-            //if (relevanssi_strlen($t) < self::$min_word_len) {
-            if (strlen($t) < self::$min_word_len) {
-                $t = strtok("\n\t  ");
-                continue;
-            }
-            /*if ($remove_stops == false) {
-                $accept = true;
-            } else {*/
-                //if (count($stopword_list) > 0) {    //added by OdditY -> got warning when stopwords table was empty
-                if (in_array($t, self::$stopwords)) {
-                    $accept = false;
-                }
-                //}
-            //}
-
-            if ($accept) {
-                $t = self::_mb_trim($t);
-                if (is_numeric($t)) $t = " $t";        // $t ends up as an array index, and numbers just don't work there
-                if (!isset($tokens[$t])) {
-                    $tokens[$t] = 1;
-                } else {
-                    $tokens[$t]++;
-                }
-            }
-
-            $t = strtok("\n\t ");
-        }
-        return $tokens;
-    }
-
-
-    // possibly duplicated in RemovePunc?
-    private static function XXX_mb_trim($string)
-    {
-        $string = str_replace(chr(194) . chr(160), '', $string);
-        $string = preg_replace( "/(^\s+)|(\s+$)/us", '', $string );
-        return $string;
-    }
-
-
-    private static function XXXX_remove_punctuation($str)
-    {
-        if (!is_string($str)) return '';
-        $str = strip_tags($str);
-        $repl_nospace = array(          // Replace with nothing
-            '.', '…', '€', '&shy;', "\r",
-        );
-        
-        $repl_space = array(            // Replace these with empty space
-            chr(194) . chr(160),
-            "'", '&nbsp;', '&#8217;', '"',
-            "\n", "\t", '(', ')', '{', '}', '%', '$', '#', '[', ']',
-            '_', '-', '"', '`', ',', '<', '>', '=', ':', '?', ';', '&',
-        );
-
-        //$str = preg_replace ('/<[^>]*>/', ' ', $str);
-        $str = str_replace($repl_nospace, '', $str);
-        $str = str_replace($repl_space, ' ', $str);
-        preg_replace("/[^[:alnum:][:space:]]/u", '', $string);
-        return trim($str);
     }
 
 
@@ -178,6 +95,7 @@ class Indexer extends Common
     *
     *   @param  string  $type       Type of document
     *   @param  string  $item_id    Document ID
+    *   @return boolean     True on success, False on failure
     */
     public static function RemoveDoc($type, $item_id)
     {
@@ -186,6 +104,12 @@ class Indexer extends Common
         DB_delete($_TABLES['searcher_index'],
                 array('type', 'item_id'),
                 array($type, $item_id) );
+        if (DB_error()) {
+            COM_errorLog("Searcher: Error removing $type, ID $item_id");
+            return false;
+        } else {
+            return true;
+        }
     }
 
 
