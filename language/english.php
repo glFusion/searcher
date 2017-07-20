@@ -16,26 +16,10 @@
 *   @global array $LANG_SRCH
 */
 $LANG_SRCH = array(
-    'list_backups' => 'List Backups',
-    'instr_db_bkup_config' => 'Only database tables which exist and are actually used by glFusion are displayed.  To remove tables from the backup, move them into the right pane.',
-    'system_message'    => 'System Message',
-    'nameparser_suffixes' => array(
-        'I', 'II', 'III', 'IV', 'V',
-        'Senior', 'Junior', 'Jr', 'Sr',
-        'PhD', 'APR', 'RPh', 'PE', 'MD', 'MA', 'DMD', 'CME', 'CPA',
-    ),
-    // compound elements in names like "Norman Van De Kamp"
-    'nameparser_compound' => array(
-        'vere', 'von', 'van', 'de', 'del', 'della', 'di', 'da',
-        'pietro', 'vanden', 'du', 'st.', 'st', 'la', 'ter',
-    ),
-    // small words not to be converted by SRCH_titleCase()
-    'smallwords' => array(
-        'of', 'a', 'the', 'and', 'an', 'or', 'nor', 'but', 'is', 'if', 'then',
-        'else', 'when', 'at', 'from', 'by', 'on', 'off', 'for', 'in', 'out',
-        'over', 'to', 'into', 'with',
-    ),
-    'menu_label' => 'Searcher',
+    'menu_label'    => 'Searcher',
+    'generate_all'  => 'Generate All',
+    'regenerate'    => 'Regenerate Indexes',
+    'version'       => 'Version',
 );
 
 // Localization of the Admin Configuration UI

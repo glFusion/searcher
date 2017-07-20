@@ -1,0 +1,33 @@
+<div>
+<a href="{pi_url}/index.php">
+  <img src="{pi_icon}" border="0" align="top" 
+        style="background:transparent;" />
+</a>
+<h2>{header}</h2>
+{$LANG_SRCH['version']}&nbsp;&nbsp;{version}
+</div>
+{menu}
+<div>{$LANG_SRCH['regenerate']}</div>
+<form action="{site_admin_url}/plugins/searcher/index.php" method="post" class="uk-form uk-form-horizontal">
+    <div class="uk-form-row">
+      <label class="uk-form-label" for="f_article">articles</label>
+      <div class="uk-form-controls">
+        <input type="checkbox" value="1" name="pi[article]" id="f_article" />
+      </div>
+    </div>
+<!-- BEGIN plugins -->
+    <div class="uk-form-row">
+      <label class="uk-form-label" for="f_{pi_name}">{pi_name}</label>
+      <div class="uk-form-controls">
+        <input type="checkbox" value="1" name="pi[{pi_name}]" id="f_{pi_name}" />
+      </div>
+    </div>
+<!-- END plugins -->
+
+    <div class="uk-form-row">
+      <label class="uk-form-label"></label>
+      <div class="uk-form-controls">
+        <button type="submit" class="uk-button uk-button-success" name="genindex">Submit</button>
+      </div>
+    </div>
+</form>

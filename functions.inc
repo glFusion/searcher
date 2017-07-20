@@ -98,7 +98,7 @@ function plugin_cclabel_searcher()
 {
     global $LANG_SRCH, $_CONF;
 
-    if (SEC_inGroup('Root') && GVERSION < '1.6.1' && $_CONF['allow_mysql_dump']) {
+    if (SEC_inGroup('Root')) {
         return array(
             $LANG_SRCH['menu_label'],
             SRCH_ADMIN_URL . '/index.php',
@@ -119,7 +119,7 @@ function plugin_getadminoption_searcher()
 {
     global $_CONF, $LANG_SRCH;
 
-    if (SEC_inGroup('Root') && GVERSION < '1.6.1' && $_CONF['allow_mysql_dump']) {
+    if (SEC_inGroup('Root')) {
         $retval = array(
             $LANG_SRCH['menu_label'],
             SRCH_ADMIN_URL . '/index.php',
@@ -218,6 +218,41 @@ function plugin_upgrade_searcher()
 }
 
 
+/**
+*   Get additional CSS into the site header.
+*   Allows for custom CSS to be placed by the site admin.
+*
+*   @return array   List of paths to CSS files
+*/
+function plugin_getheadercss_searcher()
+{
+    global $_CONF, $_SRCH_CONF;
+
+    $styles = array();
+    $files = array(
+        'style.css',
+    );
+
+    // When looking for CSS files, we'll check in this order:
+    //  1. layout/plugin/custom
+    //  2. layout/plugin
+    //  3. plugin/custom
+    //  4. plugin (default distribution version)
+    $pi_css = SRCH_PI_PATH . '/css/';
+    $layout_css = "{$_CONF['path_layout']}plugins/{$_SRCH_CONF['pi_name']}/";
+    foreach ($files as $file) {
+        if (@file_exists($layout_css . 'custom/' . $file)) {
+            $styles[] = $layout_css . 'custom/' . $file;
+        } elseif (@file_exists($layout_css . $file)) {
+            $styles[] = $layout_css . $file;
+        } elseif (@file_exists($pi_css . 'custom/' . $file)) {
+            $styles[] = $pi_css . 'custom/' . $file;
+        } elseif (@file_exists($pi_css . $file)) {
+            $styles[] = $pi_css . $file;
+        }
+    }
+    return $styles;
+}
 /**
 *   Provides the getSearchInfo function for the built-in article type
 *
@@ -380,6 +415,77 @@ function plugin_itemdeleted_searcher($id, $type)
     default:
         break;
     }
+}
+
+
+function plugin_IndexAll_staticpages()
+{
+    global $_TABLES;
+
+    USES_searcher_class_indexer();
+    $sql = "SELECT sp_id, sp_title, sp_content,
+                owner_id, group_id,
+                perm_owner, perm_group, perm_members, perm_anon
+                FROM {$_TABLES['staticpage']}
+                WHERE sp_status = 1 AND sp_search = 1";
+    //echo $sql;die;
+    $res = DB_query($sql, 1);
+    \Searcher\Indexer::Removeall('staticpages');
+    $count = 0;
+    while ($A = DB_fetchArray($res, false)) {
+        $count++;
+        \Searcher\Indexer::IndexDoc(array(
+            'item_id' => $A['sp_id'],
+            'type'  => $type,
+            'title' => $A['sp_title'],
+            'content' => $A['sp_content'],
+            'perms' => array(
+                'owner_id' => $A['owner_id'],
+                'group_id' => $A['group_id'],
+                'perm_owner' => $A['perm_owner'],
+                'perm_group' => $A['perm_group'],
+                'perm_members' => $A['perm_members'],
+                'perm_anon' => $A['perm_anon'],
+            ),
+        ) );
+    }
+    return $count;
+}
+
+function plugin_IndexAll_article()
+{
+    global $_TABLES;
+
+    USES_searcher_class_indexer();
+
+    $sql = "SELECT sid, uid, title, introtext, bodytext,
+            owner_id, group_id,
+            perm_owner, perm_group, perm_members, perm_anon
+        FROM {$_TABLES['stories']}
+        WHERE draft_flag = 0";
+    //echo $sql;die;
+    $res = DB_query($sql);
+    $count = 0;
+    \Searcher\Indexer::RemoveAll('article');
+    while ($A = DB_fetchArray($res, false)) {
+        $count++;
+        \Searcher\Indexer::IndexDoc(array(
+            'item_id' => $A['sid'],
+            'type'  => 'article',
+            'title' => $A['title'],
+            'author' => COM_getDisplayName($A['uid']),
+            'content' => $A['introtext'] . ' ' . $A['bodytext'],
+            'perms' => array(
+                'owner_id' => $A['owner_id'],
+                'group_id' => $A['group_id'],
+                'perm_owner' => $A['perm_owner'],
+                'perm_group' => $A['perm_group'],
+                'perm_members' => $A['perm_members'],
+                'perm_anon' => $A['perm_anon'],
+            ),
+        ) );
+    }
+    return $count;
 }
 
 ?>
