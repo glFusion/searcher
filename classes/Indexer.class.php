@@ -187,6 +187,25 @@ class Indexer extends Common
                 array('type', 'item_id'),
                 array($type, $item_id) );
     }
+
+
+    /**
+    *   Remove all index records, normally of a specific type.
+    *   Specify "all" as the type to truncate the table.
+    *
+    *   @param  string  $type   Type (article, staticpages, etc.)
+    */
+    public static function RemoveAll($type = 'all')
+    {
+        global $_TABLES;
+
+        if ($type === 'all') {
+            DB_query("TRUNCATE {$_TABLES['searcher_index']}");
+        } else {
+            DB_delete($_TABLES['searcher_index'], 'type', $type);
+        }
+    }
+
 }
 
 ?>
