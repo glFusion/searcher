@@ -147,13 +147,13 @@ class Indexer extends Common
     *   @param  string  $type       Type of content (article, staticpage, etc.)
     *   @param  mixed   $item_id    ID of article, page, etc.
     */
-    public static function RemoveComments($parent_type, $item_id)
+    public static function RemoveComments($parent_type, $item_id=NULL)
     {
         global $_TABLES;
 
         $params = array('type', 'parent_type');
         $values = array('comment', $parent_type);
-        if ($item_id !== 'all') {
+        if ($item_id !== NULL) {
             $params[] = 'parent_id';
             $values[] = $item_id;
         }

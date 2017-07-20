@@ -560,7 +560,6 @@ function plugin_IndexAll_comments($type, $pid, $perms=NULL)
     // Remove all existing index records for this content
     \Searcher\Indexer::RemoveComments($type, $pid);
     while ($A = DB_fetchArray($res, false)) {
-COM_errorLog("indexing comment {$A['cid']}, type $type, pid $pid");
         $count++;
         $props = array(
             'item_id' => $A['cid'],
@@ -673,7 +672,9 @@ function service_removeDoc_searcher($args, &$output, &$svc_msg)
         return PLG_RET_ERROR;
     }
     USES_searcher_class_indexer();
-    return \Searcher\Indexer::RemoveDoc($type, $id) ? PLG_RET_OK : PLG_RET_ERROR;
+    if (!\Searcher\Indexer::RemoveDoc($type, $id)) return PLG_RET_ERROR;
+    \Searcher\Indexer::RemoveComments($type, $id);
+    return PLG_RET_OK;
 }
 
 
@@ -695,7 +696,9 @@ function service_removeAll_searcher($args, &$output, &$svc_msg)
         return PLG_RET_ERROR;
     }
     USES_searcher_class_indexer();
-    return \Searcher\Indexer::RemoveAll($type) ? PLG_RET_OK : PLG_RET_ERROR;
+    if (!\Searcher\Indexer::RemoveAll($type)) return PLG_RET_ERROR;
+    \Searcher\Indexer::RemoveComments($type);
+    return PLG_RET_OK;
 }
 
 ?>
