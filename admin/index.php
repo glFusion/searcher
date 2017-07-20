@@ -70,6 +70,7 @@ foreach($expected as $provided) {
 }
 
 $content = '';
+$message = '';
 switch ($action) {
 case 'genindex':
     if (!isset($_POST['pi']) || empty($_POST['pi'])) {
@@ -84,7 +85,7 @@ case 'genindex':
         $func = 'plugin_IndexAll_' . $pi_name;
         if (function_exists($func)) {
             $count = $func();
-            $content .= "<br />$pi_name: Indexed $count Items";
+            $message .= "<br />$pi_name: Indexed $count Items";
         }
     }
 }
@@ -114,6 +115,7 @@ default:
 
 $display .= COM_siteHeader('menu', $pi_title);
 $display .= $content;
+$display .= $message;
 $display .= COM_siteFooter();
 
 echo $display;

@@ -7,7 +7,7 @@
 {$LANG_SRCH['version']}&nbsp;&nbsp;{version}
 </div>
 {menu}
-<div>{$LANG_SRCH['regenerate']}</div>
+<h3>{$LANG_SRCH['regenerate']}</h3>
 <form action="{site_admin_url}/plugins/searcher/index.php" method="post" class="uk-form uk-form-horizontal">
     <div class="uk-form-row">
       <label class="uk-form-label" for="f_article">articles</label>
