@@ -36,6 +36,14 @@ $_SQL['searcher_index'] = "CREATE TABLE `{$_TABLES['searcher_index']}` (
   KEY `parent` (`parent_type`,`parent_id`)
 )";
 
+$_UPGRADE_SQL = array(
+    '0.0.2' => array(
+        "ALTER TABLE {$_TABLES['searcher_index']}
+            DROP KEY `itemterm`",
+        "ADD `weight` float unsigned not null default 1",
+    ),
+);
+
 /*
     Schema updates:
 
@@ -46,8 +54,6 @@ alter table gl_searcher_index add key terms_pid (term, parent_id);
 alter table gl_searcher_index add key type_pid(type,parent_id);
 update gl_searcher_index set parent_id = item_id;
 update gl_searcher_index set parent_type = item_type;
-alter table gl_searcher_index drop key itemterm;
-alter table gl_searcher_index add wight float unsigned not null default 1;
 
 */
 
