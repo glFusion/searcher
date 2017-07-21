@@ -12,6 +12,11 @@
 */
 namespace Searcher;
 
+class Token
+{
+}
+
+
 /**
 *   Common elements for the Searcher plugin
 *   @package searcher
@@ -124,7 +129,7 @@ class Common
      */
     protected static function _stripos($content, $term, $offset = 0)
     {
-        if ($offset > _strlen($content)) return false;
+        if ($offset > self::_strlen($content)) return false;
 
         if (function_exists('mb_stripos')) {
             $pos = ("" == $content) ? false : mb_stripos($content, $term, $offset);
@@ -142,12 +147,11 @@ class Common
     *   Optionally skip any "stop words"
     *
     *   @param  string  $str        Base string to split
-    *   @param  boolean $skip_stop  True to skip stop words, False to include
+    *   @param  boolean $phrases    True to create phrases, false to not.
     *   @return array       Array of tokens
     */
-    protected static function Tokenize($str, $skip_stop = true)
+    protected static function Tokenize($str, $phrases=true)
     {
-        //function relevanssi_tokenize($str, $remove_stops = true, $min_word_length = -1) {
         $tokens = array();
         if (is_array($str)) {
             foreach ($str as $part) {
@@ -164,36 +168,40 @@ class Common
         $str = function_exists('mb_strtolower') ?
                 mb_strtolower($str) : strtolower($str);
 
-        $t = strtok($str, "\n\t ");
-        while ($t !== false) {
-            $t = strval($t);
-            $accept = true;
-            //if (relevanssi_strlen($t) < self::$min_word_len) {
-            if (strlen($t) < self::$min_word_len) {
-                $t = strtok("\n\t  ");
-                continue;
+        // Get all the words from the content string. Check against stopwords
+        // and minimum word length, if passed then add to the "terms" array.
+        $terms = preg_split('/[\s,]+/', $str);
+        for ($i = 0; $i < count($terms); $i++ ) {
+            if (in_array($t, self::$stopwords) ||
+                self::_strlen($terms[$i]) < self::$min_word_len) {
+                array_splice($terms, $i, 1);
+                $i--;
             }
-            /*if ($remove_stops == false) {
-                $accept = true;
-            } else {*/
-                //if (count($stopword_list) > 0) {    //added by OdditY -> got warning when stopwords table was empty
-                if (in_array($t, self::$stopwords)) {
-                    $accept = false;
-                }
-                //}
-            //}
+        }
 
-            if ($accept) {
-                $t = self::_mb_trim($t);
-                if (is_numeric($t)) $t = " $t";        // $t ends up as an array index, and numbers just don't work there
-                if (!isset($tokens[$t])) {
-                    $tokens[$t] = 1;
-                } else {
-                    $tokens[$t]++;
+        // Now go through the terms array and add 2- and 3-word phrases
+        if ($phrases) {
+            $total_terms = count($terms);
+            for ($i = 0; $i < $total_terms; $i++) {
+                if ($i < $total_terms - 1) {
+                    $terms[] = $terms[$i] . ' ' . $terms[$i+1];
+                }
+                if ($i < $total_terms - 2) {
+                    $terms[] = $terms[$i] . ' ' . $terms[$i+1] . ' ' . $terms[$i + 2];
                 }
             }
+        }
 
-            $t = strtok("\n\t ");
+        // Finally, convert the terms array into tokens with a counter of how
+        // many times each token occurs in the array
+        foreach ($terms as $key=>$t) {
+            //$t = self::_mb_trim($t);
+            if (is_numeric($t)) $t = " $t";        // $t ends up as an array index, and numbers just don't work there
+            if (!isset($tokens[$t])) {
+                $tokens[$t] = 1;
+            } else {
+                $tokens[$t]++;
+            }
         }
         return $tokens;
     }
