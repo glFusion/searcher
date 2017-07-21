@@ -1,7 +1,7 @@
 {# begin {templatelocation} #}
 <h2>{$LANG09[1]}</h2>
 <form class="uk-form uk-form-stacked uk-margin-large uk-search uk-width-1-1" method="get" action="{site_url}/searcher/index.php">
-	<input class="uk-search" type="search" id="query" name="q" value="{query}" placeholder="{$LANG09[10]}">
+	<input class="uk-search" type="search" id="query" name="query" value="{query}" placeholder="{$LANG09[10]}">
 	<button class="uk-button uk-button-success" type="submit" name="submit" value="{$LANG09[10]}">{$LANG09[10]}</button>
 </form>
 <div style="padding:10px"></div>
