@@ -282,7 +282,7 @@ function plugin_getSearchInfo_comment($id)
             'uid' => $A['uid'],
             'author' => $author,
             'date' => $A['ts'],
-            'url' => $_CONF['site_url'] . '/article.php?story=' . urlencode($A['sid']),
+            'url' => $_CONF['site_url'] . '/article.php?story=' . urlencode($A['sid']);
         );
     }
     return $retval;
@@ -457,7 +457,7 @@ function plugin_itemsaved_searcher($id, $type)
         $res = DB_query($sql, 1);
         if (DB_numRows($res) == 1) {
             $A = DB_fetchArray($res, false);
-            \Searcher\Indexer::RemoveDoc('comment');
+            \Searcher\Indexer::RemoveDoc('comment', $A['cid']);
             \Searcher\Indexer::IndexDoc(array(
                 'item_id' => $A['cid'],
                 'parent_id' => $A['sid'],
@@ -607,7 +607,6 @@ function plugin_IndexAll_article()
     $count = 0;
     \Searcher\Indexer::RemoveAll('article');
     while ($A = DB_fetchArray($res, false)) {
-COM_errorLog("Indexing article {$A['sid']}");
         $count++;
         $props = array(
             'item_id' => $A['sid'],
@@ -649,9 +648,6 @@ function service_indexDoc_searcher($args, &$output, &$svc_msg)
     \Searcher\Indexer::RemoveDoc($args['type'], $args['item_id']);
     if (!\Searcher\Indexer::IndexDoc($args))
         return PLG_RET_ERROR;
-    // Index comments here.
-    $perms = isset($args['perms']) ? $args['perms'] : NULL;
-    plugin_IndexAll_comments($args['type'], $args['item_id'], $props['perms']);
     return PLG_RET_OK;
 }
 
