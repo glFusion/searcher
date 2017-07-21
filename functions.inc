@@ -282,7 +282,7 @@ function plugin_getSearchInfo_comment($id)
             'uid' => $A['uid'],
             'author' => $author,
             'date' => $A['ts'],
-            'url' => $_CONF['site_url'] . '/article.php?story=' . urlencode($A['sid']);
+            'url' => $_CONF['site_url'] . '/article.php?story=' . urlencode($A['sid']),
         );
     }
     return $retval;
@@ -394,30 +394,33 @@ function plugin_itemsaved_searcher($id, $type)
     switch($type) {
     case 'article':
         USES_searcher_class_indexer();
-        $sql = "SELECT sid, uid, title, introtext, bodytext,
+        $sql = "SELECT sid, uid, title, introtext, bodytext, draft_flag,
                 owner_id, group_id,
                 perm_owner, perm_group, perm_members, perm_anon
             FROM {$_TABLES['stories']}
-            WHERE sid = '$id' AND draft_flag = 0";
+            WHERE sid = '$id'";
         $res = DB_query($sql);
         if (DB_numRows($res) == 1) {
             $A = DB_fetchArray($res, false);
+            // Remove the doc to clear old records
             \Searcher\Indexer::RemoveDoc($type, $id);
-            \Searcher\Indexer::IndexDoc(array(
-                'item_id' => $A['sid'],
-                'type'  => 'article',
-                'title' => $A['title'],
-                'author' => SRCH_getAuthorName($A['uid']),
-                'content' => $A['introtext'] . ' ' . $A['bodytext'],
-                'perms' => array(
-                    'owner_id' => $A['owner_id'],
-                    'group_id' => $A['group_id'],
-                    'perm_owner' => $A['perm_owner'],
-                    'perm_group' => $A['perm_group'],
-                    'perm_members' => $A['perm_members'],
-                    'perm_anon' => $A['perm_anon'],
-                ),
-            ) );
+            if ($A['draft_flag'] == 0) {
+                \Searcher\Indexer::IndexDoc(array(
+                    'item_id' => $A['sid'],
+                    'type'  => 'article',
+                    'title' => $A['title'],
+                    'author' => SRCH_getAuthorName($A['uid']),
+                    'content' => $A['introtext'] . ' ' . $A['bodytext'],
+                    'perms' => array(
+                        'owner_id' => $A['owner_id'],
+                        'group_id' => $A['group_id'],
+                        'perm_owner' => $A['perm_owner'],
+                        'perm_group' => $A['perm_group'],
+                        'perm_members' => $A['perm_members'],
+                        'perm_anon' => $A['perm_anon'],
+                    ),
+                ) );
+            }
         }
         break;
     case 'staticpages':
