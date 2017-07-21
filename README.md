@@ -8,6 +8,31 @@ Much of the internal mechanics is yet TBD. Currently the article content type
 is supported, and requires manually running "makeindex.php" from the plugin
 directory.
 
+## Configuration
+### Main Settings
+#### Minimum Word Length to Consider
+Enter the minimum number of letters to be considered a "word". Words with less
+than this number of letters will not be added to the index.
+
+#### Results to show per page
+Enter the number of search results to show on each page.
+
+#### Length of excerpt to display
+Enter the number of words to display in the excerpt on the search results page.
+
+#### Maximum occurrences of a term to count
+Enter the maximum number of times that a single word or phrase will be counted
+in a page when calculating the weights. This is to keep some pages which may
+have many occurrences of a single word from always appearing at the top of the
+search results, outweighing other pages that may be more relevant.
+
+### Weighting
+Different weights can be assigned to words that appear in different fields.
+For example, you might want to give a higher weight, or priority, to search
+terms that appear in the title than in the content or author name.
+
+Higher weights will cause the articles to float higher in the search results.
+
 ## Service functions
 Service functions are called as ```PLG_invokeService('searcher', function, $args, $output, $svc_msg);```
 At this time the $output and $svc_msg variables are not used.

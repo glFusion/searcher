@@ -79,7 +79,7 @@ class Common
         if (!is_string($str)) return '';
         $str = strip_tags($str);
         $repl_nospace = array(          // Replace with nothing
-            '.', '…', '€', '&shy;', "\r",
+            '.', '…', '€', '&shy;', "\r", '@', '!',
         );
 
         $repl_space = array(            // Replace these with empty space
@@ -90,9 +90,9 @@ class Common
         );
 
         //$str = preg_replace ('/<[^>]*>/', ' ', $str);
-        $str = preg_replace('/\s\s+/', ' ', $str);
         $str = str_replace($repl_nospace, '', $str);
         $str = str_replace($repl_space, ' ', $str);
+        $str = preg_replace('/\s\s+/', ' ', $str);
         preg_replace("/[^[:alnum:][:space:]]/u", '', $str);
         return trim($str);
     }
@@ -171,12 +171,14 @@ class Common
         // Get all the words from the content string. Check against stopwords
         // and minimum word length, if passed then add to the "terms" array.
         $terms = preg_split('/[\s,]+/', $str);
+        $weights = array();
         for ($i = 0; $i < count($terms); $i++ ) {
             if (in_array($t, self::$stopwords) ||
                 self::_strlen($terms[$i]) < self::$min_word_len) {
                 array_splice($terms, $i, 1);
                 $i--;
             }
+            $weights[$i] = 1;
         }
 
         // Now go through the terms array and add 2- and 3-word phrases
@@ -185,9 +187,11 @@ class Common
             for ($i = 0; $i < $total_terms; $i++) {
                 if ($i < $total_terms - 1) {
                     $terms[] = $terms[$i] . ' ' . $terms[$i+1];
+                    $weights[] = $_SRCH_CONF['wordweight_2';
                 }
                 if ($i < $total_terms - 2) {
                     $terms[] = $terms[$i] . ' ' . $terms[$i+1] . ' ' . $terms[$i + 2];
+                    $weights[] = $_SRCH_CONF['wordweight_3';
                 }
             }
         }
@@ -198,9 +202,12 @@ class Common
             //$t = self::_mb_trim($t);
             if (is_numeric($t)) $t = " $t";        // $t ends up as an array index, and numbers just don't work there
             if (!isset($tokens[$t])) {
-                $tokens[$t] = 1;
+                $tokens[$t] = array(
+                    'count' => 1,
+                    'weight' => $weights[$key],
+                );
             } else {
-                $tokens[$t]++;
+                $tokens[$t]['count']++;
             }
         }
         return $tokens;

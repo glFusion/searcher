@@ -35,6 +35,7 @@ $LANG_confignames['searcher'] = array(
     'wt_title' => 'Weighting for results in titles',
     'wt_content' => 'Weighting for results in content',
     'wt_author' => 'Weighting for results in author names',
+    'max_occurrences' => 'Maximum occurrences of a term to count',
 );
 
 $LANG_configsubgroups['searcher'] = array(

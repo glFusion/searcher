@@ -29,7 +29,7 @@ $_SQL['searcher_index'] = "CREATE TABLE `{$_TABLES['searcher_index']}` (
   `perm_group` tinyint(1) unsigned NOT NULL DEFAULT '3',
   `perm_members` tinyint(1) unsigned NOT NULL DEFAULT '2',
   `perm_anon` tinyint(1) unsigned NOT NULL DEFAULT '2',
-  UNIQUE KEY `itemterm` (`type`,`item_id`,`term`),
+  `weight` float unsigned NOT NULL DEFAULT '1',
   KEY `terms` (`term`),
   KEY `terms_pid` (`term`,`parent_id`),
   KEY `type_pid` (`type`,`parent_id`),
@@ -46,6 +46,8 @@ alter table gl_searcher_index add key terms_pid (term, parent_id);
 alter table gl_searcher_index add key type_pid(type,parent_id);
 update gl_searcher_index set parent_id = item_id;
 update gl_searcher_index set parent_type = item_type;
+alter table gl_searcher_index drop key itemterm;
+alter table gl_searcher_index add wight float unsigned not null default 1;
 
 */
 

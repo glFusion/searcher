@@ -31,4 +31,10 @@ $_table_prefix = $_DB_table_prefix . 'searcher_';
 
 $_TABLES['searcher_index']      = $_DB_table_prefix . 'searcher_index';
 
+// Semi-static globals
+// Weight multipliers to apply to 2- and 3-word phrases.
+// Single words always have a multiplier of "1".
+$_SRCH_CONF['wordweight_2'] = 2;
+$_SRCH_CONF['wordweight_3'] = 3;
+
 ?>

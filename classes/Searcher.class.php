@@ -26,7 +26,7 @@ class Searcher extends Common
     private $sql_tokens = '';
     private $page = 1;
     private $_style = 'inline';
-
+    private $_keys = array();
 
     /**
     *   Consrtructer. Call Parent initializer and set the query string
@@ -35,8 +35,27 @@ class Searcher extends Common
     */
     public function __construct($query='')
     {
-        parent::Init();
-        $this->setQuery($query);
+        self::Init();
+        // Copy fields and weights into a local array
+        // May be overridden
+        foreach(self::$fields as $fld=>$wt) {
+            $this->_keys[$fld] = $wt;
+        }
+        $this->setQuery($query, $keys);
+    }
+
+
+    /**
+    *   Set the key fields to only consider certain keys
+    *
+    *   @param  array   $keys   Array of key names
+    */
+    public function setKeys($keys)
+    {
+        $this->_keys = array();
+        foreach ($keys as $key) {
+            $this->_keys[$key] = self::$fields[$key];
+        }
     }
 
 
@@ -71,15 +90,22 @@ class Searcher extends Common
         $this->page = $page > 0 ? $page : 1;
         $start = $page < 2 ? 0 : ($page - 1) * $_SRCH_CONF['perpage'];
         if (!is_null($query)) $this->setQuery($query);
-        foreach (self::$fields as $fld=>$weight) {
-            $wts[] = '(' . $fld . ' * ' . $weight . ')';
+        foreach ($this->_keys as $fld=>$weight) {
+            if ($_SRCH_CONF['max_occurrences'] > 0) {
+                $wts[] = '(LEAST(' . $fld . ',' .
+                    (int)$_SRCH_CONF['max_occurrences'] .
+                    ') * ' . $weight . ' * weight)';
+            } else {
+                $wts[] = '(' . $fld . ' * ' . $weight . ' * weight)';
+            }
         }
         $wts = implode(' + ' , $wts);
         $sql = "SELECT type, item_id, term, sum($wts) as relevance
             FROM {$_TABLES['searcher_index']}
             WHERE term in ({$this->sql_tokens}) " .
             $this->_getPermSQL() .
-            " GROUP BY concat(type,item_id)
+            //" GROUP BY  type, item_id
+            " GROUP BY type, parent_id
             ORDER BY relevance DESC
             LIMIT $start, {$_SRCH_CONF['perpage']}";
         //echo $sql."\n";
@@ -95,7 +121,13 @@ class Searcher extends Common
                 $author = isset($exc['author']) ? $exc['author'] : NULL;
                 $title = $exc['title'];
                 $uid = isset($exc['uid']) ? $exc['uid'] : NULL;
-                $url = isset($exc['url']) ? $exc['url'] : NULL;
+                if (isset($exc['url'])) {
+                    $url = $exc['url'];
+                    $sep = strpos($url, '?') ? '&' : '?';
+                    $url .= $sep . 'query=' . urlencode($this->query);
+                } else {
+                    $url = NULL;
+                }
             } else {
                 $exc = NULL;
             }
@@ -171,7 +203,7 @@ class Searcher extends Common
 
 
     /**
-    *   Get the excerpt to dispaly in the search results.
+    *   Get the excerpt to display in the search results.
     *
     *   @param  string  $content    Entire article/page content
     *   @param  array   $terms  Not used?
@@ -215,7 +247,7 @@ class Searcher extends Common
         $start = false;
         if ('chars' == $type) {
             $prev_count = floor($excerpt_length / 2);
-            list($excerpt, $best_excerpt_term_hits, $start) = self::_extract_relevant(array_keys($terms), $content, $excerpt_length, $prev_count);
+            list($excerpt, $best_excerpt_term_hits, $start) = self::_extract_relevant(array_keys($this->tokens), $content, $excerpt_length, $prev_count);
         } else {
             $words = explode(' ', $content);
             $i = 0;
@@ -378,28 +410,28 @@ class Searcher extends Common
 
     protected static function _count_matches($words, $fulltext)
     {
-	    $count = 0;
-    	foreach ($words as $word ) {
-            //		$word = relevanssi_add_accent_variations($word);
+        $count = 0;
+        foreach ($words as $word ) {
+            //        $word = relevanssi_add_accent_variations($word);
 
-	        /*if (get_option('relevanssi_fuzzy') == 'never') {
-			    $pattern = '/([\s,\.:;\?!\']'.$word.'[\s,\.:;\?!\'])/i';
-    			if (preg_match($pattern, $fulltext, $matches, PREG_OFFSET_CAPTURE)) {
-	    			$count += count($matches) - 1;
-		    	}
-    		}
-	    	else {*/
-			$pattern = '/([\s,\.:;\?!\']'.$word.')/i';
-			if (preg_match($pattern, $fulltext, $matches, PREG_OFFSET_CAPTURE)) {
-				$count += count($matches) - 1;
-			}
-			$pattern = '/('.$word.'[\s,\.:;\?!\'])/i';
-			if (preg_match($pattern, $fulltext, $matches, PREG_OFFSET_CAPTURE)) {
-				$count += count($matches) - 1;
-			}
-		    //}
-	    }
-    	return $count;
+            /*if (get_option('relevanssi_fuzzy') == 'never') {
+                $pattern = '/([\s,\.:;\?!\']'.$word.'[\s,\.:;\?!\'])/i';
+                if (preg_match($pattern, $fulltext, $matches, PREG_OFFSET_CAPTURE)) {
+                    $count += count($matches) - 1;
+                }
+            }
+            else {*/
+            $pattern = '/([\s,\.:;\?!\']'.$word.')/i';
+            if (preg_match($pattern, $fulltext, $matches, PREG_OFFSET_CAPTURE)) {
+                $count += count($matches) - 1;
+            }
+            $pattern = '/('.$word.'[\s,\.:;\?!\'])/i';
+            if (preg_match($pattern, $fulltext, $matches, PREG_OFFSET_CAPTURE)) {
+                $count += count($matches) - 1;
+            }
+            //}
+        }
+        return $count;
     }
 
 
@@ -440,6 +472,8 @@ class Searcher extends Common
             'row'   => 'item_row.thtml',
         ));
 
+        $T->set_var('query', urlencode($this->query));
+
         if ($this->countResults() == 0) {
             $T->set_var('message', $LANG_ADMIN['no_results']);
             //$T->set_var('list_top', $list_top);
@@ -472,7 +506,8 @@ class Searcher extends Common
                 'uid'   => $row['uid'],
                 'hits'  => $row['hits'],
                 'item_url' => $row['url'],
-                'date'  => $dt->format($_CONF['date']),
+            //    'date'  => $dt->format($_CONF['date']),
+                'date'  => $dt->format($_CONF['shortdate']),
             ) );
             $T->parse('item_field', 'field', true);
 

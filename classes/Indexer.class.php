@@ -38,9 +38,13 @@ class Indexer extends Common
         foreach(self::$fields as $fld=>$weight) {
             // index content fields and get a count of tokens
             $tokens = self::Tokenize($content[$fld]);
-            foreach ($tokens as $token=>$count) {
-                isset($insert_data[$token][$fld]) ?
-                $insert_data[$name][$fld] += $count : $insert_data[$token][$fld] = $count;
+            foreach ($tokens as $token=>$data) {
+                if (isset($insert_data[$token][$fld])) {
+                    $insert_data[$token][$fld]['count'] += $data['count'];
+                } else {
+                    $insert_data[$token]['weight'] = $data['weight'];
+                    $insert_data[$token][$fld]['count'] = 1;
+                }
             }
         }
 
@@ -70,19 +74,21 @@ class Indexer extends Common
         $values = array();
         foreach ($insert_data as $term => $data) {
             foreach (self::$fields as $var=>$weight) {
-                $$var = isset($data[$var]) ? (int)$data[$var] : 0;
+                $$var = isset($data[$var]) ? (int)$data[$var]['count'] : 0;
             }
             $term = DB_escapeString($term);
+            $weight = (float)$data['weight'];
             $values[] = "('$type', '$item_id', '$term', '$parent_id', '$parent_type',
-                    $content, $title, $author,
-                    $owner_id, $group_id, $perm_owner, $perm_group, $perm_members, $perm_anon)";
+                    $content, $title, $author, $owner_id, $group_id,
+                    $perm_owner, $perm_group, $perm_members, $perm_anon,
+                    $weight)";
         }
 
         $values = implode(', ', $values);
         $sql = "INSERT IGNORE INTO {$_TABLES['searcher_index']}
                 (type, item_id, term, parent_id, parent_type, content, title, author,
                 owner_id, group_id, perm_owner, perm_group,
-                perm_members, perm_anon)
+                perm_members, perm_anon, weight)
                 VALUES $values";
         /*if ($type == 'comment') {
         echo $sql;die;
