@@ -14,9 +14,9 @@ $display = COM_siteHeader('menu', $LANG09[11]);
 $Form = new SearchForm();
 $display .= $Form->showForm();
 
-if (isset($_GET['q'])) {
+if (isset($_GET['query'])) {
     USES_searcher_class_searcher();
-    $query = $_GET['q'];
+    $query = $_GET['query'];
     $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
     $S = new Searcher($query);
     $S->doSearch($query, $page);
