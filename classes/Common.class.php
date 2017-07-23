@@ -12,11 +12,6 @@
 */
 namespace Searcher;
 
-class Token
-{
-}
-
-
 /**
 *   Common elements for the Searcher plugin
 *   @package searcher
@@ -27,7 +22,7 @@ class Common
     protected static $substr;
     protected static $strrpos;
     protected static $min_word_len = 3; // default
-    protected static $stopwords = NULL;
+    protected static $stopwords = array();
     protected static $fields = array();
 
     /**
@@ -150,8 +145,10 @@ class Common
     *   @param  boolean $phrases    True to create phrases, false to not.
     *   @return array       Array of tokens
     */
-    protected static function Tokenize($str, $phrases=true)
+    public static function Tokenize($str, $phrases=true)
     {
+        global $_SRCH_CONF;
+
         $tokens = array();
         if (is_array($str)) {
             foreach ($str as $part) {
@@ -172,7 +169,9 @@ class Common
         // and minimum word length, if passed then add to the "terms" array.
         $terms = preg_split('/[\s,]+/', $str);
         $weights = array();
+
         for ($i = 0; $i < count($terms); $i++ ) {
+            $terms[$i] = self::_mb_trim($terms[$i]);
             if (in_array($t, self::$stopwords) ||
                 self::_strlen($terms[$i]) < self::$min_word_len) {
                 array_splice($terms, $i, 1);
@@ -185,13 +184,15 @@ class Common
         if ($phrases) {
             $total_terms = count($terms);
             for ($i = 0; $i < $total_terms; $i++) {
+                if (empty($terms[$i]) || empty($terms[$i+1])) continue;
                 if ($i < $total_terms - 1) {
                     $terms[] = $terms[$i] . ' ' . $terms[$i+1];
-                    $weights[] = $_SRCH_CONF['wordweight_2';
+                    $weights[] = $_SRCH_CONF['wordweight_2'];
                 }
+                if (empty($terms[$i+2])) continue;
                 if ($i < $total_terms - 2) {
                     $terms[] = $terms[$i] . ' ' . $terms[$i+1] . ' ' . $terms[$i + 2];
-                    $weights[] = $_SRCH_CONF['wordweight_3';
+                    $weights[] = $_SRCH_CONF['wordweight_3'];
                 }
             }
         }

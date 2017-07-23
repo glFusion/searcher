@@ -30,7 +30,7 @@ class Indexer extends Common
     {
         global $_TABLES;
 
-        if (self::$stopwords === NULL) {
+        if (empty(self::$stopwords)) {
             self::Init();
         }
 
@@ -47,7 +47,6 @@ class Indexer extends Common
                 }
             }
         }
-
         $item_id = DB_escapeString($content['item_id']);
         $type = DB_escapeString($content['type']);
         $parent_id = isset($content['parent_id']) ?
@@ -83,7 +82,6 @@ class Indexer extends Common
                     $perm_owner, $perm_group, $perm_members, $perm_anon,
                     $weight)";
         }
-
         $values = implode(', ', $values);
         $sql = "INSERT IGNORE INTO {$_TABLES['searcher_index']}
                 (type, item_id, term, parent_id, parent_type, content, title, author,
