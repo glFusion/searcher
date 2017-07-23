@@ -41,13 +41,16 @@ Functions and the required arguments array are listed below:
 
 ### indexDoc
 Adds a single document to the index. Also indexes any comments.
+
+The item will not be indexed at all unless at least one of Title, Content or
+Author is not empty.
 ```
 $args = array(
-    'item_id'   => the item ID in its database table required)
+    'item_id'   => the item ID in its database table (required)
     'type'      => Type of item, e.g. "article" or the plugin name (required)
-    'content'   => Full content to index (required)
+    'content'   => Full content to index
     'title'     => Item title
-    'author'    => Numeric user id of the author
+    'author'    => Display name of the author, not the user ID
     'perms' => array(
         'owner_id'      => Numeric user id of the owner
         'group_id'      => Numeric user id of the gruop
@@ -59,7 +62,8 @@ $args = array(
 );
 ```
 If the "perms" element is not provided or is NULL then the permissions allow read access to everyone.
-Author and Title are also optional.
+Author and Title are also optional. Permission fields are added to every record in the index
+so a guest will only see results that they can actually access.
 
 ### removeDoc
 Removes a single document from the index, along with associated comments
@@ -72,6 +76,7 @@ $args = array(
 
 ### removeAll
 Removes all itms of a particular type from the index, along with any comments.
+This should be called as part of a plugin removal.
 ```
 $args = array(
     'type'      => Type of item, e.g. plugin name (required)
