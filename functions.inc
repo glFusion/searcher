@@ -74,7 +74,6 @@ function USES_searcher_class_searcher()
 function USES_searcher_class_indexer()
 {   require_once SRCH_PI_PATH . '/classes/Indexer.class.php';    }
 
-
 /**
 *   Get the currently installed version.
 *
@@ -355,7 +354,7 @@ function plugin_getSearchInfo_staticpages($id)
             'author' => SRCH_getAuthorName($A['sp_uid']),
             'date' => $A['ts'],
             'hits' => $A['sp_hits'],
-            'url' => $_CONF['site_url'] . '/page.php?id=' . urlencode($id),
+            'url' => $_CONF['site_url'] . '/page.php?page=' . urlencode($id),
         );
     }
     return $retval;
