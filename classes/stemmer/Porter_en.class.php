@@ -1,9 +1,16 @@
 <?php
 /**
-*   @package    searcher
+*   Perform searches from the index maintained by the Indexer class
+*   Adapted from Joomla com_finder component
 *
-*   @copyright   Copyright (C) 2005 - 2017 Open Source Matters, Inc. All rights reserved.
-*   @license     GNU General Public License version 2 or later; see LICENSE.txt
+*   @author     Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (C) 2017 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (C) 2005 - 2017 Open Source Matters, Inc. All rights reserved.
+*   @package    searcher
+*   @version    0.0.1
+*   @license    http://opensource.org/licenses/gpl-2.0.php
+*               GNU Public License v2 or later
+*   @filesource
 */
 namespace Searcher;
 
@@ -16,8 +23,8 @@ namespace Searcher;
 class StemmerPorter_en extends Stemmer
 {
     /**
-    * Regex for matching a consonant.
-    * @var    string
+    *   Regex for matching a consonant.
+    *   @var    string
     */
     private static $regex_consonant = '(?:[bcdfghjklmnpqrstvwxz]|(?<=[aeiou])y|^y)';
 
