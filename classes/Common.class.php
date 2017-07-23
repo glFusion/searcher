@@ -180,6 +180,19 @@ class Common
             $weights[$i] = 1;
         }
 
+        // Invoke the stemmer to trim words down to their stems.
+        if (!empty($_SRCH_CONF['stemmer'])) {
+            USES_search_class_stemmer();
+            $S = Stemmer::getInstance($_SRCH_CONF['stemmer']);
+            if ($S !== NULL) {
+                for ($i = 0; $i < count($terms); $i++) {
+                    $terms[$i] = $S->stem($terms[$i]);
+                }
+                // Now remove any duplicates (words with the same stem)
+                $terms = array_keys(array_flip($terms)); 
+            }
+        }
+
         // Now go through the terms array and add 2- and 3-word phrases
         if ($phrases) {
             $total_terms = count($terms);

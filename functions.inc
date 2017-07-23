@@ -74,6 +74,9 @@ function USES_searcher_class_searcher()
 function USES_searcher_class_indexer()
 {   require_once SRCH_PI_PATH . '/classes/Indexer.class.php';    }
 
+function USES_search_class_stemmer()
+{   require_once __DIR__ . '/classes/Stemmer.class.php'; }
+
 /**
 *   Get the currently installed version.
 *
