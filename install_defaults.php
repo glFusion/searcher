@@ -31,9 +31,9 @@ $_SRCH_DEFAULTS = array(
     'min_word_len' => 3,
     'perpage' => 20,
     'excerpt_len' => 50,
-    'wt_title' => 8,
-    'wt_author' => 5,
-    'wt_content' => 5,
+    'wt_title' => 1.5,
+    'wt_author' => 1.2,
+    'wt_content' => 1,
     'max_occurrences' => 5,
 );
 
@@ -67,12 +67,11 @@ function plugin_initconfig_searcher()
         $c->add('fs_weight', NULL, 'fieldset', 0, 10, NULL, 0, true, 
                 $_SRCH_CONF['pi_name']);
         $c->add('wt_title', $_SRCH_DEFAULTS['wt_title'],
-                'select', 0, 10, 10, 10, true, $_SRCH_CONF['pi_name']);
+                'text', 0, 10, 10, 10, true, $_SRCH_CONF['pi_name']);
         $c->add('wt_content', $_SRCH_DEFAULTS['wt_content'],
-                'select', 0, 10, 10, 20, true, $_SRCH_CONF['pi_name']);
+                'text', 0, 10, 10, 20, true, $_SRCH_CONF['pi_name']);
         $c->add('wt_author', $_SRCH_DEFAULTS['wt_author'],
-                'select', 0, 10, 10, 30, true, $_SRCH_CONF['pi_name']);
-        
+                'text', 0, 10, 10, 30, true, $_SRCH_CONF['pi_name']);
      }
      return true;
 }

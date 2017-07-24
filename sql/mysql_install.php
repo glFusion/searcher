@@ -41,6 +41,10 @@ $_UPGRADE_SQL = array(
         "ALTER TABLE {$_TABLES['searcher_index']}
             DROP KEY `itemterm`",
         "ADD `weight` float unsigned not null default 1",
+        "UPDATE {$_TABLES['conf_values']}
+            SET value = 'text'
+            WHERE group_name = '{$_SRCH_CONF['pi_name']}'
+            AND name in ('wt_title', 'wt_content', 'wt_author')",
     ),
 );
 
