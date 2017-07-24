@@ -104,8 +104,8 @@ class Searcher extends Common
             FROM {$_TABLES['searcher_index']}
             WHERE term in ({$this->sql_tokens}) " .
             $this->_getPermSQL() .
-            //" GROUP BY  type, item_id
-            " GROUP BY type, parent_id
+            //" GROUP BY type, parent_id
+            " GROUP BY  type, item_id
             ORDER BY relevance DESC
             LIMIT $start, {$_SRCH_CONF['perpage']}";
         //echo $sql."\n";
