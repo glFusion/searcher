@@ -464,7 +464,7 @@ function plugin_itemsaved_searcher($id, $type)
                 'item_id' => $A['cid'],
                 'parent_id' => $A['sid'],
                 'type'  => 'comment',
-                'title' => $A['title'],
+                //'title' => $A['title'],   // Don't index comment titles
                 'author' => SRCH_getAuthorName($A['uid']),
                 'content' => $A['comment'],
             ) );
@@ -541,8 +541,11 @@ function plugin_IndexAll_staticpages()
 
 
 /**
-*   Called from the plugin admin page to re-index all articles.
+*   Called from plugin_IndexAll_* functions to re-index associated comments
 *
+*   @param  string  $type   Content type, e.g. "article", "staticpages"
+*   @param  mixed   $pid    Parent content item ID
+*   @param  mixed   $perms  Permission array from content item, or NULL
 *   @return integer     Count of articles indexed
 */
 function plugin_IndexAll_comments($type, $pid, $perms=NULL)
