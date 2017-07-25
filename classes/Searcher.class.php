@@ -121,6 +121,7 @@ class Searcher extends Common
                 $author = isset($exc['author']) ? $exc['author'] : NULL;
                 $title = $exc['title'];
                 $uid = isset($exc['uid']) ? $exc['uid'] : NULL;
+                $src = isset($exc['src']) ? $exc['src'] : NULL;
                 if (isset($exc['url'])) {
                     $url = $exc['url'];
                     $sep = strpos($url, '?') ? '&' : '?';
@@ -144,6 +145,7 @@ class Searcher extends Common
                     'hits' => $hits,
                     'uid' => $uid,
                     'url' => $url,
+                    'src' => $src,
                 );
             }
         }
@@ -497,7 +499,6 @@ class Searcher extends Common
         $r = 1;
         foreach ($this->results as $row) {
             $fieldvalue = $row['title'] . '<br />' . $row['excerpt'];
-            //$T->set_var('field_text', $fieldvalue);
             $dt = new \Date($row['ts'], $_CONF['timezone']);
             $T->set_var(array(
                 'title' => self::Highlight($row['title'], $this->tokens),
@@ -506,8 +507,8 @@ class Searcher extends Common
                 'uid'   => $row['uid'],
                 'hits'  => $row['hits'],
                 'item_url' => $row['url'],
-            //    'date'  => $dt->format($_CONF['date']),
-                'date'  => $dt->format($_CONF['shortdate']),
+                'date'  => $row['ts'] ? $dt->format($_CONF['shortdate']) : NULL,
+                'src'   => $row['src'],
             ) );
             $T->parse('item_field', 'field', true);
 

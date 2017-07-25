@@ -3,9 +3,17 @@
   <div class="uk-text-left">
     <span class="srch_result_title"><a href="{item_url}">{title}</a></span><br />
     {excerpt}<br />
-    by <a href="{site_url}/users.php?mode=profile&uid={uid}">{author}</a> on {date}
+{!if src}
+In {src}
+{!endif}
+{!if author}
+    by <a href="{site_url}/users.php?mode=profile&uid={uid}">{author}</a>
+{!endif}
+{!if date}
+On {date}
+{!endif}
 {!if hits}
- - {hits} Hits
+{hits} Hits
 {!endif}
   </div>
 </div>
