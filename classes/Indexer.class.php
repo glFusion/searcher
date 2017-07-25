@@ -28,10 +28,14 @@ class Indexer extends Common
     */
     public static function IndexDoc($content)
     {
-        global $_TABLES;
+        global $_TABLES, $_SRCH_CONF;
 
         if (empty(self::$stopwords)) {
             self::Init();
+        }
+
+        if ($_SRCH_CONF['ignore_autotags']) {
+            $content = self::removeAutoTags($content);
         }
 
         $insert_data = array();     // data to be inserted into DB
@@ -130,16 +134,17 @@ class Indexer extends Common
     *   Specify "all" as the type to truncate the table.
     *
     *   @param  string  $type   Type (article, staticpages, etc.)
+    *   @return boolean     True on success, False on DB error
     */
     public static function RemoveAll($type = 'all')
     {
         global $_TABLES;
-
         if ($type === 'all') {
             DB_query("TRUNCATE {$_TABLES['searcher_index']}");
         } else {
             DB_delete($_TABLES['searcher_index'], 'type', $type);
         }
+        return DB_error() ? false : true;
     }
 
 
@@ -162,6 +167,33 @@ class Indexer extends Common
             $values[] = $item_id;
         }
         DB_delete($_TABLES['searcher_index'], $params, $values);
+    }
+
+
+    /**
+    *   Remove autotags before indexing, if so configured.
+    *   This option is to prevent search hits on hidden fields that don't
+    *   actually appear in the content.
+    *
+    *   @param  string  $content    Content to examine
+    *   @return string      Content withoug autotags
+    */
+    private static function removeAutoTags($content)
+    {
+        static $autolinkModules = NULL;
+        static $tags = '';
+
+        if ($autolinkModules === NULL) {
+            $autolinkModules = PLG_collectTags();
+            foreach ($autolinkModules as $moduletag => $module) {
+                $tags[] = $moduletag;
+            }
+            $tags = implode('|', $tags);
+        }
+        if (!empty($tags)) {
+            $content = preg_filter("/\[(($tags)\:.[^\]]*\])/i", '', $content);
+        }
+        return $content;
     }
 
 }
