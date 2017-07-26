@@ -374,10 +374,14 @@ function plugin_getSearchInfo_staticpages($id)
 function SRCH_getAuthorName($uid)
 {
     static $names = array();
-    if (!isset($names[$uid])) {
-        $names[$uid] = COM_getDisplayName($uid);
+    if (!empty($uid)) {
+        if (!isset($names[$uid])) {
+            $names[$uid] = COM_getDisplayName($uid);
+        }
+        return $names[$uid];
+    } else {
+        return '';
     }
-    return $names[$uid];
 }
 
 

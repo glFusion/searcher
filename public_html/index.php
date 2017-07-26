@@ -19,7 +19,12 @@ if (isset($_GET['query'])) {
     $query = $_GET['query'];
     $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
     $S = new Searcher($query);
-    $S->doSearch($query, $page);
+    if (isset($_GET['type'])) {
+        $S->setType($_GET['type']);
+    } elseif (isset($_POST['type'])) {
+        $S->setType($_POST['type']);
+    }
+    $S->doSearch($page);
     $display .= $S->Display();
 }
 $display .= COM_siteFooter();

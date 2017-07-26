@@ -3,17 +3,21 @@
   <div class="uk-text-left">
     <span class="srch_result_title"><a href="{item_url}">{title}</a></span><br />
     {excerpt}<br />
-{!if src}
-In {src}
-{!endif}
 {!if author}
-    by <a href="{site_url}/users.php?mode=profile&uid={uid}">{author}</a>
+{!if link_author}
+by <a href="{site_url}/users.php?mode=profile&uid={uid}">{author}</a>
+{!else}
+by {author}
+{!endif}
 {!endif}
 {!if date}
-On {date}
+ on {date}
+{!endif}
+{!if src}
+ - <a href="{site_url}/searcher/index.php?query={query}&type={type}">{src}</a>
 {!endif}
 {!if hits}
-{hits} Hits
+ - {hits} Hits
 {!endif}
   </div>
 </div>

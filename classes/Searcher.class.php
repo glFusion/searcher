@@ -22,6 +22,7 @@ class Searcher extends Common
     private $count = NULL;
     private $results = array();
     private $query = '';
+    private $_type = NULL;
     private $tokens = array();
     private $sql_tokens = '';
     private $page = 1;
@@ -41,7 +42,7 @@ class Searcher extends Common
         foreach(self::$fields as $fld=>$wt) {
             $this->_keys[$fld] = $wt;
         }
-        $this->setQuery($query, $keys);
+        $this->setQuery($query);
     }
 
 
@@ -77,19 +78,31 @@ class Searcher extends Common
 
 
     /**
+    *   Set the search scope by type (article, staticpage, etc)
+    *
+    *   @param  string  $type   Type of item
+    */
+    public function setType($type)
+    {
+        if (!empty($type) && $type != 'all') {
+            $this->_type = DB_escapeString($type);
+        }
+    }
+
+
+    /**
     *   Perform the search
     *
     *   @param  string  $query  Optional query string if not set previously
     *   @param  integer $page   Page number to retrieve
     *   @return array           Array of results (item_id, url, excerpt, etc.)
     */
-    public function doSearch($query=NULL, $page = 1)
+    public function doSearch($page = 1)
     {
         global $_TABLES, $_SRCH_CONF;
 
         $this->page = $page > 0 ? $page : 1;
         $start = $page < 2 ? 0 : ($page - 1) * $_SRCH_CONF['perpage'];
-        if (!is_null($query)) $this->setQuery($query);
         foreach ($this->_keys as $fld=>$weight) {
             if ($_SRCH_CONF['max_occurrences'] > 0) {
                 $wts[] = '(LEAST(' . $fld . ',' .
@@ -100,9 +113,10 @@ class Searcher extends Common
             }
         }
         $wts = implode(' + ' , $wts);
+        $type_sql = $this->_type ? " AND type = '{$this->_type}' " : '';
         $sql = "SELECT type, item_id, term, sum($wts) as relevance
             FROM {$_TABLES['searcher_index']}
-            WHERE term in ({$this->sql_tokens}) " .
+            WHERE term in ({$this->sql_tokens}) " . $type_sql .
             $this->_getPermSQL() .
             //" GROUP BY type, parent_id
             " GROUP BY  type, item_id
@@ -111,32 +125,38 @@ class Searcher extends Common
         //echo $sql."\n";
         $res = DB_query($sql);
         $this->results = array();
+        // Set field array for PLG_getItemInfo.
+        // Stories have date-created, Pages have date-modified.
+        $what = 'id,title,description,author,date,date-created,date-modified,hits,url';
         while ($A = DB_fetchArray($res, false)) {
-            $func = 'plugin_getSearchInfo_' . $A['type'];
-            if (function_exists($func)) {
-                $exc = $func($A['item_id']);
-                $excerpt = self::getExcerpt($exc['content'], array(), $this->query);
-                $hits = isset($exc['hits']) ? $exc['hits'] : NULL;
-                $date = isset($exc['date']) ? $exc['date'] : NULL;
-                $author = isset($exc['author']) ? $exc['author'] : NULL;
-                $title = $exc['title'];
-                $uid = isset($exc['uid']) ? $exc['uid'] : NULL;
-                $src = isset($exc['src']) ? $exc['src'] : NULL;
-                if (isset($exc['url'])) {
-                    $url = $exc['url'];
-                    $sep = strpos($url, '?') ? '&' : '?';
-                    $url .= $sep . 'query=' . urlencode($this->query);
-                } else {
-                    $url = NULL;
-                }
+            $exc = PLG_getItemInfo($A['type'], $A['item_id'], $what);
+            if (!empty($exc['date'])) {
+                $date = $exc['date'];
+            } elseif (!empty($exc['date-modified'])) {
+                $date = $exc['date-modified'];
+            } elseif (!empty($exc['date-created'])) {
+                $date = $exc['date-created'];
             } else {
-                $exc = NULL;
+                    $date = NULL;
+            }
+            $excerpt = self::getExcerpt($exc['description']);
+            $hits = isset($exc['hits']) ? $exc['hits'] : NULL;
+            $author = SRCH_getAuthorName($exc['author']);
+            $title = $exc['title'];
+            $uid = isset($exc['author']) ? $exc['author'] : NULL;
+            if (isset($exc['url'])) {
+                $url = $exc['url'];
+                $sep = strpos($url, '?') ? '&' : '?';
+                $url .= $sep . 'query=' . urlencode($this->query);
+            } else {
+                $url = NULL;
             }
 
             // Null indicates no result to display, possibly due to permission
             if ($exc !== NULL) {
                 $this->results[] = array(
                     'type' => $A['type'],
+                    'disp_type' => ucfirst($A['type']),
                     'item_id' => $A['item_id'],
                     'title'  => $title,
                     'relevance' => $A['relevance'],
@@ -145,7 +165,7 @@ class Searcher extends Common
                     'hits' => $hits,
                     'uid' => $uid,
                     'url' => $url,
-                    'src' => $src,
+                    'ts' => $date,
                 );
             }
         }
@@ -191,9 +211,11 @@ class Searcher extends Common
         global $_TABLES;
 
         if ($this->count === NULL) {
+            $type_sql = $this->_type ? " AND type = '{$this->_type}' " : '';
             $sql = "SELECT count(*) AS cnt
                 FROM {$_TABLES['searcher_index']}
                 WHERE term in ({$this->sql_tokens}) " .
+                $type_sql .
                 $this->_getPermSQL() .
                 " GROUP BY item_id";
             //echo $sql;die;
@@ -208,18 +230,14 @@ class Searcher extends Common
     *   Get the excerpt to display in the search results.
     *
     *   @param  string  $content    Entire article/page content
-    *   @param  array   $terms  Not used?
-    *   @param  string  $query      Query string DEPRECATED
     *   @return string      highlighted excerpt
     */
-    public function getExcerpt($content, $terms, $query)
+    public function getExcerpt($content)
     {
         global $_SRCH_CONF;
 
-        // If you need to modify these on the go, use 'pre_option_relevanssi_excerpt_length' filter.
+        //$type = 'chars';
         $excerpt_length = $_SRCH_CONF['excerpt_len'];
-        //$type = get_option("relevanssi_excerpt_type");
-
         $best_excerpt_term_hits = -1;
         $excerpt = "";
 
@@ -227,60 +245,45 @@ class Searcher extends Common
         $content = strip_tags($content);
         $content = " $content";
 
-        $phrases = self::_extract_phrases(stripslashes($query));
-        $terms = self::Tokenize($query);
-
-        $non_phrase_terms = array();
-        foreach ($phrases as $phrase) {
-            $phrase_terms = array_keys(self::Tokenize($phrase, false));
-            foreach (array_keys($terms) as $term) {
-                if (!in_array($term, $phrase_terms)) {
-                    $non_phrase_terms[] = $term;
-                }
-            }
-
-            $terms = $non_phrase_terms;
-            $terms[$phrase] = 1;
-        }
-
         // longest search terms first, because those are generally more significant
+        $terms = $this->tokens;     // Copy the token array
         uksort($terms, array(__CLASS__, '_strlen_sort'));
 
         $start = false;
         if ('chars' == $type) {
+            $excerpt_length *= 5;
             $prev_count = floor($excerpt_length / 2);
             list($excerpt, $best_excerpt_term_hits, $start) = self::_extract_relevant(array_keys($this->tokens), $content, $excerpt_length, $prev_count);
         } else {
-            $words = explode(' ', $content);
-            $i = 0;
-
-            while ($i < count($words)) {
-                if ($i + $excerpt_length > count($words)) {
-                    $i = count($words) - $excerpt_length;
-                    if ($i < 0) $i = 0;
-                }
-
-                $excerpt_slice = array_slice($words, $i, $excerpt_length);
-                $excerpt_slice = implode(' ', $excerpt_slice);
-
-                $excerpt_slice = " $excerpt_slice";
-                $term_hits = 0;
-                $count = self::_count_matches(array_keys($terms), $excerpt_slice);
-
-                if ($count > 0 && $count > $best_excerpt_term_hits) {
-                    $best_excerpt_term_hits = $count;
-                    $excerpt = $excerpt_slice;
-                }
-
-                $i += $excerpt_length;
+        $words = explode(' ', $content);
+        $i = 0;
+        while ($i < count($words)) {
+            if ($i + $excerpt_length > count($words)) {
+                $i = count($words) - $excerpt_length;
+                if ($i < 0) $i = 0;
             }
 
-            if ('' == $excerpt) {
-                $excerpt = explode(' ', $content, $excerpt_length);
-                array_pop($excerpt);
-                $excerpt = implode(' ', $excerpt);
-                $start = true;
+            $excerpt_slice = array_slice($words, $i, $excerpt_length);
+            $excerpt_slice = implode(' ', $excerpt_slice);
+
+            $excerpt_slice = " $excerpt_slice";
+            $term_hits = 0;
+            $count = self::_count_matches(array_keys($terms), $excerpt_slice);
+
+            if ($count > 0 && $count > $best_excerpt_term_hits) {
+                $best_excerpt_term_hits = $count;
+                $excerpt = $excerpt_slice;
             }
+            $i += $excerpt_length;
+        }
+        }
+
+        if ('' == $excerpt) {
+            // Just get the first X words
+            $excerpt = explode(' ', $content, $excerpt_length);
+            array_pop($excerpt);
+            $excerpt = implode(' ', $excerpt);
+            $start = true;
         }
         $excerpt = self::_mb_trim($excerpt);
         return array(
@@ -387,15 +390,13 @@ class Searcher extends Common
         return array($reltext, $besthits, $start);
     }
 
-    protected static function _extract_phrases($q)
+    protected static function DEPRECATED_extract_phrases($q)
     {
         $pos = call_user_func(self::$strpos, $q, '"');
-
         $phrases = array();
         while ($pos !== false) {
             $start = $pos;
             $end = call_user_func(self::$strpos, $q, '"', $start + 1);
-
             if ($end === false) {
                 // just one " in the query
                 $pos = $end;
@@ -507,7 +508,9 @@ class Searcher extends Common
                 'hits'  => $row['hits'],
                 'item_url' => $row['url'],
                 'date'  => $row['ts'] ? $dt->format($_CONF['shortdate']) : NULL,
-                'src'   => $row['src'],
+                'src'   => $row['disp_type'],
+                'type'  => $row['type'],
+                'link_author' => $_SRCH_CONF['link_author'],
             ) );
             $T->parse('item_field', 'field', true);
 
