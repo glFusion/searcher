@@ -21,10 +21,6 @@ class Searcher extends Common
 {
     private $count = NULL;
     private $results = array();
-    private $query = '';
-    private $_type = NULL;
-    private $tokens = array();
-    private $sql_tokens = '';
     private $page = 1;
     private $_style = 'inline';
     private $_keys = array();
@@ -36,13 +32,15 @@ class Searcher extends Common
     */
     public function __construct($query='')
     {
-        self::Init();
+        parent::__construct();
+        if (!empty($query)) {
+            $this->setQuery($query);
+        }
         // Copy fields and weights into a local array
         // May be overridden
         foreach(self::$fields as $fld=>$wt) {
             $this->_keys[$fld] = $wt;
         }
-        $this->setQuery($query);
     }
 
 
@@ -56,36 +54,6 @@ class Searcher extends Common
         $this->_keys = array();
         foreach ($keys as $key) {
             $this->_keys[$key] = self::$fields[$key];
-        }
-    }
-
-
-    /**
-    *   Sets the query string and extracts tokens.
-    *
-    *   @param  string  $query  Query string
-    */
-    public function setQuery($query)
-    {
-        $tokens = array();
-        $this->query = self::_remove_punctuation($query);
-        $this->tokens = self::Tokenize($query);
-        foreach ($this->tokens as $token=>$dummy) {
-            $tokens[] = DB_escapeString($token);
-        }
-        $this->sql_tokens = "'" . implode("','", $tokens) . "'";
-    }
-
-
-    /**
-    *   Set the search scope by type (article, staticpage, etc)
-    *
-    *   @param  string  $type   Type of item
-    */
-    public function setType($type)
-    {
-        if (!empty($type) && $type != 'all') {
-            $this->_type = DB_escapeString($type);
         }
     }
 
@@ -113,7 +81,7 @@ class Searcher extends Common
             }
         }
         $wts = implode(' + ' , $wts);
-        $type_sql = $this->_type ? " AND type = '{$this->_type}' " : '';
+        $type_sql = $this->type ? " AND type = '{$this->type}' " : '';
         $sql = "SELECT type, item_id, term, sum($wts) as relevance
             FROM {$_TABLES['searcher_index']}
             WHERE term in ({$this->sql_tokens}) " . $type_sql .
@@ -211,7 +179,7 @@ class Searcher extends Common
         global $_TABLES;
 
         if ($this->count === NULL) {
-            $type_sql = $this->_type ? " AND type = '{$this->_type}' " : '';
+            $type_sql = $this->type ? " AND type = '{$this->type}' " : '';
             $sql = "SELECT count(*) AS cnt
                 FROM {$_TABLES['searcher_index']}
                 WHERE term in ({$this->sql_tokens}) " .
