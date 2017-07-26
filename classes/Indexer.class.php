@@ -35,7 +35,7 @@ class Indexer extends Common
         }
 
         if ($_SRCH_CONF['ignore_autotags']) {
-            $content = self::removeAutoTags($content);
+            $content['content'] = self::removeAutoTags($content['content']);
         }
 
         $insert_data = array();     // data to be inserted into DB
@@ -86,15 +86,16 @@ class Indexer extends Common
                     $perm_owner, $perm_group, $perm_members, $perm_anon,
                     $weight)";
         }
+        if (empty($values)) {
+            return true;
+        }
         $values = implode(', ', $values);
         $sql = "INSERT IGNORE INTO {$_TABLES['searcher_index']}
                 (type, item_id, term, parent_id, parent_type, content, title, author,
                 owner_id, group_id, perm_owner, perm_group,
                 perm_members, perm_anon, weight)
                 VALUES $values";
-        /*if ($type == 'comment') {
-        echo $sql;die;
-        }*/
+        //echo $sql;die;
         $res = DB_query($sql, 1);
         if (DB_error()) {
             COM_errorLog("Searcher Error Indexing $type, ID $item_id");
@@ -167,33 +168,6 @@ class Indexer extends Common
             $values[] = $item_id;
         }
         DB_delete($_TABLES['searcher_index'], $params, $values);
-    }
-
-
-    /**
-    *   Remove autotags before indexing, if so configured.
-    *   This option is to prevent search hits on hidden fields that don't
-    *   actually appear in the content.
-    *
-    *   @param  string  $content    Content to examine
-    *   @return string      Content withoug autotags
-    */
-    private static function removeAutoTags($content)
-    {
-        static $autolinkModules = NULL;
-        static $tags = '';
-
-        if ($autolinkModules === NULL) {
-            $autolinkModules = PLG_collectTags();
-            foreach ($autolinkModules as $moduletag => $module) {
-                $tags[] = $moduletag;
-            }
-            $tags = implode('|', $tags);
-        }
-        if (!empty($tags)) {
-            $content = preg_filter("/\[(($tags)\:.[^\]]*\])/i", '', $content);
-        }
-        return $content;
     }
 
 }
