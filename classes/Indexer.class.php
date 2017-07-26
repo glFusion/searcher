@@ -28,10 +28,14 @@ class Indexer extends Common
     */
     public static function IndexDoc($content)
     {
-        global $_TABLES;
+        global $_TABLES, $_SRCH_CONF;
 
         if (empty(self::$stopwords)) {
             self::Init();
+        }
+
+        if ($_SRCH_CONF['ignore_autotags']) {
+            $content = self::removeAutoTags($content);
         }
 
         $insert_data = array();     // data to be inserted into DB
@@ -82,15 +86,16 @@ class Indexer extends Common
                     $perm_owner, $perm_group, $perm_members, $perm_anon,
                     $weight)";
         }
+        if (empty($values)) {
+            return true;
+        }
         $values = implode(', ', $values);
         $sql = "INSERT IGNORE INTO {$_TABLES['searcher_index']}
                 (type, item_id, term, parent_id, parent_type, content, title, author,
                 owner_id, group_id, perm_owner, perm_group,
                 perm_members, perm_anon, weight)
                 VALUES $values";
-        /*if ($type == 'comment') {
-        echo $sql;die;
-        }*/
+        //echo $sql;die;
         $res = DB_query($sql, 1);
         if (DB_error()) {
             COM_errorLog("Searcher Error Indexing $type, ID $item_id");
@@ -130,16 +135,17 @@ class Indexer extends Common
     *   Specify "all" as the type to truncate the table.
     *
     *   @param  string  $type   Type (article, staticpages, etc.)
+    *   @return boolean     True on success, False on DB error
     */
     public static function RemoveAll($type = 'all')
     {
         global $_TABLES;
-
         if ($type === 'all') {
             DB_query("TRUNCATE {$_TABLES['searcher_index']}");
         } else {
             DB_delete($_TABLES['searcher_index'], 'type', $type);
         }
+        return DB_error() ? false : true;
     }
 
 

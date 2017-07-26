@@ -8,7 +8,6 @@ USES_searcher_class_common();
 */
 class SearchForm extends Common
 {
-    var $_query = '';
     var $_topic = '';
     var $_dateStart = null;
     var $_dateEnd = null;
@@ -31,16 +30,6 @@ class SearchForm extends Common
     public function __construct()
     {
         global $_CONF, $_TABLES;
-
-        // Set search criteria
-        if (isset($_GET['query'])) {
-            $this->_query = strip_tags($_GET['query']);
-        } else if (isset($_POST['query'])) {
-            $this->_query = strip_tags($_POST['query']);
-        } else {
-            $this->_query = '';
-        }
-        $this->_query = self::_remove_punctuation($this->_query);
 
         /*if (isset($_GET['topic']) ){
             $this->_topic = COM_applyFilter($_GET['topic']);
@@ -205,7 +194,6 @@ class SearchForm extends Common
         if (!$this->_isFormAllowed()) {
             return $this->_getAccessDeniedMessage();
         }
-
         switch ($this->_keyType) {
         case 'phrase':
         case 'all':
@@ -219,7 +207,7 @@ class SearchForm extends Common
         $T = new \Template(SRCH_PI_PATH . '/templates');
         $T->set_file(array('searchform' => 'searchform.thtml'));
         $T->set_var(array(
-            'query'         => htmlspecialchars($this->_query),
+            'query'         => htmlspecialchars($this->query),
         ) );
         $T->parse('output', 'searchform');
         $retval .= $T->finish($T->get_var('output'));

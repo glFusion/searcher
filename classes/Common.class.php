@@ -24,6 +24,17 @@ class Common
     protected static $min_word_len = 3; // default
     protected static $stopwords = array();
     protected static $fields = array();
+    protected $query = '';          // sanitized query string from user input
+    protected $type = '';           // item type filter
+    protected $tokens = array();    // tokenized query string
+    protected $sql_tokens = '';     // sql-safe query string for searching
+
+
+    public function __construct()
+    {
+        self::Init();
+    }
+
 
     /**
     *   Initialize static variables
@@ -46,6 +57,38 @@ class Common
             //'comment'   => 3,
             'author'    => $_SRCH_CONF['wt_author'],
         );
+    }
+
+
+    /**
+    *   Sets the query string and extracts tokens.
+    *   This is in the Common class so it's available to the indexer, searcher
+    *   and search form, even though sql_tokens is only used by the searcher.
+    *
+    *   @param  string  $query  Query string
+    */
+    public function setQuery($query)
+    {
+        $tokens = array();
+        $this->query = self::_remove_punctuation($query);
+        $this->tokens = self::Tokenize($query);
+        foreach ($this->tokens as $token=>$dummy) {
+            $tokens[] = DB_escapeString($token);
+        }
+        $this->sql_tokens = "'" . implode("','", $tokens) . "'";
+    }
+
+
+    /**
+    *   Set the search scope by item type (article, staticpage, etc)
+    *
+    *   @param  string  $type   Type of item
+    */
+    public function setType($type)
+    {
+        if (!empty($type) && $type != 'all') {
+            $this->type = DB_escapeString($type);
+        }
     }
 
 
@@ -81,7 +124,7 @@ class Common
             chr(194) . chr(160),
             "'", '&nbsp;', '&#8217;', '"',
             "\n", "\t", '(', ')', '{', '}', '%', '$', '#', '[', ']', '+', '=',
-            '_', '-', '"', '`', ',', '<', '>', '=', ':', '?', ';', '&', '/', '\\',
+            '_', '-', '`', ',', '<', '>', '=', ':', '?', ';', '&', '/', '\\',
         );
 
         //$str = preg_replace ('/<[^>]*>/', ' ', $str);
@@ -225,6 +268,38 @@ class Common
             }
         }
         return $tokens;
+    }
+
+
+    /**
+    *   Remove autotags before indexing (optional) and before showing results.
+    *   This option is to prevent search hits on hidden fields that don't
+    *   actually appear in the content.
+    *
+    *   @param  string  $content    Content to examine
+    *   @return string      Content withoug autotags
+    */
+    protected static function removeAutoTags($content)
+    {
+        static $autolinkModules = NULL;
+        static $tags = '';
+
+        // Just return content if there are no autotags
+        if (strpos($content, '[') === false) {
+            return $content;
+        }
+
+        if ($autolinkModules === NULL) {
+            $autolinkModules = PLG_collectTags();
+            foreach ($autolinkModules as $moduletag => $module) {
+                $tags[] = $moduletag;
+            }
+            $tags = implode('|', $tags);
+        }
+        if (!empty($tags)) {
+            $content = preg_filter("/\[(($tags)\:.[^\]]*\])/i", '', $content);
+        }
+        return $content;
     }
 
 }

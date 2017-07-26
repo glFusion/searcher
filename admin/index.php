@@ -77,11 +77,6 @@ case 'genindex':
         break;
     }
     foreach ($_POST['pi'] as $pi_name=>$checked) {
-    /*if (function_exists('plugin_IndexAll_article')) {
-        $count = plugin_IndexAll_article();  // Internal function for articles
-        $content .= "<br />Articles: Indexed $count Items";
-    }
-    foreach ($_PLUGINS as $pi_name) {*/
         $func = 'plugin_IndexAll_' . $pi_name;
         if (function_exists($func)) {
             $count = $func();

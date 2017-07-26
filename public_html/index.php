@@ -12,16 +12,25 @@ $display = COM_siteHeader('menu', $LANG09[11]);
 }*/
 
 $Form = new SearchForm();
-$display .= $Form->showForm();
-
 if (isset($_GET['query'])) {
     USES_searcher_class_searcher();
     $query = $_GET['query'];
     $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
     $S = new Searcher($query);
-    $S->doSearch($query, $page);
-    $display .= $S->Display();
+    if (isset($_GET['type'])) {
+        $S->setType($_GET['type']);
+    } elseif (isset($_POST['type'])) {
+        $S->setType($_POST['type']);
+    }
+    $S->doSearch($page);
+    $results = $S->Display();
+    $Form->setQuery($query);
+} else {
+    $results = '';
 }
+
+$display .= $Form->showForm();
+$display .= $results;
 $display .= COM_siteFooter();
 
 echo $display;
