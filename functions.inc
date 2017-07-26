@@ -506,6 +506,46 @@ function plugin_itemdeleted_searcher($id, $type)
 
 
 /**
+*   Called from the plugin admin page to re-index all links.
+*
+*   @return integer     Count of links indexed
+*/
+function plugin_IndexAll_links()
+{
+    global $_TABLES;
+
+    USES_searcher_class_indexer();
+    $sql = "SELECT lid, title, description,
+                owner_id, group_id,
+                perm_owner, perm_group, perm_members, perm_anon
+            FROM {$_TABLES['links']}";
+    //echo $sql;die;
+    $res = DB_query($sql, 1);
+    \Searcher\Indexer::Removeall('staticpages');
+    $count = 0;
+    while ($A = DB_fetchArray($res, false)) {
+        $count++;
+        $props = array(
+            'item_id' => $A['lid'],
+            'type'  => 'links',
+            'title' => $A['title'],
+            'content' => $A['description'],
+            'perms' => array(
+                'owner_id' => $A['owner_id'],
+                'group_id' => $A['group_id'],
+                'perm_owner' => $A['perm_owner'],
+                'perm_group' => $A['perm_group'],
+                'perm_members' => $A['perm_members'],
+                'perm_anon' => $A['perm_anon'],
+            ),
+        );
+        \Searcher\Indexer::IndexDoc($props);
+    }
+    return $count;
+}
+
+
+/**
 *   Called from the plugin admin page to re-index all staticpages.
 *
 *   @return integer     Count of articles indexed
