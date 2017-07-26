@@ -227,6 +227,38 @@ class Common
         return $tokens;
     }
 
+
+    /**
+    *   Remove autotags before indexing (optional) and before showing results.
+    *   This option is to prevent search hits on hidden fields that don't
+    *   actually appear in the content.
+    *
+    *   @param  string  $content    Content to examine
+    *   @return string      Content withoug autotags
+    */
+    protected static function removeAutoTags($content)
+    {
+        static $autolinkModules = NULL;
+        static $tags = '';
+
+        // Just return content if there are no autotags
+        if (strpos($content, '[') === false) {
+            return $content;
+        }
+
+        if ($autolinkModules === NULL) {
+            $autolinkModules = PLG_collectTags();
+            foreach ($autolinkModules as $moduletag => $module) {
+                $tags[] = $moduletag;
+            }
+            $tags = implode('|', $tags);
+        }
+        if (!empty($tags)) {
+            $content = preg_filter("/\[(($tags)\:.[^\]]*\])/i", '', $content);
+        }
+        return $content;
+    }
+
 }
 
 ?>

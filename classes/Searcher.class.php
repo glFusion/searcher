@@ -478,8 +478,6 @@ class Searcher extends Common
 
         if ($this->countResults() == 0) {
             $T->set_var('message', $LANG_ADMIN['no_results']);
-            //$T->set_var('list_top', $list_top);
-            //$T->set_var('list_bottom', $list_bottom);
             $T->parse('output', 'list');
 
             // No results to show so quickly print a message and exit
@@ -487,9 +485,9 @@ class Searcher extends Common
             if (!empty($title))
                 $retval .= COM_startBlock($title, '', COM_getBlockTemplate('_admin_block', 'header'));
             $retval .= $T->finish($T->get_var('output'));
-            if (!empty($title))
+            if (!empty($title)) {
                 $retval .= COM_endBlock(COM_getBlockTemplate('_admin_block', 'footer'));
-
+            }
             return $retval;
         }
 
@@ -500,6 +498,7 @@ class Searcher extends Common
         foreach ($this->results as $row) {
             $fieldvalue = $row['title'] . '<br />' . $row['excerpt'];
             $dt = new \Date($row['ts'], $_CONF['timezone']);
+            $row['excerpt'] = self::removeAutoTags($row['excerpt']);
             $T->set_var(array(
                 'title' => self::Highlight($row['title'], $this->tokens),
                 'excerpt' => self::Highlight($row['excerpt'], $this->tokens),
