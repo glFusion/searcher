@@ -35,7 +35,7 @@ class Indexer extends Common
         }
 
         if ($_SRCH_CONF['ignore_autotags']) {
-            $content = self::removeAutoTags($content);
+            $content['content'] = self::removeAutoTags($content['content']);
         }
 
         $insert_data = array();     // data to be inserted into DB
