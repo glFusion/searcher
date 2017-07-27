@@ -59,6 +59,24 @@ class Searcher extends Common
 
 
     /**
+    *   Get the "where" and "group by" clauses for sql statements.
+    *   Where clause is common to totalResults() and doSearch() so it's
+    *   centralized here.
+    *
+    *   @return string      SQL where clause for queries
+    */
+    private function _sql_where()
+    {
+        $type_sql = $this->type ? " AND type = '{$this->type}' " : '';
+        $where = " term in ({$this->sql_tokens}) " . $type_sql .
+            $this->_getPermSQL() .
+            //" GROUP BY type, parent_id
+            ' GROUP BY  type, item_id ';
+        return $where;
+    }
+
+
+    /**
     *   Perform the search
     *
     *   @param  string  $query  Optional query string if not set previously
@@ -67,7 +85,7 @@ class Searcher extends Common
     */
     public function doSearch($page = 1)
     {
-        global $_TABLES, $_SRCH_CONF;
+        global $_TABLES, $_SRCH_CONF, $_USER;
 
         $this->page = $page > 0 ? $page : 1;
         $start = $page < 2 ? 0 : ($page - 1) * $_SRCH_CONF['perpage'];
@@ -81,14 +99,10 @@ class Searcher extends Common
             }
         }
         $wts = implode(' + ' , $wts);
-        $type_sql = $this->type ? " AND type = '{$this->type}' " : '';
         $sql = "SELECT type, item_id, term, sum($wts) as relevance
             FROM {$_TABLES['searcher_index']}
-            WHERE term in ({$this->sql_tokens}) " . $type_sql .
-            $this->_getPermSQL() .
-            //" GROUP BY type, parent_id
-            " GROUP BY  type, item_id
-            ORDER BY relevance DESC
+            WHERE " . $this->_sql_where() .
+            " ORDER BY relevance DESC
             LIMIT $start, {$_SRCH_CONF['perpage']}";
         //echo $sql."\n";
         $res = DB_query($sql);
@@ -97,7 +111,7 @@ class Searcher extends Common
         // Stories have date-created, Pages have date-modified.
         $what = 'id,title,description,author,date,date-created,date-modified,hits,url';
         while ($A = DB_fetchArray($res, false)) {
-            $exc = PLG_getItemInfo($A['type'], $A['item_id'], $what);
+            $exc = PLG_getItemInfo($A['type'], $A['item_id'], $what, $_USER['uid']);
             if (!empty($exc['date'])) {
                 $date = $exc['date'];
             } elseif (!empty($exc['date-modified'])) {
@@ -179,13 +193,9 @@ class Searcher extends Common
         global $_TABLES;
 
         if ($this->count === NULL) {
-            $type_sql = $this->type ? " AND type = '{$this->type}' " : '';
             $sql = "SELECT count(*) AS cnt
                 FROM {$_TABLES['searcher_index']}
-                WHERE term in ({$this->sql_tokens}) " .
-                $type_sql .
-                $this->_getPermSQL() .
-                " GROUP BY item_id";
+                WHERE " . $this->_sql_where();
             //echo $sql;die;
             $res = DB_query($sql);
             $this->count = (int)DB_numRows($res);

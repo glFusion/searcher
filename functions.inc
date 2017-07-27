@@ -492,16 +492,16 @@ function plugin_itemsaved_searcher($id, $type)
 */
 function plugin_itemdeleted_searcher($id, $type)
 {
-    switch ($type) {
+    /*switch ($type) {
     case 'article':
     case 'staticpage':
-    case 'staticpages':
+    case 'staticpages':*/
         USES_searcher_class_indexer();
         \Searcher\Indexer::RemoveDoc($type, $id);
-        break;
+        /*break;
     default:
         break;
-    }
+    }*/
 }
 
 
@@ -705,6 +705,24 @@ function service_indexDoc_searcher($args, &$output, &$svc_msg)
 
 
 /**
+*   PLG function to index a single document
+*
+*   @param  array   $args       Args, including type, item_id, title, etc.
+*   @return boolean     True on success, False on failure
+*/
+function plugin_indexDoc_searcher($args)
+{
+    // Check that the minimum required fields are set
+    if (!isset($args['item_id']) || !isset($args['type']) || !isset($args['content'])) {
+        return false;
+    }
+    USES_searcher_class_indexer();
+    \Searcher\Indexer::RemoveDoc($args['type'], $args['item_id']);
+    return \Searcher\Indexer::IndexDoc($args);
+}
+
+
+/**
 *   Service function to remove an item from the index.
 *   Makes sure that a valid type and item_id are set to remove one item.
 *
@@ -720,9 +738,18 @@ function service_removeDoc_searcher($args, &$output, &$svc_msg)
         return PLG_RET_ERROR;
     }
     USES_searcher_class_indexer();
-    if (!\Searcher\Indexer::RemoveDoc($type, $id)) return PLG_RET_ERROR;
-    \Searcher\Indexer::RemoveComments($type, $id);
+    if (!\Searcher\Indexer::RemoveDoc($args['type'], $args['id'])) return PLG_RET_ERROR;
+    \Searcher\Indexer::RemoveComments($args['type'], $args['id']);
     return PLG_RET_OK;
+}
+
+
+function plugin_RemoveDoc_searcher($type, $item_id)
+{
+    USES_searcher_class_indexer();
+    if (!\Searcher\Indexer::RemoveDoc($type, $item_id)) return false;
+    \Searcher\Indexer::RemoveComments($type, $item_id);
+    return true;
 }
 
 
