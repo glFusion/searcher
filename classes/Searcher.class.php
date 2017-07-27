@@ -500,7 +500,7 @@ class Searcher extends Common
         }
 
         $num_pages = ceil($this->totalResults() / $_SRCH_CONF['perpage']);
-        $base_url = SRCH_URL . '/index.php?q=' . urlencode($this->query);
+        $base_url = SRCH_URL . '/index.php?query=' . urlencode($this->query);
         $pagination = COM_printPageNavigation($base_url, $this->page, $num_pages);
         $T->set_var('google_paging', $pagination);
 
