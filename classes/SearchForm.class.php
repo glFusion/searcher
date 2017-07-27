@@ -83,14 +83,15 @@ class SearchForm extends Common
 
             if ($this->_author < 1)
                 $this->_author = '';
-        }
-        if ( isset($_GET['type']) ) {
+        }*/
+        if (isset($_GET['type'])) {
             $this->_type = COM_applyFilter($_GET['type']);
-        } else if ( isset($_POST['type']) ) {
+        } else if (isset($_POST['type'])) {
             $this->_type = COM_applyFilter($_POST['type']);
         } else {
             $this->_type = 'all';
         }
+/*
         if ( isset($_GET['keyType']) ) {
             $this->_keyType = COM_applyFilter($_GET['keyType']);
         } else if ( isset($_POST['keyType']) ) {
@@ -206,8 +207,23 @@ class SearchForm extends Common
 
         $T = new \Template(SRCH_PI_PATH . '/templates');
         $T->set_file(array('searchform' => 'searchform.thtml'));
+        $plugintypes = array(
+            'all' => $LANG09[4],
+            'article' => $LANG09[6],
+        );
+        if (isset($_CONF['comment_engine']) && $_CONF['comment_engine'] == 'internal') {
+            $plugintypes['comments'] = $LANG09[7];
+        }
+        $plugintypes = array_merge($plugintypes, PLG_getSearchTypes());
+        foreach ($plugintypes as $key => $val) {
+            $options .= "<option value=\"$key\"";
+            if ($this->_type == $key)
+                $options .= ' selected="selected"';
+            $options .= ">$val</option>".LB;
+        }
         $T->set_var(array(
             'query'         => htmlspecialchars($this->query),
+            'plugin_types'  => $options,
         ) );
         $T->parse('output', 'searchform');
         $retval .= $T->finish($T->get_var('output'));
@@ -215,7 +231,7 @@ class SearchForm extends Common
     }
 
 
-    private function _validateDate( $dateString )
+    private function DEPRECATE_validateDate( $dateString )
     {
         $delim = substr($dateString, 4, 1);
         if (!empty($delim)) {

@@ -20,6 +20,8 @@ $LANG_SRCH = array(
     'generate_all'  => 'Generate All',
     'regenerate'    => 'Regenerate Indexes',
     'version'       => 'Version',
+    'find'          => 'Find',
+    'in'            => 'in',
 );
 
 // Localization of the Admin Configuration UI
