@@ -212,8 +212,9 @@ class Common
         // and minimum word length, if passed then add to the "terms" array.
         $terms = preg_split('/[\s,]+/', $str);
         $weights = array();
+        $total_terms = count($terms);
 
-        for ($i = 0; $i < count($terms); $i++ ) {
+        for ($i = 0; $i < $total_terms; $i++ ) {
             $terms[$i] = self::_mb_trim($terms[$i]);
             if (in_array($t, self::$stopwords) ||
                 self::_strlen($terms[$i]) < self::$min_word_len) {
@@ -228,7 +229,7 @@ class Common
             USES_search_class_stemmer();
             $S = Stemmer::getInstance($_SRCH_CONF['stemmer']);
             if ($S !== NULL) {
-                for ($i = 0; $i < count($terms); $i++) {
+                for ($i = 0; $i < $total_terms; $i++) {
                     $terms[$i] = $S->stem($terms[$i]);
                 }
                 // Now remove any duplicates (words with the same stem)
@@ -238,7 +239,6 @@ class Common
 
         // Now go through the terms array and add 2- and 3-word phrases
         if ($phrases) {
-            $total_terms = count($terms);
             for ($i = 0; $i < $total_terms; $i++) {
                 if (empty($terms[$i]) || empty($terms[$i+1])) continue;
                 if ($i < $total_terms - 1) {
@@ -247,7 +247,7 @@ class Common
                 }
                 if (empty($terms[$i+2])) continue;
                 if ($i < $total_terms - 2) {
-                    $terms[] = $terms[$i] . ' ' . $terms[$i+1] . ' ' . $terms[$i + 2];
+                    $terms[] = $terms[$i] . ' ' . $terms[$i+1] . ' ' . $terms[$i+2];
                     $weights[] = $_SRCH_CONF['wordweight_3'];
                 }
             }
