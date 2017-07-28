@@ -776,4 +776,17 @@ function service_removeAll_searcher($args, &$output, &$svc_msg)
     return PLG_RET_OK;
 }
 
+function plugin_removeAll_searcher($type)
+{
+    // Check that the minimum required fields are set. Don't allwow plugins
+    // to accidentally delete all.
+    if (empty($type) || $type == 'all') {
+        return false
+    }
+    USES_searcher_class_indexer();
+    if (!\Searcher\Indexer::RemoveAll($type)) return false;
+    \Searcher\Indexer::RemoveComments($type);
+    return true;
+}
+
 ?>
