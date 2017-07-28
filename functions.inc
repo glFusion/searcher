@@ -789,4 +789,28 @@ function plugin_removeAll_searcher($type)
     return true;
 }
 
+
+/**
+*   Selection dropdown to pick the stemmer in the configuration manager.
+*
+*   @return Array Associative array of section_name=>section_id
+*/
+function plugin_configmanager_select_stemmer_searcher()
+{
+    global $LANG_SRCH;
+
+    $A = array($LANG_SRCH['none'] => '');
+    // Collect the available stemmers
+    $results = @glob(__DIR__ . '/classes/stemmer/*.class.php');
+    $installable = '';
+    if (is_array($results)) {
+        foreach ($results as $fullpath) {
+            $parts = explode('/', $fullpath);
+            list($class,$x1,$x2) = explode('.', $parts[count($parts)-1]);
+            $A[$class] = $class;
+        }
+    }
+    return $A;
+}
+
 ?>

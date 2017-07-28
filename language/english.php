@@ -22,6 +22,7 @@ $LANG_SRCH = array(
     'version'       => 'Version',
     'find'          => 'Find',
     'in'            => 'in',
+    'none'          => 'None',
 );
 
 // Localization of the Admin Configuration UI
@@ -38,6 +39,8 @@ $LANG_confignames['searcher'] = array(
     'wt_content' => 'Weighting for results in content',
     'wt_author' => 'Weighting for results in author names',
     'max_occurrences' => 'Maximum occurrences of a term to count',
+    'show_author' => 'Show author name in results?',
+    'stemmer' => 'Select Stemmer (Experimental)',
 );
 
 $LANG_configsubgroups['searcher'] = array(
@@ -52,6 +55,7 @@ $LANG_fs['searcher'] = array(
 $LANG_configselects['searcher'] = array(
     10 => array(' 1' => 1, ' 2' => 2, ' 3' => 3, ' 4' => 4, ' 5' => 5,
                 ' 6' => 6, ' 7' => 7, ' 8' => 8, ' 9' => 9, '10' => 10),
+    11 => array('No' => 0, 'Yes, no link' => 1, 'Yes, with link' => 2),
 );
 
 ?>
