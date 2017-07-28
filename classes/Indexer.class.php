@@ -34,7 +34,10 @@ class Indexer extends Common
             self::Init();
         }
 
-        if ($_SRCH_CONF['ignore_autotags']) {
+        // Remove autotags if so configured and the content field is used.
+        // There's a small chance that only title and/or author are used here.
+        if ($_SRCH_CONF['ignore_autotags'] &&
+            isset($content['content']) && !empty($content['content'])) {
             $content['content'] = self::removeAutoTags($content['content']);
         }
 
@@ -79,7 +82,7 @@ class Indexer extends Common
             foreach (self::$fields as $var=>$weight) {
                 $$var = isset($data[$var]) ? (int)$data[$var]['count'] : 0;
             }
-            $term = DB_escapeString($term);
+            $term = DB_escapeString(trim($term));
             $weight = (float)$data['weight'];
             $values[] = "('$type', '$item_id', '$term', '$parent_id', '$parent_type',
                     $content, $title, $author, $owner_id, $group_id,
