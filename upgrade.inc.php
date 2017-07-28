@@ -54,6 +54,16 @@ function SRCH_do_upgrade()
         if (!SRCH_do_set_version($current_ver)) return false;
     }
 
+    if (!COM_checkVersion($current_ver, '0.0.3')) {
+        // upgrade from 0.0.2 to 0.0.3
+        $current_ver = '0.0.3';
+        COM_errorLog("Updating Plugin to $current_ver");
+        $c->add('show_author', $_SRCH_DEFAULTS['show_author'],
+                'select', 0, 0, 11, 50, true, $_SRCH_CONF['pi_name']);
+        $c->add('stemmer', $_SRCH_DEFAULTS['stemmer'],
+                'select', 0, 0, 0, 60, true, $_SRCH_CONF['pi_name']);
+    }
+
     // Final version setting in case there was no upgrade process for
     // this version
     if (!SRCH_do_set_version($_SRCH_CONF['pi_version'])) return false;

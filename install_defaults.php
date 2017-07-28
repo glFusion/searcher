@@ -35,6 +35,8 @@ $_SRCH_DEFAULTS = array(
     'wt_author' => 1.2,
     'wt_content' => 1,
     'max_occurrences' => 5,
+    'show_author' => 3,     // Show author name with link
+    'stemmer' => '',
 );
 
 /**
@@ -63,6 +65,10 @@ function plugin_initconfig_searcher()
                 'text', 0, 0, 15, 30, true, $_SRCH_CONF['pi_name']);
         $c->add('max_occurrences', $_SRCH_DEFAULTS['max_occurrences'],
                 'text', 0, 0, 0, 40, true, $_SRCH_CONF['pi_name']);
+        $c->add('show_author', $_SRCH_DEFAULTS['show_author'],
+                'select', 0, 0, 11, 50, true, $_SRCH_CONF['pi_name']);
+        $c->add('stemmer', $_SRCH_DEFAULTS['stemmer'],
+                'select', 0, 0, 0, 60, true, $_SRCH_CONF['pi_name']);
 
         $c->add('fs_weight', NULL, 'fieldset', 0, 10, NULL, 0, true, 
                 $_SRCH_CONF['pi_name']);

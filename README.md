@@ -26,6 +26,19 @@ in a page when calculating the weights. This is to keep some pages which may
 have many occurrences of a single word from always appearing at the top of the
 search results, outweighing other pages that may be more relevant.
 
+#### Show author name in results
+You can select to include the author's name in the search results, with or
+without a link, or hide the name altogether.
+
+#### Stemmer (Experimental)
+This plugin includes an adaptation of the Porter language stemmer to determine
+the roots of words. To use this select "Porter_en", otherwise select "None"
+(the default).
+
+The stemmer is experimental and may lead to odd results but will also include
+results based on word variations such as plurals. You must regenerate all
+indexes if this option is changed.
+
 ### Weighting
 Different weights can be assigned to words that appear in different fields.
 For example, you might want to give a higher weight, or priority, to search

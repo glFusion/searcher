@@ -481,14 +481,14 @@ class Searcher extends Common
             $T->set_var(array(
                 'title' => self::Highlight($row['title'], $this->tokens),
                 'excerpt' => self::Highlight($row['excerpt'], $this->tokens),
-                'author' => $row['author'],
+                'author' => $_SRCH_CONF['show_author'] ? $row['author'] : NULL,
                 'uid'   => $row['uid'],
                 'hits'  => $row['hits'],
                 'item_url' => $row['url'],
                 'date'  => $row['ts'] ? $dt->format($_CONF['shortdate']) : NULL,
                 'src'   => $row['disp_type'],
                 'type'  => $row['type'],
-                'link_author' => $_SRCH_CONF['link_author'],
+                'link_author' => $_SRCH_CONF['show_author'] == 2 ? true : false,
             ) );
             $T->parse('item_field', 'field', true);
 
