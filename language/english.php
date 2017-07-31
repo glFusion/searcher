@@ -6,7 +6,7 @@
 *   @copyright  Copyright (c) 2017 Lee Garner
 *   @package    searcher
 *   @version    0.0.1
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
+*   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
 */
@@ -32,6 +32,7 @@ $LANG_configsections['searcher'] = array(
 );
 
 $LANG_confignames['searcher'] = array(
+    'pi_display_name' => 'Display Name',
     'min_word_len' => 'Minimum Word Length to consider',
     'excerpt_len' => 'Length of excerpt to display',
     'perpage'   => 'Results to show per page',
@@ -41,6 +42,7 @@ $LANG_confignames['searcher'] = array(
     'max_occurrences' => 'Maximum occurrences of a term to count',
     'show_author' => 'Show author name in results?',
     'stemmer' => 'Select Stemmer (Experimental)',
+    'ignore_autotags' => 'Ignore Auto Tags',
 );
 
 $LANG_configsubgroups['searcher'] = array(
@@ -53,6 +55,7 @@ $LANG_fs['searcher'] = array(
 );
 
 $LANG_configselects['searcher'] = array(
+    0  => array('True' => 1, 'False' => 0 ),
     10 => array(' 1' => 1, ' 2' => 2, ' 3' => 3, ' 4' => 4, ' 5' => 5,
                 ' 6' => 6, ' 7' => 7, ' 8' => 8, ' 9' => 9, '10' => 10),
     11 => array('No' => 0, 'Yes, no link' => 1, 'Yes, with link' => 2),

@@ -196,7 +196,10 @@ function plugin_getconfigelementhelp_searcher($option, $doclang='english')
 {
     global $_SRCH_CONF;
 
-    $doc_url = SRCH_getDocURL('config.html', $_SRCH_CONF['pi_name'], $doclang);
+    $file = 'config.html';
+
+    $doc_url = SRCH_getDocURL($file, $_SRCH_CONF['pi_name'], $doclang);
+
     if (empty($doc_url))
         return false;
 

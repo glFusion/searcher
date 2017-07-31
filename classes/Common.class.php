@@ -215,13 +215,15 @@ class Common
         $total_terms = count($terms);
 
         for ($i = 0; $i < $total_terms; $i++ ) {
-            $terms[$i] = self::_mb_trim($terms[$i]);
-            if (in_array($t, self::$stopwords) ||
-                self::_strlen($terms[$i]) < self::$min_word_len) {
-                array_splice($terms, $i, 1);
-                $i--;
+            if ( isset($terms[$i])) {
+                $terms[$i] = self::_mb_trim($terms[$i]);
+                if (in_array($terms[$i], self::$stopwords) ||
+                    self::_strlen($terms[$i]) < self::$min_word_len) {
+                    array_splice($terms, $i, 1);
+                    $i--;
+                }
+                $weights[$i] = 1;
             }
-            $weights[$i] = 1;
         }
 
         // Invoke the stemmer to trim words down to their stems.
@@ -233,7 +235,7 @@ class Common
                     $terms[$i] = $S->stem($terms[$i]);
                 }
                 // Now remove any duplicates (words with the same stem)
-                $terms = array_keys(array_flip($terms)); 
+                $terms = array_keys(array_flip($terms));
             }
         }
 
@@ -282,7 +284,7 @@ class Common
     protected static function removeAutoTags($content)
     {
         static $autolinkModules = NULL;
-        static $tags = '';
+        static $tags = array();
 
         // Just return content if there are no autotags
         if (strpos($content, '[') === false) {

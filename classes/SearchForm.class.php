@@ -190,6 +190,7 @@ class SearchForm extends Common
         global $_CONF, $_TABLES, $_PLUGINS, $LANG09;
 
         $retval = '';
+        $options = '';
 
         // Verify current user my use the search form
         if (!$this->_isFormAllowed()) {

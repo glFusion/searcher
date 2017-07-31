@@ -214,6 +214,8 @@ class Searcher extends Common
     {
         global $_SRCH_CONF;
 
+        $type = '';
+
         //$type = 'chars';
         $excerpt_length = $_SRCH_CONF['excerpt_len'];
         $best_excerpt_term_hits = -1;
@@ -233,27 +235,27 @@ class Searcher extends Common
             $prev_count = floor($excerpt_length / 2);
             list($excerpt, $best_excerpt_term_hits, $start) = self::_extract_relevant(array_keys($this->tokens), $content, $excerpt_length, $prev_count);
         } else {
-        $words = explode(' ', $content);
-        $i = 0;
-        while ($i < count($words)) {
-            if ($i + $excerpt_length > count($words)) {
-                $i = count($words) - $excerpt_length;
-                if ($i < 0) $i = 0;
+            $words = explode(' ', $content);
+            $i = 0;
+            while ($i < count($words)) {
+                if ($i + $excerpt_length > count($words)) {
+                    $i = count($words) - $excerpt_length;
+                    if ($i < 0) $i = 0;
+                }
+
+                $excerpt_slice = array_slice($words, $i, $excerpt_length);
+                $excerpt_slice = implode(' ', $excerpt_slice);
+
+                $excerpt_slice = " $excerpt_slice";
+                $term_hits = 0;
+                $count = self::_count_matches(array_keys($terms), $excerpt_slice);
+
+                if ($count > 0 && $count > $best_excerpt_term_hits) {
+                    $best_excerpt_term_hits = $count;
+                    $excerpt = $excerpt_slice;
+                }
+                $i += $excerpt_length;
             }
-
-            $excerpt_slice = array_slice($words, $i, $excerpt_length);
-            $excerpt_slice = implode(' ', $excerpt_slice);
-
-            $excerpt_slice = " $excerpt_slice";
-            $term_hits = 0;
-            $count = self::_count_matches(array_keys($terms), $excerpt_slice);
-
-            if ($count > 0 && $count > $best_excerpt_term_hits) {
-                $best_excerpt_term_hits = $count;
-                $excerpt = $excerpt_slice;
-            }
-            $i += $excerpt_length;
-        }
         }
 
         if ('' == $excerpt) {
@@ -445,6 +447,8 @@ class Searcher extends Common
     public function Display()
     {
         global $_CONF, $_SRCH_CONF, $LANG_ADMIN, $LANG09,$LANG05;
+
+        $retval = '';
 
         // get all template fields.
         $T = new \Template($_CONF['path'] . 'plugins/searcher/templates/' . $this->_style);

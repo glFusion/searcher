@@ -6,7 +6,7 @@
 *   @copyright  Copyright (c) 2017 Lee Garner <lee@leegarner.com>
 *   @package    searcher
 *   @version    0.0.1
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
+*   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
 */
@@ -33,7 +33,7 @@ if (!SEC_inGroup('Root')) {
 */
 function SRCH_adminMenu($explanation = '')
 {
-    global $_CONF, $LANG_ADMIN, $LANG_SRCH, $_SRCH_CONF;
+    global $_CONF, $LANG_ADMIN, $LANG_SRCH, $_SRCH_CONF,$_IMAGE_TYPE;
 
     USES_lib_admin();
 
@@ -46,7 +46,7 @@ function SRCH_adminMenu($explanation = '')
         array('url' => $_CONF['site_admin_url'],
               'text' => $LANG_ADMIN['admin_home']),
     );
-    $retval .= COM_startBlock($_SRCH_CONF['display_name'],
+    $retval .= COM_startBlock($_SRCH_CONF['pi_display_name'],
                             COM_getBlockTemplate('_admin_block', 'header'));
     $retval .= ADMIN_createMenu(
             $menu_arr, $explanation,
