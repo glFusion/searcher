@@ -4,10 +4,6 @@ This plugin is an attempt to provide an improved search function for glFusion
 using one or more index tables to allow fulltext-type searching without
 requiring a fulltext index.
 
-Much of the internal mechanics is yet TBD. Currently the article content type
-is supported, and requires manually running "makeindex.php" from the plugin
-directory.
-
 ## Configuration
 ### Main Settings
 #### Minimum Word Length to Consider
@@ -46,53 +42,60 @@ terms that appear in the title than in the content or author name.
 
 Higher weights will cause the articles to float higher in the search results.
 
-## Service functions
-Service functions are called as ```PLG_invokeService('searcher', function, $args, $output, $svc_msg);```
-At this time the $output and $svc_msg variables are not used.
+## API functions
+API functions are called using ```PLG_callFunctionForOnePlugin(function, $args);```
 
 Functions and the required arguments array are listed below:
 
-### indexDoc
+### plugin_indexDoc_searcher($args = array())
 Adds a single document to the index. Also indexes any comments.
 
-The item will not be indexed at all unless at least one of Title, Content or
-Author is not empty.
+Usage:
 ```
 $args = array(
-    'item_id'   => the item ID in its database table (required)
-    'type'      => Type of item, e.g. "article" or the plugin name (required)
-    'content'   => Full content to index
-    'title'     => Item title
-    'author'    => Display name of the author, not the user ID
-    'perms' => array(
-        'owner_id'      => Numeric user id of the owner
-        'group_id'      => Numeric user id of the gruop
-        'perm_owner'    => Owner permission
-        'perm_group'    => Group permission
-        'perm_members'  => Members permission
-        'perm_anon'     => Anonymous user permission
+    1 => array(
+        'item_id'   => the item ID in its database table (required)
+        'type'      => Type of item, e.g. "article" or the plugin name (required)
+        'content'   => Full content to index
+        'title'     => Item title
+        'author'    => Display name of the author, not the user ID
+        'perms' => array(
+            'owner_id'      => Numeric user id of the owner
+            'group_id'      => Numeric user id of the gruop
+            'perm_owner'    => Owner permission
+            'perm_group'    => Group permission
+            'perm_members'  => Members permission
+            'perm_anon'     => Anonymous user permission
+        ),
     ),
 );
+PLG_callFunctionForOnePlugin('plugin_indexDoc_searcher', $args);
 ```
-If the "perms" element is not provided or is NULL then the permissions allow read access to everyone.
-Author and Title are also optional. Permission fields are added to every record in the index
-so a guest will only see results that they can actually access.
+The item will not be indexed at all unless at least one of Title, Content or
+Author is not empty.
 
-### removeDoc
-Removes a single document from the index, along with associated comments
+If the "perms" element is not provided or is NULL then the permissions allow read access to everyone.
+Permission fields are added to every record in the index so a guest will only see results that
+they can actually access.
+
+### plugin_RemoveDoc_searcher($type, $item_id)
+Removes a single document from the index, along with associated comments.
+Arguments are a simple array of item type and database ID
 ```
 $args = array(
-    'item_id'   => Database of the item being removed (required)
-    'type'      => Type of item, e.g. plugin name (required)
+    Type of item, e.g. plugin name (required),
+    Database ID of the item being removed (required),
 );
+PLG_callFunctionForOnePlugin('plugin_removeDoc_searcher', $args);
 ```
 
-### removeAll
+### plugin_removeAll_searcher($type)
 Removes all itms of a particular type from the index, along with any comments.
 This should be called as part of a plugin removal.
 ```
 $args = array(
     'type'      => Type of item, e.g. plugin name (required)
 );
+PLG_callFunctionForOnePlugin('plugin_removeAll_searcher', $args);
 ```
 
