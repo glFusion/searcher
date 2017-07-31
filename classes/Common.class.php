@@ -219,6 +219,11 @@ class Common
                 $terms[$i] = self::_mb_trim($terms[$i]);
                 if (in_array($terms[$i], self::$stopwords) ||
                     self::_strlen($terms[$i]) < self::$min_word_len) {
+                        if ($i >= $total_terms - 1) {
+                            // Reached the end, $i-- would just loop
+                            $weights[$i] = 1;
+                            break;
+                        }
                     array_splice($terms, $i, 1);
                     $i--;
                 }
