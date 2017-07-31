@@ -713,7 +713,9 @@ function service_indexDoc_searcher($args, &$output, &$svc_msg)
 function plugin_indexDoc_searcher($args)
 {
     // Check that the minimum required fields are set
-    if (!isset($args['item_id']) || !isset($args['type']) || !isset($args['content'])) {
+    if (!isset($args['item_id']) || !isset($args['type']) ||
+        (!isset($args['content']) && !isset($args['title']) && !isset($args['author']))
+    ) {
         return false;
     }
     USES_searcher_class_indexer();
@@ -781,7 +783,7 @@ function plugin_removeAll_searcher($type)
     // Check that the minimum required fields are set. Don't allwow plugins
     // to accidentally delete all.
     if (empty($type) || $type == 'all') {
-        return false
+        return false;
     }
     USES_searcher_class_indexer();
     if (!\Searcher\Indexer::RemoveAll($type)) return false;
