@@ -124,7 +124,7 @@ class Searcher extends Common
             $excerpt = self::getExcerpt($exc['description']);
             $hits = isset($exc['hits']) ? $exc['hits'] : NULL;
             $author = is_numeric($exc['author']) ?
-                    COM_getDisplayName($exc['author']), $exc['author'];
+                    COM_getDisplayName($exc['author']) : $exc['author'];
             $title = $exc['title'];
             $uid = isset($exc['author']) ? $exc['author'] : NULL;
             if (isset($exc['url'])) {
