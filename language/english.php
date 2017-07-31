@@ -57,6 +57,7 @@ $LANG_fs['searcher'] = array(
 
 $LANG_configselects['searcher'] = array(
     0  => array('True' => 1, 'False' => 0 ),
+    1  => array('Yes' => 1, 'No' => 0),
     10 => array(' 1' => 1, ' 2' => 2, ' 3' => 3, ' 4' => 4, ' 5' => 5,
                 ' 6' => 6, ' 7' => 7, ' 8' => 8, ' 9' => 9, '10' => 10),
     11 => array('No' => 0, 'Yes, no link' => 1, 'Yes, with link' => 2),

@@ -31,6 +31,11 @@
 
       <h2>Main Searcher Options</h2>
 
+      <dl id="desc_pi_display_name">
+        <dt>Display Name</dt>
+        <dd>Enter the display name to be shown on administration and other pages.</dd>
+      </dl>
+
       <dl id="desc_min_word_len">
         <dt>Minimum Word Length to Consider</dt>
         <dd>Enter the minimum number of letters to be considered a "word". Words with less than this number of letters will not be added to the index.</dd>
@@ -56,13 +61,21 @@ search results, outweighing other pages that may be more relevant.</dd>
 
       <dl id="desc_show_author">
         <dt>Show author name in results</dt>
-        <dd>Select whether the Author Name should be shown in the results.</dd>
+        <dd>Select whether the Author Name should be shown in the results and, if so, whether to link to
+the author's profile.</dd>
       </dl>
 
       <dl id="desc_stemmer">
         <dt>Stemmer</dt>
         <dd>(Experimental) Select whether to use a language stemmer. The indexes must be recreated if
 this option is changed.</dd>
+      </dl>
+
+      <dl id="desc_ignore_autotags">
+        <dt>Ignore Autotags?</dt>
+        <dd>Select &quot;Yes&quot; to ignore the raw content of autotags when indexing and searching.
+If this is set to &quot;No&quot; then the text in autotags is indexed and searched. Note that
+autotags are not processed.</dd>
       </dl>
 
       <h2>Searcher Weightings</h2>
