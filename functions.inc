@@ -281,7 +281,7 @@ function plugin_getSearchInfo_comment($id)
     $res = DB_query($sql);
     if (DB_numRows($res) == 1) {
         $A = DB_fetchArray($res, false);
-        $author = SRCH_getAuthorName($A['uid']);
+        $author = COM_getDisplayName($A['uid']);
         $retval = array(
             'title' => $A['title'],
             'content' => $A['comment'],
@@ -318,7 +318,7 @@ function plugin_getSearchInfo_article($id)
     if (DB_numRows($res) == 1) {
         $A = DB_fetchArray($res, false);
         $author = empty($A['attribution_author']) ?
-                SRCH_getAuthorName($A['uid']) : $A['attribution_author'];
+                COM_getDisplayName($A['uid']) : $A['attribution_author'];
         $retval = array(
             'title' => $A['title'],
             'content' => $A['introtext'] . ' ' . $A['bodytext'],
@@ -360,34 +360,13 @@ function plugin_getSearchInfo_staticpages($id)
             'title' => $A['sp_title'],
             'content' => $A['sp_content'],
             'uid' => $A['sp_id'],
-            'author' => SRCH_getAuthorName($A['sp_uid']),
+            'author' => COM_getDisplayName($A['sp_uid']),
             'date' => $A['ts'],
             'hits' => $A['sp_hits'],
             'url' => $_CONF['site_url'] . '/page.php?page=' . urlencode($id),
         );
     }
     return $retval;
-}
-
-
-/**
-*   Get the author display name from the user ID.
-*   Stores names in a static variable since this can be called many times.
-*
-*   @param  integer $uid    User ID
-*   @return string          Display name
-*/
-function SRCH_getAuthorName($uid)
-{
-    static $names = array();
-    if (!empty($uid)) {
-        if (!isset($names[$uid])) {
-            $names[$uid] = COM_getDisplayName($uid);
-        }
-        return $names[$uid];
-    } else {
-        return '';
-    }
 }
 
 
@@ -407,7 +386,7 @@ function plugin_itemsaved_searcher($id, $type)
     case 'article':
         USES_searcher_class_indexer();
         $sql = "SELECT sid, uid, title, introtext, bodytext, draft_flag,
-                owner_id, group_id,
+                attribution_author, owner_id, group_id,
                 perm_owner, perm_group, perm_members, perm_anon
             FROM {$_TABLES['stories']}
             WHERE sid = '$id'";
@@ -421,7 +400,7 @@ function plugin_itemsaved_searcher($id, $type)
                     'item_id' => $A['sid'],
                     'type'  => 'article',
                     'title' => $A['title'],
-                    'author' => SRCH_getAuthorName($A['uid']),
+                    'author' => COM_getDisplayName($A['uid'], $A['attribution_author']),
                     'content' => $A['introtext'] . ' ' . $A['bodytext'],
                     'perms' => array(
                         'owner_id' => $A['owner_id'],
@@ -478,7 +457,7 @@ function plugin_itemsaved_searcher($id, $type)
                 'parent_id' => $A['sid'],
                 'type'  => 'comment',
                 //'title' => $A['title'],   // Don't index comment titles
-                'author' => SRCH_getAuthorName($A['uid']),
+                'author' => COM_getDisplayName($A['uid']),
                 'content' => $A['comment'],
             ) );
         }
@@ -617,7 +596,7 @@ function plugin_IndexAll_comments($type, $pid, $perms=NULL)
             'parent_type' => $type,
             'type'  => 'comment',
             //'title' => $A['title'],
-            'author' => SRCH_getAuthorName($A['uid']),
+            'author' => COM_getDisplayName($A['uid']),
             'content' => $A['comment'],
         );
         if (is_array($perms)) {
@@ -648,7 +627,7 @@ function plugin_IndexAll_article()
     USES_searcher_class_indexer();
 
     $sql = "SELECT sid, uid, title, introtext, bodytext,
-            owner_id, group_id,
+            attribution_author, owner_id, group_id,
             perm_owner, perm_group, perm_members, perm_anon
         FROM {$_TABLES['stories']}
         WHERE draft_flag = 0";
@@ -662,7 +641,7 @@ function plugin_IndexAll_article()
             'item_id' => $A['sid'],
             'type'  => 'article',
             'title' => $A['title'],
-            'author' => SRCH_getAuthorName($A['uid']),
+            'author' => COM_getDisplayName($A['uid'], $A['attribution_author']),
             'content' => $A['introtext'] . ' ' . $A['bodytext'],
             'perms' => array(
                 'owner_id' => $A['owner_id'],
