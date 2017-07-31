@@ -23,6 +23,7 @@ $LANG_SRCH = array(
     'find'          => 'Find',
     'in'            => 'in',
     'none'          => 'None',
+    'hlp_gen_all'   => 'Re-generate all indexes for the selected content types. Use this option after installing the plugin, or after changing certain key configuration items such as the minimum word length or changing the stemmer.',
 );
 
 // Localization of the Admin Configuration UI

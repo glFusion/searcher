@@ -1,12 +1,18 @@
-<div>
-<a href="{pi_url}/index.php">
-  <img src="{pi_icon}" border="0" align="top" 
+<div class="srch_admin_header">
+  <div class="srch_icon">
+    <a href="{pi_url}/index.php">
+      <img src="{pi_icon}" border="0" align="top" 
         style="background:transparent;" />
-</a>
-<h2>{header}</h2>
-{$LANG_SRCH['version']}&nbsp;&nbsp;{version}
+    </a>
+  </div>
+  <div class="srch_title">
+    <h2>{header}</h2>
+    {$LANG_SRCH['version']}&nbsp;&nbsp;{version}
+  </div>
 </div>
-{menu}
+<div class="srch_admin_menu">
+  {menu}
+</div>
 <h3>{$LANG_SRCH['regenerate']}</h3>
 <form action="{site_admin_url}/plugins/searcher/index.php" method="post" class="uk-form uk-form-horizontal">
     <div class="uk-form-row">
