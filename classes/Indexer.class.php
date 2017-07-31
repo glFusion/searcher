@@ -44,13 +44,15 @@ class Indexer extends Common
         $insert_data = array();     // data to be inserted into DB
         foreach(self::$fields as $fld=>$weight) {
             // index content fields and get a count of tokens
-            $tokens = self::Tokenize($content[$fld]);
-            foreach ($tokens as $token=>$data) {
-                if (isset($insert_data[$token][$fld])) {
-                    $insert_data[$token][$fld]['count'] += $data['count'];
-                } else {
-                    $insert_data[$token]['weight'] = $data['weight'];
-                    $insert_data[$token][$fld]['count'] = 1;
+            if ( isset($content[$fld])) {
+                $tokens = self::Tokenize($content[$fld]);
+                foreach ($tokens as $token=>$data) {
+                    if (isset($insert_data[$token][$fld])) {
+                        $insert_data[$token][$fld]['count'] += $data['count'];
+                    } else {
+                        $insert_data[$token]['weight'] = $data['weight'];
+                        $insert_data[$token][$fld]['count'] = 1;
+                    }
                 }
             }
         }
@@ -98,7 +100,7 @@ class Indexer extends Common
                 owner_id, group_id, perm_owner, perm_group,
                 perm_members, perm_anon, weight)
                 VALUES $values";
-        //echo $sql;die;
+
         $res = DB_query($sql, 1);
         if (DB_error()) {
             COM_errorLog("Searcher Error Indexing $type, ID $item_id");
