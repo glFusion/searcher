@@ -36,7 +36,7 @@ $_SRCH_DEFAULTS = array(
     'wt_author' => 1.2,
     'wt_content' => 1,
     'max_occurrences' => 5,
-    'show_author' => 3,     // Show author name with link
+    'show_author' => 2,     // Show author name with link
     'stemmer' => '',
     'ignore_autotags' => 0,
 );
@@ -75,7 +75,7 @@ function plugin_initconfig_searcher()
         $c->add('stemmer', $_SRCH_DEFAULTS['stemmer'],
                 'select', 0, 0, 0, 60, true, $_SRCH_CONF['pi_name']);
         $c->add('ignore_autotags', $_SRCH_DEFAULTS['ignore_autotags'],
-                'select', 0, 0, 0, 70, true, $_SRCH_CONF['pi_name']);
+                'select', 0, 0, 1, 70, true, $_SRCH_CONF['pi_name']);
 
         $c->add('fs_weight', NULL, 'fieldset', 0, 10, NULL, 0, true,
                 $_SRCH_CONF['pi_name']);

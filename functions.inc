@@ -204,10 +204,10 @@ function plugin_getconfigelementhelp_searcher($option, $doclang='english')
         return false;
 
     if (!empty($option)) {
-        $file .= '#desc_' . $option;
+        $doc_url .= '#desc_' . $option;
     }
 
-    return array($doc_url . $file, 0);
+    return array($doc_url, 0);
 }
 
 
@@ -263,6 +263,7 @@ function plugin_getheadercss_searcher()
 /**
 *   Provides the getSearchInfo function for the built-in comment type
 *
+*   @deprecated
 *   @param  string  $id     Comment ID
 *   @return array           Article information for search display
 */
@@ -297,6 +298,7 @@ function plugin_getSearchInfo_comment($id)
 /**
 *   Provides the getSearchInfo function for the built-in article type
 *
+*   @deprecated
 *   @param  string  $id     Article ID
 *   @return array           Article information for search display
 */
@@ -335,6 +337,7 @@ function plugin_getSearchInfo_article($id)
 *   Provides the getSearchInfo function for staticpages.
 *   This should move to the staticpages plugin.
 *
+*   @deprecated
 *   @param  string  $id     Article ID
 *   @return array           Article information for search display
 */

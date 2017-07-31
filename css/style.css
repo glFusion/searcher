@@ -9,5 +9,30 @@
 }
 
 .searcher-button {
+    /* Changes the default uk-button behavior to put the buton
+    *   to the right of the query input field */
     float:inherit;
+}
+
+div.srch_admin_header {
+    margin-top: 10px;
+}
+
+div.srch_admin_header div.srch_icon {
+    float:left;
+    padding-right: 10px;
+}
+
+div.srch_admin_header div.srch_title {
+    float:left;
+    line-height:1rem;
+}
+
+div.srch_title h2 {
+    line-height: 1rem;
+}
+
+div.srch_admin_menu {
+    padding-top: 20px;
+    clear:both;
 }

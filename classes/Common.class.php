@@ -230,6 +230,7 @@ class Common
                 $weights[$i] = 1;
             }
         }
+        $total_terms = count($terms);
 
         // Invoke the stemmer to trim words down to their stems.
         if (!empty($_SRCH_CONF['stemmer'])) {
