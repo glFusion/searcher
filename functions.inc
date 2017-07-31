@@ -492,16 +492,8 @@ function plugin_itemsaved_searcher($id, $type)
 */
 function plugin_itemdeleted_searcher($id, $type)
 {
-    /*switch ($type) {
-    case 'article':
-    case 'staticpage':
-    case 'staticpages':*/
-        USES_searcher_class_indexer();
-        \Searcher\Indexer::RemoveDoc($type, $id);
-        /*break;
-    default:
-        break;
-    }*/
+    USES_searcher_class_indexer();
+    \Searcher\Indexer::RemoveDoc($type, $id);
 }
 
 
