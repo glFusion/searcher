@@ -23,13 +23,14 @@ global $_SRCH_CONF;
 
 $_SRCH_CONF['pi_name']            = 'searcher';
 $_SRCH_CONF['pi_display_name']    = 'Searcher';
-$_SRCH_CONF['pi_version']         = '0.0.3';
+$_SRCH_CONF['pi_version']         = '0.0.4';
 $_SRCH_CONF['gl_version']         = '1.6.0';
 $_SRCH_CONF['pi_url']             = 'http://www.glfusion.org';
 
 $_table_prefix = $_DB_table_prefix . 'searcher_';
 
-$_TABLES['searcher_index']      = $_DB_table_prefix . 'searcher_index';
+$_TABLES['searcher_index']      = $_table_prefix . 'index';
+$_TABLES['searcher_counters']   = $_table_prefix . 'counters';
 
 // Semi-static globals
 // Weight multipliers to apply to 2- and 3-word phrases.

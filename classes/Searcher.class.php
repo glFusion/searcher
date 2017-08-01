@@ -152,6 +152,7 @@ class Searcher extends Common
                 );
             }
         }
+        $this->updateCounter();
         return $this->results;
     }
 
@@ -525,6 +526,21 @@ class Searcher extends Common
         //$retval = '<div style="margin-top:5px;margin-bottom:5px;border-bottom:1px solid #ccc;"></div>';
         $retval .= $T->finish($T->get_var('output'));
         return $retval;
+    }
+
+
+    /**
+    *   Update the search term counter table.
+    */
+    private function updateCounter()
+    {
+        global $_TABLES;
+
+        $query = DB_escapeString($this->query);
+        $sql = "INSERT INTO {$_TABLES['searcher_counters']}
+                (term, hits) VALUES ('$query', 1)
+                ON DUPLICATE KEY UPDATE hits = hits + 1";
+        DB_query($sql);
     }
 
 }

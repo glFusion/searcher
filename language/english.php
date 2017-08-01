@@ -18,12 +18,16 @@
 $LANG_SRCH = array(
     'menu_label'    => 'Searcher',
     'generate_all'  => 'Generate All',
+    'adm_counters'  => 'Search Terms',
     'regenerate'    => 'Regenerate Indexes',
     'version'       => 'Version',
     'find'          => 'Find',
     'in'            => 'in',
     'none'          => 'None',
+    'search_terms'  => 'Search Terms',
+    'queries'       => 'Queries',
     'hlp_gen_all'   => 'Re-generate all indexes for the selected content types. Use this option after installing the plugin, or after changing certain key configuration items such as the minimum word length or changing the stemmer.',
+    'hlp_counters'  => 'Here are the search queries made by site visitors, along with the number of times each query was made.',
 );
 
 // Localization of the Admin Configuration UI

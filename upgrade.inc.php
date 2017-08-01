@@ -5,7 +5,7 @@
 *   @author     Lee Garner <lee@leegarner.com>
 *   @copyright  Copyright (c) 2017 Lee Garner <lee@leegarner.com>
 *   @package    searcher
-*   @version    0.0.1
+*   @version    0.0.4
 *   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
@@ -62,6 +62,15 @@ function SRCH_do_upgrade()
                 'select', 0, 0, 11, 50, true, $_SRCH_CONF['pi_name']);
         $c->add('stemmer', $_SRCH_DEFAULTS['stemmer'],
                 'select', 0, 0, 0, 60, true, $_SRCH_CONF['pi_name']);
+        if (!SRCH_do_set_version($current_ver)) return false;
+    }
+
+    if (!COM_checkVersion($current_ver, '0.0.4')) {
+        // upgrade from 0.0.3 to 0.0.4
+        $current_ver = '0.0.4';
+        COM_errorLog("Updating Plugin to $current_ver");
+        if (!SRCH_do_upgrade_sql($current_ver)) return false;
+        if (!SRCH_do_set_version($current_ver)) return false;
     }
 
     // Final version setting in case there was no upgrade process for

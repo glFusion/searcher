@@ -46,6 +46,15 @@ $_UPGRADE_SQL = array(
             WHERE group_name = '{$_SRCH_CONF['pi_name']}'
             AND name in ('wt_title', 'wt_content', 'wt_author')",
     ),
+    '0.0.4' => array(
+        "CREATE TABLE `{$_TABLES['searcher_counters']}` (
+          `term` varchar(40) NOT NULL,
+          `hits` int(11) unsigned NOT NULL DEFAULT '1',
+          PRIMARY KEY (`term`),
+          KEY `hits` (`hits`)
+        )",
+    ),
 );
+$_SQL['searcher_counters'] = $_UPGRADE_SQL['0.0.4'][0];
 
 ?>

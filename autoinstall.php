@@ -8,7 +8,7 @@
 *   @copyright  Copyright (c) 2012 Lee Garner <lee@leegarner.com>
 *   @package    searcher
 *   @version    0.0.1
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
+*   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
 */
@@ -26,25 +26,31 @@ require_once __DIR__ . "/sql/{$_DB_dbms}_install.php";
 
 //  Plugin installation options
 $INSTALL_plugin[$_SRCH_CONF['pi_name']] = array(
-    'installer' => array('type' => 'installer', 
-            'version' => '1', 
+    'installer' => array('type' => 'installer',
+            'version' => '1',
             'mode' => 'install'),
 
-    'plugin' => array('type' => 'plugin', 
+    'plugin' => array('type' => 'plugin',
             'name'      => $_SRCH_CONF['pi_name'],
-            'ver'       => $_SRCH_CONF['pi_version'], 
+            'ver'       => $_SRCH_CONF['pi_version'],
             'gl_ver'    => $_SRCH_CONF['gl_version'],
-            'url'       => $_SRCH_CONF['pi_url'], 
+            'url'       => $_SRCH_CONF['pi_url'],
             'display'   => $_SRCH_CONF['pi_display_name']
     ),
-       
-    array('type' => 'table', 
-            'table'     => $_TABLES['searcher_index'], 
-            'sql'       => $_SQL['searcher_index']),
+
+    array('type' => 'table',
+            'table'     => $_TABLES['searcher_index'],
+            'sql'       => $_SQL['searcher_index'],
+    ),
+
+    array('type' => 'table',
+            'table'     => $_TABLES['searcher_counters'],
+            'sql'       => $_SQL['searcher_counters'],
+    ),
 
 );
-    
- 
+
+
 /**
 *   Puts the datastructures for this plugin into the glFusion database
 *   Note: Corresponding uninstall routine is in functions.inc
@@ -73,7 +79,7 @@ function plugin_install_searcher()
 function plugin_autouninstall_searcher()
 {
     $out = array (
-        'tables'    => array('searcher_index'),
+        'tables'    => array('searcher_index', 'searcher_counters'),
         'groups'    => array(),
         'features'  => array(),
         'php_blocks' => array(),

@@ -12,6 +12,7 @@
 */
 require_once '../../../lib-common.php';
 require_once '../../auth.inc.php';
+USES_lib_admin();
 
 $display = '';
 $pi_title = $_SRCH_CONF['pi_display_name'] . ' ' .
@@ -28,32 +29,131 @@ if (!SEC_inGroup('Root')) {
 /**
 *   Create the main menu
 *
-*   @param  string  $explanation    Instruction text
+*   @param  string  $sel    Selected option
 *   @return string  HTML for menu area
 */
-function SRCH_adminMenu($explanation = '')
+function SRCH_adminMenu($sel = 'default')
 {
     global $_CONF, $LANG_ADMIN, $LANG_SRCH, $_SRCH_CONF;
 
-    USES_lib_admin();
-
     $retval = '';
+
+    $T = new Template(SRCH_PI_PATH . '/templates');
+    $T->set_file('admin', 'admin_header.thtml');
 
     $token = SEC_createToken();
     $menu_arr = array(
-        array('url' => SRCH_ADMIN_URL,
-              'text' => $LANG_SRCH['generate_all']),
-        array('url' => $_CONF['site_admin_url'],
-              'text' => $LANG_ADMIN['admin_home']),
+        array(  'url' => SRCH_ADMIN_URL . '/index.php?counters=x',
+                'text' => $LANG_SRCH['adm_counters'],
+                'active' => $sel == 'counters' ? true : false,
+        ),
+        array(  'url' => SRCH_ADMIN_URL . '/index.php?gen_all=x',
+                'text' => $LANG_SRCH['generate_all'],
+                'active' => $sel == 'gen_all' ? true : false,
+        ),
+        array(  'url' => $_CONF['site_admin_url'],
+                'text' => $LANG_ADMIN['admin_home'],
+        ),
     );
-    $retval .= ADMIN_createMenu($menu_arr, $explanation, plugin_geticon_searcher());
+
+    $explanation =  $LANG_SRCH['hlp_' . $sel];
+
+    $T->set_var(array(
+        'pi_url'    => SRCH_URL,
+        'header'    => $_SRCH_CONF['pi_display_name'],
+        'version'   => $_SRCH_CONF['pi_version'],
+        'pi_icon'   => plugin_geticon_searcher(),
+        'menu'      => ADMIN_createMenu($menu_arr, $explanation, plugin_geticon_searcher()),
+    ) );
+    $T->parse('output', 'admin');
+    $retval .= $T->finish($T->get_var('output'));
     return $retval;
 }
+
+
+/**
+*   View the search queries made by guests.
+*
+*   @return string  Admin list of search terms and counts
+*/
+function SRCH_admin_terms()
+{
+    global $_CONF, $_TABLES, $LANG_ADMIN, $LANG_SRCH, $LANG_LINKS_ADMIN;
+
+    $retval = '';
+    $token = SEC_createToken();
+
+    $header_arr = array(      # display 'text' and use table field 'field'
+        array(
+            'text' => $LANG_SRCH['search_terms'],
+            'field' => 'term',
+            'sort' => true,
+        ),
+        array(
+            'text' => $LANG_SRCH['queries'],
+            'field' => 'hits',
+            'sort' => true,
+            'align' => 'right',
+        ),
+    );
+
+    $defsort_arr = array('field' => 'hits', 'direction' => 'desc');
+
+    $retval .= COM_startBlock($_SRCH_CONF['pi_display_name'], '',
+                              COM_getBlockTemplate('_admin_block', 'header'));
+    $retval .= SRCH_adminMenu('counters');
+
+    $text_arr = array(
+        'has_extras' => true,
+        'form_url' => SRCH_ADMIN_URL . '/index.php?counters=x',
+    );
+
+    $query_arr = array('table' => 'searcher_counters',
+        'sql' => "SELECT term, hits FROM {$_TABLES['searcher_counters']}",
+        'query_fields' => array('term'),
+        'default_filter' => 'WHERE 1=1',
+    );
+
+    $retval .= ADMIN_list('searcher', 'SRCH_getListField_counters', $header_arr,
+                    $text_arr, $query_arr, $defsort_arr, $validate_link, $token, '', '');
+
+    $retval .= COM_endBlock(COM_getBlockTemplate('_admin_block', 'footer'));
+    return $retval;
+}
+
+
+/**
+*   Get the value for list fields in admin lists.
+*   For the search term list, just returns the field values.
+*
+*   @param  string  $fieldname  Name of field
+*   @param  mixed   $fieldvalue Field value
+*   @param  array   $A          Complete database record
+*   @param  array   $icon_arr   Icon array (not used)
+*   @param  string  $token      Admin token
+*/
+function SRCH_getListField_counters($fieldname, $fieldvalue, $A, $icon_arr, $token)
+{
+    global $_CONF, $_USER, $LANG_ACCESS, $LANG_LINKS_ADMIN, $LANG_ADMIN;
+
+    $retval = '';
+
+    switch($fieldname) {
+        default:
+            $retval = $fieldvalue;
+            break;
+    }
+    return $retval;
+}
+
 
 $view = '';
 $action = '';
 $expected = array(
+    // Actions
     'genindex',
+    // Views, no action
+    'gen_all', 'counters',
 );
 foreach($expected as $provided) {
     if (isset($_POST[$provided])) {
@@ -65,6 +165,7 @@ foreach($expected as $provided) {
 
 $content = '';
 $message = '';
+$view = '';
 switch ($action) {
 case 'genindex':
     if (!isset($_POST['pi']) || empty($_POST['pi'])) {
@@ -77,10 +178,15 @@ case 'genindex':
             $message .= "<br />$pi_name: Indexed $count Items";
         }
     }
+    break;
+default:
+    $view = $action;
+    break;
 }
 
 switch ($view) {
-default:
+case 'gen_all':
+    $content .= SRCH_adminMenu('gen_all');
     $T = new Template(SRCH_PI_PATH . '/templates');
     $T->set_file('admin', 'admin.thtml');
     $T->set_var(array(
@@ -88,7 +194,6 @@ default:
         'header'    => $_SRCH_CONF['pi_display_name'],
         'version'   => $_SRCH_CONF['pi_version'],
         'pi_icon'   => plugin_geticon_searcher(),
-        'menu'      => SRCH_adminMenu($LANG_SRCH['hlp_gen_all']),
     ) );
     foreach ($_PLUGINS as $pi_name) {
         if (function_exists('plugin_IndexAll_' . $pi_name)) {
@@ -99,7 +204,11 @@ default:
     }
     $T->parse('output', 'admin');
     $content .= $T->finish($T->get_var('output'));
- break;
+    break;
+case 'counters':
+default:
+    $content .= SRCH_admin_terms();
+    break;
 }
 
 $display .= COM_siteHeader('menu', $pi_title);
