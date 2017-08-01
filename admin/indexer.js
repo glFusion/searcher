@@ -39,6 +39,7 @@ var searcherinit = (function() {
     var contenttypes  = null,  // array of all content types
     contenttype       = null,  // current table being processed
     contentLists      = null,
+    content           = null,
     contentCount = 0,
     contentDone  = 1,
     url         = null,
