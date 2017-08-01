@@ -136,6 +136,8 @@ function SRCH_getContentTypesAjax()
         }
     }
 
+//    $contentTypes = array('forum');
+
     $retval['errorCode'] = 0;
     $retval['contenttypes'] = $contentTypes;
 
@@ -163,7 +165,7 @@ function SRCH_getContentListAjax()
     $contentList = array();
     $retval = array();
 
-    $rc = PLG_getItemInfo($type,'*','id');
+    $rc = PLG_getItemInfo($type,'*','id,search_index');
     foreach ( $rc AS $id ) {
         $contentList[] = $id;
     }
@@ -197,7 +199,7 @@ function SRCH_indexContentItemAjax()
     $contentList = array();
     $retval = array();
 
-    $contentInfo = PLG_getItemInfo($type,$id,'id,date,title,searchidx,author,hits,perms');
+    $contentInfo = PLG_getItemInfo($type,$id,'id,date,title,searchidx,author,hits,perms,search_index');
 
     if ( is_array($contentInfo) && count($contentInfo) > 0 ) {
         $props = array(
@@ -216,7 +218,7 @@ function SRCH_indexContentItemAjax()
         );
 
         \Searcher\Indexer::IndexDoc($props);
-        if ( $type != 'forum' ) {
+        if ( $type != 'forum' && $type != 'dokuwiki' ) {
             plugin_IndexAll_comments($type, $id, $props['perms']);
         }
 
