@@ -429,7 +429,7 @@ class Searcher extends Common
     public static function Highlight($content, $terms)
     {
         foreach ($terms as $term=>$count) {
-            //$content = str_ireplace($term, "<span class=\"highlight\">$term</span>", $content);
+            $term = trim($term);    // Numbers have a leading space
             preg_match_all("/$term+/i", $content, $matches);
             if (is_array($matches[0]) && count($matches[0]) >= 1) {
                 foreach ($matches[0] as $match) {
