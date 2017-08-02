@@ -213,7 +213,7 @@ class SearchForm extends Common
             'article' => $LANG09[6],
         );
         if (isset($_CONF['comment_engine']) && $_CONF['comment_engine'] == 'internal') {
-            $plugintypes['comments'] = $LANG09[7];
+            $plugintypes['comment'] = $LANG09[7];
         }
         $plugintypes = array_merge($plugintypes, PLG_getSearchTypes());
         foreach ($plugintypes as $key => $val) {
