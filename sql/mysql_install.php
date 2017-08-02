@@ -6,7 +6,7 @@
 *   @copyright  Copyright (c) 2012 Lee Garner <lee@leegarner.com>
 *   @package    lglib
 *   @version    0.0.1
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
+*   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
 */
@@ -34,7 +34,7 @@ $_SQL['searcher_index'] = "CREATE TABLE `{$_TABLES['searcher_index']}` (
   KEY `terms_pid` (`term`,`parent_id`),
   KEY `type_pid` (`type`,`parent_id`),
   KEY `parent` (`parent_type`,`parent_id`)
-)";
+) ENGINE=MyISAM";
 
 $_UPGRADE_SQL = array(
     '0.0.2' => array(
