@@ -63,9 +63,11 @@ class Indexer extends Common
         $parent_type = isset($content['parent_type']) ?
             DB_escapeString($content['parent_type']) : $type;
         $ts = isset($content['date']) ? (int)$content['date'] : time();
-        $grp_access = 2;    // default to all users access
+        $grp_access = 2;    // default to all users access if no perms sent
         if (isset($content['perms']) && is_array($content['perms'])) {
-            if ($content['perms']['perm_members'] == 2) {
+            if ($content['perms']['perm_anon'] == 2) {
+                $grp_access = 2;    // anon users
+            } elseif ($content['perms']['perm_members'] == 2) {
                 $grp_access = 13;   // loged-in users
             } else {
                 // limit to specific group
