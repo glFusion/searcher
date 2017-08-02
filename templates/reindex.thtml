@@ -26,6 +26,11 @@
 
 <p>{lang_conversion_instructions}</p>
 
+
+<!-- BEGIN contenttypes -->
+<input id="ct_{content_type}" type="checkbox" value="{content_type}">{content_type}<br>
+<!-- END contenttypes -->
+
 <p>{lang_conversion_status}</p>
 
 <div id="dbconfig">
