@@ -69,9 +69,9 @@ class Indexer extends Common
                 $grp_access = 2;    // anon users
             } elseif ($content['perms']['perm_members'] == 2) {
                 $grp_access = 13;   // loged-in users
-            } else {
+            } elseif (!empty($content['perms']['group_id'])) {
                 // limit to specific group
-                $grp_access = $content['perms']['group_id'];
+                $grp_access = (int)$content['perms']['group_id'];
             }
         }
 
@@ -94,7 +94,7 @@ class Indexer extends Common
                 content, title, author, grp_access, weight
                 ) VALUES $values";
 
-        $res = DB_query($sql, 1);
+        $res = DB_query($sql);
         if (DB_error()) {
             COM_errorLog("Searcher Error Indexing $type, ID $item_id");
             return false;
