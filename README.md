@@ -50,6 +50,8 @@ Functions and the required arguments array are listed below:
 ### plugin_indexDoc_searcher($args = array())
 Adds a single document to the index. Also indexes any comments.
 
+At least one of "content", "title" or "author" must not be empty.
+
 Usage:
 ```
 $args = array(
@@ -59,6 +61,7 @@ $args = array(
         'content'   => Full content to index
         'title'     => Item title
         'author'    => Display name of the author, not the user ID
+        'date'      => Unix timestamp, defaults to "now" if not provided
         'perms' => array(
             'owner_id'      => Numeric user id of the owner
             'group_id'      => Numeric user id of the gruop

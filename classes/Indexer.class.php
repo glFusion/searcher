@@ -72,8 +72,8 @@ class Indexer extends Common
             $perm_anon = (int)$content['perms']['perm_anon'];
         } else {
             // No permission restrictions. Only read is needed here.
-            $owner_id = 1;
-            $group_id = 2;
+            $owner_id = 2;
+            $group_id = 1;
             $perm_owner = 2;
             $perm_group = 2;
             $perm_members = 2;

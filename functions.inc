@@ -386,11 +386,22 @@ function plugin_itemsaved_searcher($id, $type)
     $contentInfo = PLG_getItemInfo($type,$id,'id,date,title,searchidx,author,hits,perms,search_index');
 
     if ( is_array($contentInfo) && count($contentInfo) > 0 ) {
+        if (!isset($contentInfo['perms']) || empty($contentInfo['perms'])) {
+            $contentInfo['pems'] = array(
+                'owner_id' => 2,
+                'group_id' => 1,
+                'perm_owner' => 3,
+                'perm_group' => 2,
+                'perm_members' => 2,
+                'perm_anon' => 2,
+            );
+        }
         $props = array(
             'item_id' => $id,
             'type'  => $type,
             'title' => $contentInfo['title'],
             'content' => $contentInfo['searchidx'],
+            'date' => $contentInfo['date'],
             'perms' => array(
                 'owner_id' => $contentInfo['perms']['owner_id'],
                 'group_id' => $contentInfo['perms']['group_id'],
