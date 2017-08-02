@@ -22,6 +22,10 @@ if (isset($_GET['query'])) {
     } elseif (isset($_POST['type'])) {
         $S->setType($_POST['type']);
     }
+    if ( isset($_GET['st']) ) {
+        $st = COM_applyFilter($_GET['st'],true);
+        $S->setDays($st);
+    }
     $S->doSearch($page);
     $results = $S->Display();
     $Form->setQuery($query);

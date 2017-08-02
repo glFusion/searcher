@@ -58,7 +58,6 @@ class SearchForm extends Common
         if ($this->_validateDate($this->_dateEnd) == false) {
             $this->_dateEnd = '';
         }
-
         if (isset($_GET['st'])) {
             $st = COM_applyFilter($_GET['st'],true);
             $this->_searchDays = $st;
@@ -67,7 +66,6 @@ class SearchForm extends Common
                 $this->_dateStart = date('Y-m-d', time() - ($st * 24 * 60 * 60));
             }
         }
-
         if (isset ($_GET['author'])) {
             $this->_author = COM_applyFilter($_GET['author']);
         } else if ( isset($_POST['author']) ) {
@@ -90,6 +88,10 @@ class SearchForm extends Common
             $this->_type = COM_applyFilter($_POST['type']);
         } else {
             $this->_type = 'all';
+        }
+        if (isset($_GET['st'])) {
+            $st = COM_applyFilter($_GET['st'],true);
+            $this->_searchDays = $st;
         }
 /*
         if ( isset($_GET['keyType']) ) {
@@ -226,6 +228,17 @@ class SearchForm extends Common
             'query'         => htmlspecialchars($this->query),
             'plugin_types'  => $options,
         ) );
+        $dateOptions  = '<option value="0"'  . ($this->_searchDays == 0   ? ' selected="selected"' : '') .'>'.$LANG09[4].'</option>';
+        $dateOptions .= '<option value="1"'  . ($this->_searchDays == 1   ? ' selected="selected"' : '') .'>'.$LANG09[75].'</option>';
+        $dateOptions .= '<option value="7"'  . ($this->_searchDays == 7   ? ' selected="selected"' : '') .'>'.$LANG09[76].'</option>';
+        $dateOptions .= '<option value="14"' . ($this->_searchDays == 14  ? ' selected="selected"' : '') .'>'.$LANG09[77].'</option>';
+        $dateOptions .= '<option value="30"' . ($this->_searchDays == 30  ? ' selected="selected"' : '') .'>'.$LANG09[78].'</option>';
+        $dateOptions .= '<option value="90"' . ($this->_searchDays == 90  ? ' selected="selected"' : '') .'>'.$LANG09[79].'</option>';
+        $dateOptions .= '<option value="180"'. ($this->_searchDays == 180 ? ' selected="selected"' : '') .'>'.$LANG09[80].'</option>';
+        $dateOptions .= '<option value="365"'. ($this->_searchDays == 365 ? ' selected="selected"' : '') .'>'.$LANG09[81].'</option>';
+        $T->set_var('date_options',$dateOptions);
+        $T->set_var('lang_date_filter',$LANG09[71]);
+
         $T->parse('output', 'searchform');
         $retval .= $T->finish($T->get_var('output'));
         return $retval;
