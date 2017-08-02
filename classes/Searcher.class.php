@@ -70,7 +70,6 @@ class Searcher extends Common
         $type_sql = $this->type ? " AND type = '{$this->type}' " : '';
         $where = " term in ({$this->sql_tokens}) " . $type_sql .
             $this->_getPermSQL() .
-            //" GROUP BY type, parent_id
             ' GROUP BY  type, item_id ';
         return $where;
     }
@@ -104,7 +103,7 @@ class Searcher extends Common
             WHERE " . $this->_sql_where() .
             " ORDER BY relevance DESC, ts DESC
             LIMIT $start, {$_SRCH_CONF['perpage']}";
-        //echo $sql."\n";
+        //echo $sql."\n";die;
         $res = DB_query($sql);
         $this->results = array();
         // Set field array for PLG_getItemInfo.
@@ -168,7 +167,7 @@ class Searcher extends Common
     {
         static $perms = NULL;
         if ($perms === NULL) {
-            $perms = COM_getPermSQL('AND');
+            $perms = SEC_buildAccessSQL('AND');
         }
         return $perms;
     }

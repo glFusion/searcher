@@ -63,21 +63,14 @@ class Indexer extends Common
         $parent_type = isset($content['parent_type']) ?
             DB_escapeString($content['parent_type']) : $type;
         $ts = isset($content['date']) ? (int)$content['date'] : time();
+        $grp_access = 2;    // default to all users access
         if (isset($content['perms']) && is_array($content['perms'])) {
-            $owner_id = (int)$content['perms']['owner_id'];
-            $group_id = (int)$content['perms']['group_id'];
-            $perm_owner = (int)$content['perms']['perm_owner'];
-            $perm_group = (int)$content['perms']['perm_group'];
-            $perm_members = (int)$content['perms']['perm_members'];
-            $perm_anon = (int)$content['perms']['perm_anon'];
-        } else {
-            // No permission restrictions. Only read is needed here.
-            $owner_id = 2;
-            $group_id = 1;
-            $perm_owner = 2;
-            $perm_group = 2;
-            $perm_members = 2;
-            $perm_anon = 2;
+            if ($content['perms']['perm_members'] == 2) {
+                $grp_access = 13;   // loged-in users
+            } else {
+                // limit to specific group
+                $grp_access = $content['perms']['group_id'];
+            }
         }
 
         $values = array();
@@ -88,9 +81,7 @@ class Indexer extends Common
             $term = DB_escapeString(trim($term));
             $weight = (float)$data['weight'];
             $values[] = "('$type', '$item_id', '$term', '$parent_id', '$parent_type',
-                    $ts, $content, $title, $author, $owner_id, $group_id,
-                    $perm_owner, $perm_group, $perm_members, $perm_anon,
-                    $weight)";
+                    $ts, $content, $title, $author, $grp_access, $weight)";
         }
         if (empty($values)) {
             return true;
@@ -98,9 +89,7 @@ class Indexer extends Common
         $values = implode(', ', $values);
         $sql = "INSERT IGNORE INTO {$_TABLES['searcher_index']} (
                 type, item_id, term, parent_id, parent_type, ts,
-                content, title, author,
-                owner_id, group_id, perm_owner, perm_group,
-                perm_members, perm_anon, weight
+                content, title, author, grp_access, weight
                 ) VALUES $values";
 
         $res = DB_query($sql, 1);
