@@ -152,6 +152,7 @@ function SRCH_indexContentItemAjax()
             'type'  => $type,
             'title' => $contentInfo['title'],
             'content' => $contentInfo['searchidx'],
+            'date' => $contentInfo['date'],
             'perms' => array(
                 'owner_id' => $contentInfo['perms']['owner_id'],
                 'group_id' => $contentInfo['perms']['group_id'],

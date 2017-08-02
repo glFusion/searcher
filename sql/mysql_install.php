@@ -20,6 +20,7 @@ $_SQL['searcher_index'] = "CREATE TABLE `{$_TABLES['searcher_index']}` (
   `term` varchar(50) NOT NULL DEFAULT '',
   `parent_id` varchar(128) NOT NULL DEFAULT '',
   `parent_type` varchar(50) NOT NULL DEFAULT '',
+  `ts` int(11) unsigned NOT NULL DEFAULT '0',
   `content` mediumint(9) NOT NULL DEFAULT '0',
   `title` mediumint(9) NOT NULL DEFAULT '0',
   `author` mediumint(9) NOT NULL DEFAULT '0',
@@ -53,6 +54,10 @@ $_UPGRADE_SQL = array(
           PRIMARY KEY (`term`),
           KEY `hits` (`hits`)
         )",
+    ),
+    '0.0.5' => array(
+        "ALTER TABLE {$_TABLES['searcher_index']}
+            ADD ts int(11) unsigned NOT NULL DEFAULT '0' AFTER parent_type",
     ),
 );
 $_SQL['searcher_counters'] = $_UPGRADE_SQL['0.0.4'][0];

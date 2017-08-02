@@ -62,6 +62,7 @@ class Indexer extends Common
             DB_escapeString($content['parent_id']) : $item_id;
         $parent_type = isset($content['parent_type']) ?
             DB_escapeString($content['parent_type']) : $type;
+        $ts = isset($content['date']) ? (int)$content['date'] : time();
         if (isset($content['perms']) && is_array($content['perms'])) {
             $owner_id = (int)$content['perms']['owner_id'];
             $group_id = (int)$content['perms']['group_id'];
@@ -87,7 +88,7 @@ class Indexer extends Common
             $term = DB_escapeString(trim($term));
             $weight = (float)$data['weight'];
             $values[] = "('$type', '$item_id', '$term', '$parent_id', '$parent_type',
-                    $content, $title, $author, $owner_id, $group_id,
+                    $ts, $content, $title, $author, $owner_id, $group_id,
                     $perm_owner, $perm_group, $perm_members, $perm_anon,
                     $weight)";
         }
@@ -95,11 +96,12 @@ class Indexer extends Common
             return true;
         }
         $values = implode(', ', $values);
-        $sql = "INSERT IGNORE INTO {$_TABLES['searcher_index']}
-                (type, item_id, term, parent_id, parent_type, content, title, author,
+        $sql = "INSERT IGNORE INTO {$_TABLES['searcher_index']} (
+                type, item_id, term, parent_id, parent_type, ts,
+                content, title, author,
                 owner_id, group_id, perm_owner, perm_group,
-                perm_members, perm_anon, weight)
-                VALUES $values";
+                perm_members, perm_anon, weight
+                ) VALUES $values";
 
         $res = DB_query($sql, 1);
         if (DB_error()) {

@@ -102,7 +102,7 @@ class Searcher extends Common
         $sql = "SELECT type, item_id, term, sum($wts) as relevance
             FROM {$_TABLES['searcher_index']}
             WHERE " . $this->_sql_where() .
-            " ORDER BY relevance DESC
+            " ORDER BY relevance DESC, ts DESC
             LIMIT $start, {$_SRCH_CONF['perpage']}";
         //echo $sql."\n";
         $res = DB_query($sql);
