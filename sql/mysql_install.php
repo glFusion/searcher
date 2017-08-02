@@ -21,15 +21,10 @@ $_SQL['searcher_index'] = "CREATE TABLE `{$_TABLES['searcher_index']}` (
   `parent_id` varchar(128) NOT NULL DEFAULT '',
   `parent_type` varchar(50) NOT NULL DEFAULT '',
   `ts` int(11) unsigned NOT NULL DEFAULT '0',
+  `grp_access` mediumint(8) NOT NULL DEFAULT '2',
   `content` mediumint(9) NOT NULL DEFAULT '0',
   `title` mediumint(9) NOT NULL DEFAULT '0',
   `author` mediumint(9) NOT NULL DEFAULT '0',
-  `owner_id` mediumint(8) NOT NULL DEFAULT '1',
-  `group_id` mediumint(8) NOT NULL DEFAULT '1',
-  `perm_owner` tinyint(1) unsigned NOT NULL DEFAULT '3',
-  `perm_group` tinyint(1) unsigned NOT NULL DEFAULT '3',
-  `perm_members` tinyint(1) unsigned NOT NULL DEFAULT '2',
-  `perm_anon` tinyint(1) unsigned NOT NULL DEFAULT '2',
   `weight` float unsigned NOT NULL DEFAULT '1',
   KEY `terms` (`term`),
   KEY `terms_pid` (`term`,`parent_id`),
@@ -58,6 +53,15 @@ $_UPGRADE_SQL = array(
     '0.0.5' => array(
         "ALTER TABLE {$_TABLES['searcher_index']}
             ADD ts int(11) unsigned NOT NULL DEFAULT '0' AFTER parent_type",
+    ),
+    '0.0.6' => array(
+        "ALTER TABLE {$_TABLES['searcher_index']}
+            ADD grp_access mediumint(8) unsigned not null default '2' AFTER ts",
+        "UPDATE {$_TABLES['searcher_index']} SET grp_access = if(perm_anon = 2, 2,
+            if (perm_members = 2, 13, group_id))",
+        "ALTER TABLE {$_TABLES['searcher_index']}
+            DROP owner_id, DROP perm_owner, DROP perm_group,
+            DROP perm_members, DROP perm_anon",
     ),
 );
 $_SQL['searcher_counters'] = $_UPGRADE_SQL['0.0.4'][0];
