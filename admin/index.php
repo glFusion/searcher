@@ -6,12 +6,14 @@
 *   @copyright  Copyright (c) 2017 Lee Garner <lee@leegarner.com>
 *   @package    searcher
 *   @version    0.0.1
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
+*   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
 */
 require_once '../../../lib-common.php';
 require_once '../../auth.inc.php';
+require_once 'admin.inc.php';
+
 USES_lib_admin();
 
 $display = '';
@@ -20,56 +22,10 @@ $pi_title = $_SRCH_CONF['pi_display_name'] . ' ' .
 
 // If user isn't a root user or if the backup feature is disabled, bail.
 if (!SEC_inGroup('Root')) {
-    COM_accessLog("User {$_USER['username']} tried to illegally access the Searcher admin screen.");
+    COM_accessLog("User {$_USER['username']} tried to access the Searcher admin screen.");
     COM_404();
     exit;
 }
-
-
-/**
-*   Create the main menu
-*
-*   @param  string  $sel    Selected option
-*   @return string  HTML for menu area
-*/
-function SRCH_adminMenu($sel = 'default')
-{
-    global $_CONF, $LANG_ADMIN, $LANG_SRCH, $_SRCH_CONF;
-
-    $retval = '';
-
-    $T = new Template(SRCH_PI_PATH . '/templates');
-    $T->set_file('admin', 'admin_header.thtml');
-
-    $token = SEC_createToken();
-    $menu_arr = array(
-        array(  'url' => SRCH_ADMIN_URL . '/index.php?counters=x',
-                'text' => $LANG_SRCH['adm_counters'],
-                'active' => $sel == 'counters' ? true : false,
-        ),
-        array(  'url' => SRCH_ADMIN_URL . '/index.php?gen_all=x',
-                'text' => $LANG_SRCH['generate_all'],
-                'active' => $sel == 'gen_all' ? true : false,
-        ),
-        array(  'url' => $_CONF['site_admin_url'],
-                'text' => $LANG_ADMIN['admin_home'],
-        ),
-    );
-
-    $explanation =  $LANG_SRCH['hlp_' . $sel];
-
-    $T->set_var(array(
-        'pi_url'    => SRCH_URL,
-        'header'    => $_SRCH_CONF['pi_display_name'],
-        'version'   => $_SRCH_CONF['pi_version'],
-        'pi_icon'   => plugin_geticon_searcher(),
-        'menu'      => ADMIN_createMenu($menu_arr, $explanation, plugin_geticon_searcher()),
-    ) );
-    $T->parse('output', 'admin');
-    $retval .= $T->finish($T->get_var('output'));
-    return $retval;
-}
-
 
 /**
 *   View the search queries made by guests.
@@ -78,7 +34,7 @@ function SRCH_adminMenu($sel = 'default')
 */
 function SRCH_admin_terms()
 {
-    global $_CONF, $_TABLES, $LANG_ADMIN, $LANG_SRCH, $LANG_LINKS_ADMIN;
+    global $_CONF, $_SRCH_CONF, $_TABLES, $LANG_ADMIN, $LANG_SRCH, $LANG_LINKS_ADMIN;
 
     $retval = '';
     $token = SEC_createToken();
@@ -99,8 +55,6 @@ function SRCH_admin_terms()
 
     $defsort_arr = array('field' => 'hits', 'direction' => 'desc');
 
-    $retval .= COM_startBlock($_SRCH_CONF['pi_display_name'], '',
-                              COM_getBlockTemplate('_admin_block', 'header'));
     $retval .= SRCH_adminMenu('counters');
 
     $text_arr = array(
@@ -115,9 +69,8 @@ function SRCH_admin_terms()
     );
 
     $retval .= ADMIN_list('searcher', 'SRCH_getListField_counters', $header_arr,
-                    $text_arr, $query_arr, $defsort_arr, $validate_link, $token, '', '');
+                    $text_arr, $query_arr, $defsort_arr, '', $token, '', '');
 
-    $retval .= COM_endBlock(COM_getBlockTemplate('_admin_block', 'footer'));
     return $retval;
 }
 

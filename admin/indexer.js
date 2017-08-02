@@ -21,15 +21,6 @@
  * ***************************************************************************
  */
 
-
- // flow
- // - searcherinit
- //   - pub.update
- //   - processContentTypes (get list of content types)
- //   - initContent (get list of content items)
- //     -- processContent (index each specific item)
- //   - initContent
-
 var searcherinit = (function() {
 
     // public methods/properties
@@ -40,11 +31,11 @@ var searcherinit = (function() {
     contenttype       = null,  // current table being processed
     contentLists      = null,
     content           = null,
-    contentCount = 0,
-    contentDone  = 1,
-    url         = null,
-    done        = 1,
-    count       = 0,
+    contentCount    = 0,
+    contentDone     = 1,
+    url             = null,
+    done            = 1,
+    count           = 0,
     contenttypeErrorCount  = 0,  // track errors per table - reset each time we start a new table - if non-zero do not convert table
     indexingMessage = '',
     $m          = null;
@@ -125,16 +116,21 @@ var searcherinit = (function() {
     var processContentTypes = function() {
         console.log('Indexer: In processContentTypes()');
         if (contenttype) {
-            console.log('Indexer: In processContentTypes() - processing type: ' + contenttype);
-            var percent = Math.round(( ( done - 1 ) / count ) * 100);
-            if ( percent == 0 ) {
-                percent = Math.round((( done  / count ) * 100) / 2 );
+           if ($('#ct_' + contenttype).is(":checked")) {
+                console.log('Indexer: In processContentTypes() - processing type: ' + contenttype);
+                var percent = Math.round(( ( done - 1 ) / count ) * 100);
+                if ( percent == 0 ) {
+                    percent = Math.round((( done  / count ) * 100) / 2 );
+                }
+                $('#pb').css('width', percent + "%");
+                $('#pb').html(percent + "%");
+                contenttypeErrorCount = 0;
+                var wait = 250;
+                window.setTimeout(initContent, wait);
+            } else {
+                contenttype = contenttypes.shift();
+                window.setTimeout(processContentTypes,250);
             }
-            $('#pb').css('width', percent + "%");
-            $('#pb').html(percent + "%");
-            contenttypeErrorCount = 0;
-            var wait = 250;
-            window.setTimeout(initContent, wait);
         } else {
             console.log('Indexer: In processContentTypes() - reindexing content');
             finished();
@@ -149,6 +145,8 @@ var searcherinit = (function() {
         if (contenttype) {
             console.log("processing content type " + contenttype);
             itemList = null;
+
+            message('Retrieving content list for ' + contenttype);
 
             var dataS = {
                 "getcontentlist" : 'x',
@@ -190,6 +188,7 @@ var searcherinit = (function() {
                 var wait = 250;
                 window.setTimeout(processContent, wait);
             });
+
         }
     };
 

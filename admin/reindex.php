@@ -12,51 +12,34 @@
 */
 require_once '../../../lib-common.php';
 require_once '../../auth.inc.php';
-
-// temp lang strings - will move to language file when done...
-
-$LANG_SRCH_ADM = array(
-    'reindex_title'     => 'Reindex Content',
-    'searcher_admin'    => 'Searcher Admin',
-    'index_instructions'    => 'This will scan all content types and rebuild the searcher index',
-    'reindex_button'    => 'Reindex',
-    'success'           => 'Success',
-    'indexing'          => 'Indexing',
-    'index_status'      => 'Indexing Status',
-    'retrieve_content_types'   => 'Retrieving Content Types',
-    'error_heading'     => 'Errors',
-    'no_errors'         => 'No Errors',
-    'error_getcontenttypes' => 'Unable to retrieve content types from glFusion',
-    'current_progress'  => 'Current Progress',
-    'overall_progress'  => 'Overall Progress',
-
-);
+require_once 'admin.inc.php';
 
 USES_lib_admin();
 
 function SRCHER_reindex()
 {
-    global $_CONF, $_SRCH_CONF, $LANG01, $LANG_ADMIN, $LANG_SRCH_ADM, $_IMAGE_TYPE;
+    global $_CONF, $_SRCH_CONF, $_PLUGINS, $LANG01, $LANG_ADMIN, $LANG_SRCH, $LANG_SRCH_ADM, $_IMAGE_TYPE;
 
     $retval = '';
 
     $T = new Template(SRCH_PI_PATH . '/templates');
     $T->set_file('page','reindex.thtml');
 
-    $menu_arr = SRCH_getAdminHeaderMenu('reindex');
-
-    $T->set_var('start_block', COM_startBlock($LANG_SRCH_ADM['searcher_admin'], '',
-                        COM_getBlockTemplate('_admin_block', 'header')));
-
-    $T->set_var('admin_menu',ADMIN_createMenu(
-                $menu_arr,
-                "",
-                plugin_geticon_searcher())
-    );
+    $retval .= SRCH_adminMenu('reindex');
 
     $T->set_var('lang_title',$LANG_SRCH_ADM['reindex_title']);
 
     $T->set_var('lang_conversion_instructions', $LANG_SRCH_ADM['index_instructions']);
+
+    $T->set_block('page', 'contenttypes', 'ct');
+    $T->set_var('content_type','article');
+    $T->parse('ct', 'contenttypes',true);
+    foreach ($_PLUGINS as $pi_name) {
+        if (function_exists('plugin_getiteminfo_' . $pi_name)) {
+            $T->set_var('content_type',$pi_name);
+            $T->parse('ct', 'contenttypes',true);
+        }
+    }
 
     $T->set_var('security_token',SEC_createToken());
     $T->set_var('security_token_name',CSRF_TOKEN);
@@ -72,11 +55,9 @@ function SRCHER_reindex()
         'lang_error_header' => $LANG_SRCH_ADM['error_heading'],
         'lang_no_errors'    => $LANG_SRCH_ADM['no_errors'],
         'lang_error_getcontenttypes' => $LANG_SRCH_ADM['error_getcontenttypes'],
-
         'lang_current_progress' => $LANG_SRCH_ADM['current_progress'],
         'lang_overall_progress' => $LANG_SRCH_ADM['overall_progress'],
     ));
-    $T->set_var('end_block',COM_endBlock(COM_getBlockTemplate('_admin_block', 'footer')));
 
     $T->parse('output', 'page');
     $retval .= $T->finish($T->get_var('output'));
@@ -84,40 +65,6 @@ function SRCHER_reindex()
     return $retval;
 }
 
-/*
- * Build admin menu
- */
-function SRCH_getAdminHeaderMenu( $activeItem = '' )
-{
-    global $_CONF, $LANG_ADMIN, $LANG_SRCH_ADM;
-
-    $menu_items = array(
-        'searcher_admin' => array(
-                'url'  => $_CONF['site_admin_url'].'/plugins/searcher/index.php',
-                'text' => $LANG_SRCH_ADM['searcher_admin']
-                ),
-        'reindex' => array(
-                'url'   => $_CONF['site_admin_url'].'/plugins/searcher/reindex.php',
-                'text'  => $LANG_SRCH_ADM['reindex_title']
-                ),
-        'admin_home'    => array(
-                'url' => $_CONF['site_admin_url'],
-                'text' => $LANG_ADMIN['admin_home']
-                )
-    );
-    $menu_arr = array();
-    foreach ($menu_items AS $item => $info ) {
-        $active = 0;
-        if ( $activeItem == $item ) $active = 1;
-        $menu_arr[] = array(
-                        'url' => $info['url'],
-                        'text'=> $info['text'],
-                        'active' => $active
-                    );
-    }
-
-    return $menu_arr;
-}
 
 function SRCH_getContentTypesAjax()
 {
@@ -135,8 +82,6 @@ function SRCH_getContentTypesAjax()
             $contentTypes[] = $pi_name;
         }
     }
-
-//    $contentTypes = array('forum');
 
     $retval['errorCode'] = 0;
     $retval['contenttypes'] = $contentTypes;
@@ -199,7 +144,7 @@ function SRCH_indexContentItemAjax()
     $contentList = array();
     $retval = array();
 
-    $contentInfo = PLG_getItemInfo($type,$id,'id,date,title,searchidx,author,hits,perms,search_index');
+    $contentInfo = PLG_getItemInfo($type,$id,'id,date,title,searchidx,author,hits,perms,search_index,reindex');
 
     if ( is_array($contentInfo) && count($contentInfo) > 0 ) {
         $props = array(
@@ -218,8 +163,13 @@ function SRCH_indexContentItemAjax()
         );
 
         \Searcher\Indexer::IndexDoc($props);
-        if ( $type != 'forum' && $type != 'dokuwiki' ) {
-            plugin_IndexAll_comments($type, $id, $props['perms']);
+
+        if (functions_exists('plugin_commentsupport_'.$type ) ) {
+            $func = 'plugin_commentsupport_'.$type;
+            $rc = $func();
+            if ( $rc == true ) {
+                plugin_IndexAll_comments($type, $id, $props['perms']);
+            }
         }
 
         $retval['errorCode'] = 0;
@@ -234,8 +184,8 @@ function SRCH_indexContentItemAjax()
     echo json_encode($return);
     exit;
 }
-// main driver
 
+// main driver
 $action = '';
 $expected = array('reindex','getcontenttypes','getcontentlist','index');
 foreach($expected as $provided) {
@@ -265,7 +215,6 @@ switch ($action) {
         // index a content item via ajax
         SRCH_indexContentItemAjax();
         break;
-
     default :
         $page = SRCHER_reindex();
         break;

@@ -381,90 +381,27 @@ function plugin_itemsaved_searcher($id, $type)
 {
     global $_TABLES;
 
-    $id = DB_escapeString($id);
-    switch($type) {
-    case 'article':
-        USES_searcher_class_indexer();
-        $sql = "SELECT sid, uid, title, introtext, bodytext, draft_flag,
-                attribution_author, owner_id, group_id,
-                perm_owner, perm_group, perm_members, perm_anon
-            FROM {$_TABLES['stories']}
-            WHERE sid = '$id'";
-        $res = DB_query($sql);
-        if (DB_numRows($res) == 1) {
-            $A = DB_fetchArray($res, false);
-            // Remove the doc to clear old records
-            \Searcher\Indexer::RemoveDoc($type, $id);
-            if ($A['draft_flag'] == 0) {
-                \Searcher\Indexer::IndexDoc(array(
-                    'item_id' => $A['sid'],
-                    'type'  => 'article',
-                    'title' => $A['title'],
-                    'author' => COM_getDisplayName($A['uid'], $A['attribution_author']),
-                    'content' => $A['introtext'] . ' ' . $A['bodytext'],
-                    'perms' => array(
-                        'owner_id' => $A['owner_id'],
-                        'group_id' => $A['group_id'],
-                        'perm_owner' => $A['perm_owner'],
-                        'perm_group' => $A['perm_group'],
-                        'perm_members' => $A['perm_members'],
-                        'perm_anon' => $A['perm_anon'],
-                    ),
-                ) );
-            }
-        }
-        break;
-    case 'staticpages':
-        USES_searcher_class_indexer();
-        $sql = "SELECT sp_id, sp_title, sp_content,
-                owner_id, group_id,
-                perm_owner, perm_group, perm_members, perm_anon
-                FROM {$_TABLES['staticpage']}
-                WHERE sp_id = '$id' AND sp_status = 1 AND sp_search = 1";
-        $res = DB_query($sql, 1);
-        if (DB_numRows($res) == 1) {
-            $A = DB_fetchArray($res, false);
-            \Searcher\Indexer::RemoveDoc($type, $id);
-            \Searcher\Indexer::IndexDoc(array(
-                'item_id' => $A['sp_id'],
-                'type'  => $type,
-                'title' => $A['sp_title'],
-                'content' => $A['sp_content'],
-                'perms' => array(
-                    'owner_id' => $A['owner_id'],
-                    'group_id' => $A['group_id'],
-                    'perm_owner' => $A['perm_owner'],
-                    'perm_group' => $A['perm_group'],
-                    'perm_members' => $A['perm_members'],
-                    'perm_anon' => $A['perm_anon'],
-                ),
-            ) );
-        }
-        break;
-    case 'comments':
-    case 'comment':
-        USES_searcher_class_indexer();
-        $sql = "SELECT cid, sid, uid, title, comment
-            FROM {$_TABLES['comments']}
-            WHERE cid = '$id'";
-        //echo $sql;die;
-        $res = DB_query($sql, 1);
-        if (DB_numRows($res) == 1) {
-            $A = DB_fetchArray($res, false);
-            \Searcher\Indexer::RemoveDoc('comment', $A['cid']);
-            \Searcher\Indexer::IndexDoc(array(
-                'item_id' => $A['cid'],
-                'parent_id' => $A['sid'],
-                'type'  => 'comment',
-                //'title' => $A['title'],   // Don't index comment titles
-                'author' => COM_getDisplayName($A['uid']),
-                'content' => $A['comment'],
-            ) );
-        }
-        break;
-     default:
-        $id_fld = '';
-        break;
+    USES_searcher_class_indexer();
+
+    $contentInfo = PLG_getItemInfo($type,$id,'id,date,title,searchidx,author,hits,perms,search_index');
+
+    if ( is_array($contentInfo) && count($contentInfo) > 0 ) {
+        $props = array(
+            'item_id' => $id,
+            'type'  => $type,
+            'title' => $contentInfo['title'],
+            'content' => $contentInfo['searchidx'],
+            'perms' => array(
+                'owner_id' => $contentInfo['perms']['owner_id'],
+                'group_id' => $contentInfo['perms']['group_id'],
+                'perm_owner' => $contentInfo['perms']['perm_owner'],
+                'perm_group' => $contentInfo['perms']['perm_group'],
+                'perm_members' => $contentInfo['perms']['perm_members'],
+                'perm_anon' => $contentInfo['perms']['perm_anon'],
+            ),
+        );
+        \Searcher\Indexer::RemoveDoc($type, $id);
+        \Searcher\Indexer::IndexDoc($props);
     }
 }
 
