@@ -48,7 +48,7 @@ $_UPGRADE_SQL = array(
           `hits` int(11) unsigned NOT NULL DEFAULT '1',
           PRIMARY KEY (`term`),
           KEY `hits` (`hits`)
-        )",
+        ) ENGINE=MyISAM",
     ),
     '0.0.5' => array(
         "ALTER TABLE {$_TABLES['searcher_index']}

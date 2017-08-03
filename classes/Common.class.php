@@ -28,6 +28,7 @@ class Common
     protected $type = '';           // item type filter
     protected $tokens = array();    // tokenized query string
     protected $sql_tokens = '';     // sql-safe query string for searching
+    protected $_searchDays = 0;     // number of days to limit search
 
 
     public function __construct()

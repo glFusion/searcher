@@ -57,6 +57,16 @@ class Searcher extends Common
         }
     }
 
+    /**
+    *   Set the number of days to limit search
+    *
+    *   @param  int  $days   Number of days to limit search or 0 for no limit
+    */
+    public function setDays($days)
+    {
+        $this->_searchDays = $days;
+    }
+
 
     /**
     *   Get the "where" and "group by" clauses for sql statements.
@@ -68,6 +78,10 @@ class Searcher extends Common
     private function _sql_where()
     {
         $type_sql = $this->type ? " AND type = '{$this->type}' " : '';
+
+        $daysback = time() - ($this->_searchDays * 24 * 60 * 60);
+        $type_sql .= $this->_searchDays > 0 ? " AND ts > " . $daysback . " " : "";
+
         $where = " term in ({$this->sql_tokens}) " . $type_sql .
             $this->_getPermSQL() .
             ' GROUP BY  type, item_id ';
