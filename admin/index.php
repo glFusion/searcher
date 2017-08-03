@@ -92,6 +92,10 @@ function SRCH_getListField_counters($fieldname, $fieldvalue, $A, $icon_arr, $tok
     $retval = '';
 
     switch($fieldname) {
+        case 'term':
+            $retval = COM_createlink($fieldvalue,
+                SRCH_URL . '/index.php?query=' . urlencode($fieldvalue) . '&nc');
+            break;
         default:
             $retval = $fieldvalue;
             break;

@@ -549,11 +549,13 @@ class Searcher extends Common
     {
         global $_TABLES;
 
-        $query = DB_escapeString($this->query);
-        $sql = "INSERT INTO {$_TABLES['searcher_counters']}
-                (term, hits) VALUES ('$query', 1)
-                ON DUPLICATE KEY UPDATE hits = hits + 1";
-        DB_query($sql);
+        if (!isset($_GET['nc'])) {
+            $query = DB_escapeString($this->query);
+            $sql = "INSERT INTO {$_TABLES['searcher_counters']}
+                    (term, hits) VALUES ('$query', 1)
+                    ON DUPLICATE KEY UPDATE hits = hits + 1";
+            DB_query($sql);
+        }
     }
 
 }
