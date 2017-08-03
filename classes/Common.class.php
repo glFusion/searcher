@@ -212,28 +212,22 @@ class Common
         // Get all the words from the content string. Check against stopwords
         // and minimum word length, if passed then add to the "terms" array.
         $terms = preg_split('/[\s,]+/', $str);
-        $weights = array();
-        $total_terms = count($terms);
 
-        for ($i = 0; $i < $total_terms; $i++ ) {
-            if ( isset($terms[$i])) {
-                $terms[$i] = self::_mb_trim($terms[$i]);
-                if (in_array($terms[$i], self::$stopwords) ||
-                    self::_strlen($terms[$i]) < self::$min_word_len) {
-                        if ($i >= $total_terms - 1) {
-                            // Reached the end, $i-- would just loop
-                            $weights[$i] = 1;
-                            break;
-                        }
-                    array_splice($terms, $i, 1);
-                    $i--;
-                }
-                $weights[$i] = 1;
+        // Step 1: Get all the terms that aren't excluded by length or
+        // stopword status
+        $tmp = array();
+        foreach ($terms as $term) {
+            if (in_array($term, self::$stopwords) ||
+                    self::_strlen($term) < self::$min_word_len) {
+                continue;
             }
+            $tmp[] = $term;
         }
+        $terms = $tmp;
+        unset($tmp);
         $total_terms = count($terms);
 
-        // Invoke the stemmer to trim words down to their stems.
+        // Step 2: Stem the terms, if used. Leave duplicates
         if (!empty($_SRCH_CONF['stemmer'])) {
             USES_search_class_stemmer();
             $S = Stemmer::getInstance($_SRCH_CONF['stemmer']);
@@ -241,41 +235,40 @@ class Common
                 for ($i = 0; $i < $total_terms; $i++) {
                     $terms[$i] = $S->stem($terms[$i]);
                 }
-                // Now remove any duplicates (words with the same stem)
-                $terms = array_keys(array_flip($terms));
             }
         }
 
-        // Now go through the terms array and add 2- and 3-word phrases
-        if ($phrases) {
-            for ($i = 0; $i < $total_terms; $i++) {
-                if (empty($terms[$i]) || empty($terms[$i+1])) continue;
-                if ($i < $total_terms - 1) {
-                    $terms[] = $terms[$i] . ' ' . $terms[$i+1];
-                    $weights[] = $_SRCH_CONF['wordweight_2'];
-                }
-                if (empty($terms[$i+2])) continue;
-                if ($i < $total_terms - 2) {
-                    $terms[] = $terms[$i] . ' ' . $terms[$i+1] . ' ' . $terms[$i+2];
-                    $weights[] = $_SRCH_CONF['wordweight_3'];
-                }
-            }
-        }
-
-        // Finally, convert the terms array into tokens with a counter of how
-        // many times each token occurs in the array
-        foreach ($terms as $key=>$t) {
-            //$t = self::_mb_trim($t);
-            if (is_numeric($t)) $t = " $t";        // $t ends up as an array index, and numbers just don't work there
-            if (!isset($tokens[$t])) {
+        // Step 3: Create token array, removes duplicates
+        $tokens = array();
+        for ($i = 0; $i < $total_terms; $i++) {
+            // Set the term alone in the token array
+            $t = $terms[$i];
+            if (isset($tokens[$t])) {
+                $tokens[$t]['count']++;
+            } else {
                 $tokens[$t] = array(
                     'count' => 1,
-                    'weight' => $weights[$key],
+                    'weight' => $_SRCH_CONF['wordweight'][1],
                 );
-            } else {
-                $tokens[$t]['count']++;
+            }
+            // Get the phrases into the token array
+            for ($j = 1; $j < $_SRCH_CONF['max_word_phrase']; $j++) {
+                if (isset($terms[$i+$j])) {
+                    // If not reaching the end of $terms, concatenate
+                    // the next term(s)
+                    $t .= ' ' . $terms[$i+$j];
+                    if (isset($tokens[$t])) {
+                        $tokens[$t]['count']++;
+                    } else {
+                        $tokens[$t] = array(
+                            'count' => 1,
+                            'weight' => $_SRCH_CONF['wordweight'][$j+1],
+                        );
+                    }
+                }
             }
         }
+
         return $tokens;
     }
 

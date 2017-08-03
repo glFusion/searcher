@@ -35,7 +35,10 @@ $_TABLES['searcher_counters']   = $_table_prefix . 'counters';
 // Semi-static globals
 // Weight multipliers to apply to 2- and 3-word phrases.
 // Single words always have a multiplier of "1".
-$_SRCH_CONF['wordweight_2'] = 2;
-$_SRCH_CONF['wordweight_3'] = 3;
-
+$_SRCH_CONF['wordweight'] = array(
+    1 => 1,
+    2 => 2,
+    3 => 3,
+);
+$_SRCH_CONF['max_word_phrase'] = 3;
 ?>
