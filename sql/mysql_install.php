@@ -60,7 +60,7 @@ $_UPGRADE_SQL = array(
         "UPDATE {$_TABLES['searcher_index']} SET grp_access = if(perm_anon = 2, 2,
             if (perm_members = 2, 13, group_id))",
         "ALTER TABLE {$_TABLES['searcher_index']}
-            DROP owner_id, DROP perm_owner, DROP perm_group,
+            DROP owner_id, DROP group_id, DROP perm_owner, DROP perm_group,
             DROP perm_members, DROP perm_anon",
     ),
 );
