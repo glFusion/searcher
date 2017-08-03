@@ -165,7 +165,7 @@ function SRCH_indexContentItemAjax()
 
         \Searcher\Indexer::IndexDoc($props);
 
-        if (functions_exists('plugin_commentsupport_'.$type ) ) {
+        if (function_exists('plugin_commentsupport_'.$type ) ) {
             $func = 'plugin_commentsupport_'.$type;
             $rc = $func();
             if ( $rc == true ) {
