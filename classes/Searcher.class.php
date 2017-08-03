@@ -100,6 +100,10 @@ class Searcher extends Common
     {
         global $_TABLES, $_SRCH_CONF, $_USER;
 
+        if (empty($this->tokens)) {
+            return array();
+        }
+
         $this->page = $page > 0 ? $page : 1;
         $start = $page < 2 ? 0 : ($page - 1) * $_SRCH_CONF['perpage'];
         foreach ($this->_keys as $fld=>$weight) {
