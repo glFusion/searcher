@@ -47,11 +47,13 @@ class Indexer extends Common
             if ( isset($content[$fld])) {
                 $tokens = self::Tokenize($content[$fld]);
                 foreach ($tokens as $token=>$data) {
-                    if (isset($insert_data[$token][$fld])) {
-                        $insert_data[$token][$fld]['count'] += $data['count'];
+                    if (isset($insert_data[$token])) {
+                        $insert_data[$token][$fld] = $data['count'];
                     } else {
-                        $insert_data[$token]['weight'] = $data['weight'];
-                        $insert_data[$token][$fld]['count'] = 1;
+                        $insert_data[$token] = array(
+                            'weight' => $data['weight'],
+                            $fld => $data['count'],
+                        );
                     }
                 }
             }
@@ -78,7 +80,7 @@ class Indexer extends Common
         $values = array();
         foreach ($insert_data as $term => $data) {
             foreach (self::$fields as $var=>$weight) {
-                $$var = isset($data[$var]) ? (int)$data[$var]['count'] : 0;
+                $$var = isset($data[$var]) ? (int)$data[$var] : 0;
             }
             $term = DB_escapeString(trim($term));
             $weight = (float)$data['weight'];
