@@ -33,12 +33,8 @@ $_TABLES['searcher_index']      = $_table_prefix . 'index';
 $_TABLES['searcher_counters']   = $_table_prefix . 'counters';
 
 // Semi-static globals
-// Weight multipliers to apply to 2- and 3-word phrases.
+// Additional Weight to apply to additional words in phrases.
 // Single words always have a multiplier of "1".
-$_SRCH_CONF['wordweight'] = array(
-    1 => 1,
-    2 => 2,
-    3 => 3,
-);
+$_SRCH_CONF['phraseweight'] = 1;
 
 ?>

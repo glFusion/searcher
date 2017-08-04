@@ -10,11 +10,26 @@ requiring a fulltext index.
 Enter the minimum number of letters to be considered a "word". Words with less
 than this number of letters will not be added to the index.
 
+Default: 3
+
+#### Maximum Words in a Phrase
+When tokens are created from a document or search query, words can be grouped
+into phrases. The phrasing is simply "word word+1 word+2" etc. Longer phrases
+can provide more accurate search results by considering matched phrases to be
+more relevant than single matched words, but a higher value here will significantly
+increase the time required to index your content as well as the database size.
+
+Default: 3
+
 #### Results to show per page
 Enter the number of search results to show on each page.
 
+Default: 20
+
 #### Length of excerpt to display
 Enter the number of words to display in the excerpt on the search results page.
+
+Default: 50
 
 #### Maximum occurrences of a term to count
 Enter the maximum number of times that a single word or phrase will be counted
@@ -22,9 +37,13 @@ in a page when calculating the weights. This is to keep some pages which may
 have many occurrences of a single word from always appearing at the top of the
 search results, outweighing other pages that may be more relevant.
 
+Default: 5
+
 #### Show author name in results
 You can select to include the author's name in the search results, with or
 without a link, or hide the name altogether.
+
+Default: Yes, with link
 
 #### Stemmer (Experimental)
 This plugin includes an adaptation of the Porter language stemmer to determine
@@ -35,12 +54,19 @@ The stemmer is experimental and may lead to odd results but will also include
 results based on word variations such as plurals. You must regenerate all
 indexes if this option is changed.
 
+Default: None
+
 ### Weighting
 Different weights can be assigned to words that appear in different fields.
 For example, you might want to give a higher weight, or priority, to search
 terms that appear in the title than in the content or author name.
 
 Higher weights will cause the articles to float higher in the search results.
+
+Defaults:
+    Title: 1.5
+    Author: 1.2
+    Content: 1
 
 ## API functions
 API functions are called using ```PLG_callFunctionForOnePlugin(function, $args);```

@@ -248,10 +248,11 @@ class Common
             } else {
                 $tokens[$t] = array(
                     'count' => 1,
-                    'weight' => $_SRCH_CONF['wordweight'][1],
+                    'weight' => 1
                 );
             }
-            // Get the phrases into the token array
+            // Get the phrases into the token array. Add more weight to
+            // longer phrases
             for ($j = 1; $j < $_SRCH_CONF['max_word_phrase']; $j++) {
                 if (isset($terms[$i+$j])) {
                     // If not reaching the end of $terms, concatenate
@@ -262,7 +263,7 @@ class Common
                     } else {
                         $tokens[$t] = array(
                             'count' => 1,
-                            'weight' => $_SRCH_CONF['wordweight'][$j+1],
+                            'weight' => $j + $_SRCH_CONF['phraseweight'],
                         );
                     }
                 }
