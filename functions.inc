@@ -377,7 +377,7 @@ function plugin_getSearchInfo_staticpages($id)
 *   @param  string  $id     Item ID
 *   @param  string  $type   Item Type
 */
-function plugin_itemsaved_searcher($id, $type)
+function plugin_itemsaved_searcher($id, $type, $old_id = '')
 {
     global $_TABLES;
 
@@ -411,8 +411,13 @@ function plugin_itemsaved_searcher($id, $type)
                 'perm_anon' => $contentInfo['perms']['perm_anon'],
             ),
         );
+        if ( $old_id != '' && $id != $old_id ) {
+            \Searcher\Indexer::RemoveDoc($type, $old_id);
+        }
         \Searcher\Indexer::RemoveDoc($type, $id);
         \Searcher\Indexer::IndexDoc($props);
+    } else {
+        COM_errorLog("Error retrieving content info - Type = " . $type . " ID = " . $id);
     }
 }
 
