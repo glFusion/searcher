@@ -23,7 +23,7 @@ global $_SRCH_CONF;
 
 $_SRCH_CONF['pi_name']            = 'searcher';
 $_SRCH_CONF['pi_display_name']    = 'Searcher';
-$_SRCH_CONF['pi_version']         = '0.0.6';
+$_SRCH_CONF['pi_version']         = '0.0.7';
 $_SRCH_CONF['gl_version']         = '1.7.0';
 $_SRCH_CONF['pi_url']             = 'http://www.glfusion.org';
 
@@ -40,5 +40,5 @@ $_SRCH_CONF['wordweight'] = array(
     2 => 2,
     3 => 3,
 );
-$_SRCH_CONF['max_word_phrase'] = 3;
+
 ?>

@@ -65,6 +65,7 @@ $LANG_confignames['searcher'] = array(
     'show_author'       => 'Show author name in results?',
     'stemmer'           => 'Select Stemmer (Experimental)',
     'ignore_autotags'   => 'Ignore Auto Tags',
+    'max_word_phrase'   => 'Max words in a phrase',
 );
 
 $LANG_configsubgroups['searcher'] = array(

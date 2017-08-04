@@ -39,6 +39,7 @@ $_SRCH_DEFAULTS = array(
     'show_author' => 2,     // Show author name with link
     'stemmer' => '',
     'ignore_autotags' => 0,
+    'max_word_phrase' => 3,
 );
 
 /**
@@ -64,6 +65,8 @@ function plugin_initconfig_searcher()
 
         $c->add('min_word_len', $_SRCH_DEFAULTS['min_word_len'],
                 'text', 0, 0, NULL, 10, true, $_SRCH_CONF['pi_name']);
+        $c->add('max_word_phrase', $_SRCH_DEFAULTS['max_word_phrase'],
+                'text', 0, 0, NULL, 15, true, $_SRCH_CONF['pi_name']);
         $c->add('perpage', $_SRCH_DEFAULTS['perpage'],
                 'text', 0, 0, NULL, 20, true, $_SRCH_CONF['pi_name']);
         $c->add('excerpt_len', $_SRCH_DEFAULTS['excerpt_len'],

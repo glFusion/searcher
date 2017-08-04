@@ -89,6 +89,15 @@ function SRCH_do_upgrade()
         if (!SRCH_do_set_version($current_ver)) return false;
     }
 
+    if (!COM_checkVersion($current_ver, '0.0.7')) {
+        // upgrade from 0.0.6 to 0.0.7
+        $current_ver = '0.0.7';
+        COM_errorLog("Updating Plugin to $current_ver");
+        $c->add('max_word_phrase', $_SRCH_DEFAULTS['max_word_phrase'],
+                'text', 0, 0, NULL, 15, true, $_SRCH_CONF['pi_name']);
+        if (!SRCH_do_set_version($current_ver)) return false;
+    }
+
     // Final version setting in case there was no upgrade process for
     // this version
     if (!SRCH_do_set_version($_SRCH_CONF['pi_version'])) return false;
