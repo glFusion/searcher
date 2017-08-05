@@ -118,6 +118,10 @@ class Indexer extends Common
     {
         global $_TABLES;
 
+        if ($item_id == '*') {
+            return self::RemoveAll($type);
+        }
+
         DB_delete($_TABLES['searcher_index'],
                 array('type', 'item_id'),
                 array($type, $item_id) );
