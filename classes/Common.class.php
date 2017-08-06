@@ -292,6 +292,7 @@ class Common
             return $content;
         }
 
+        $result = $content;
         if ($autolinkModules === NULL) {
             $autolinkModules = PLG_collectTags();
             foreach ($autolinkModules as $moduletag => $module) {
@@ -300,9 +301,13 @@ class Common
             $tags = implode('|', $tags);
         }
         if (!empty($tags)) {
-            $content = preg_filter("/\[(($tags)\:.[^\]]*\])/i", '', $content);
+            $result = preg_filter("/\[(($tags):.[^\]]*\])/i", '', $content);
+            if ($result === NULL) {
+                // Just means no match found
+                $result = $content;
+            }
         }
-        return $content;
+        return $result;
     }
 
 }
