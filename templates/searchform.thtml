@@ -4,9 +4,21 @@
     {$LANG_SRCH['find']}
     <input class="uk-search required" type="search" id="query" name="query" value="{query}" placeholder="{$LANG09[10]}">
     {$LANG_SRCH['in']}
-    <select name="type">{plugin_types}</select>
+    <select name="type">
+    <!-- BEGIN PluginTypes -->
+      <option value="{pi_name}" {selected}>{pi_text}</option>
+    <!-- END PluginTypes -->
+    </select>
     {lang_date_filter}
-    <select name="st">{date_options}</select>
+    <select name="st">
+      <option value="0" {dt_sel_0}>{$LANG09[4]}</option>
+      <option value="1" {dt_sel_1}>{$LANG09[75]}</option>
+      <option value="7" {dt_sel_7}>{$LANG09[76]}</option>
+      <option value="14" {dt_sel_14}>{$LANG09[77]}</option>
+      <option value="30" {dt_sel_30}>{$LANG09[78]}</option>
+      <option value="90" {dt_sel_90}>{$LANG09[79]}</option>
+      <option value="180" {dt_sel_180}>{$LANG09[80]}</option>
+      <option value="365" {dt_sel_365}>{$LANG09[81]}</option>
     </select>
     <button class="uk-button uk-button-success searcher-button" type="submit" name="submit" value="{$LANG09[10]}">{$LANG09[10]}</button>
 </form>

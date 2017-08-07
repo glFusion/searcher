@@ -24,7 +24,7 @@ class SearchForm extends Common
     var $_dateStart = null;
     var $_dateEnd = null;
     var $_author = '';
-    var $_keyType = '';
+    //var $_keyType = '';
     var $_results = 25;
     var $_names = array();
     var $_url_rewrite = array();
@@ -164,33 +164,9 @@ class SearchForm extends Common
         return true;
     }
 
-    /**
-    * Determines if user is allowed to use the search form
-    *
-    * glFusion has a number of settings that may prevent
-    * the access anonymous users have to the search engine.
-    * This performs those checks
-    *
-    * @author Dirk Haun <Dirk AT haun-online DOT de>
-    * @access private
-    * @return boolean True if form usage is allowed, otherwise false
-    *
-    */
-    function _isFormAllowed ()
-    {
-        global $_CONF, $_USER;
-
-        if ( COM_isAnonUser() AND (($_CONF['loginrequired'] == 1) OR ($_CONF['searchloginrequired'] >= 1))) {
-            return false;
-        }
-
-        return true;
-    }
 
     /**
      * Shows search form
-     *
-     * Shows advanced search page
      *
      * @author Tony Bibbs <tony AT geeklog DOT net>
      * @access public
@@ -205,10 +181,10 @@ class SearchForm extends Common
         $options = '';
 
         // Verify current user my use the search form
-        if (!$this->_isFormAllowed()) {
+        if (!$this->_isSearchAllowed()) {
             return $this->_getAccessDeniedMessage();
         }
-        switch ($this->_keyType) {
+        /*switch ($this->_keyType) {
         case 'phrase':
         case 'all':
         case 'any':
@@ -216,7 +192,7 @@ class SearchForm extends Common
         default:
             $this->_keyType = 'all';
             break;
-        }
+        }*/
 
         $T = new \Template(SRCH_PI_PATH . '/templates');
         $T->set_file(array('searchform' => 'searchform.thtml'));
@@ -228,27 +204,21 @@ class SearchForm extends Common
             $plugintypes['comment'] = $LANG09[7];
         }
         $plugintypes = array_merge($plugintypes, PLG_getSearchTypes());
+        $T->set_block('searchform', 'PluginTypes', 'PluginBlock');
         foreach ($plugintypes as $key => $val) {
-            $options .= "<option value=\"$key\"";
-            if ($this->_type == $key)
-                $options .= ' selected="selected"';
-            $options .= ">$val</option>".LB;
+            $T->set_var(array(
+                'pi_name'   => $key,
+                'pi_text'   => $val,
+                'selected'  => $this->_type == $key ? 'selected="selected"' : '',
+            ) );
+            $T->parse('PluginBlock', 'PluginTypes', true);
         }
+
         $T->set_var(array(
             'query'         => htmlspecialchars($this->query),
-            'plugin_types'  => $options,
+            'dt_sel_' . $this->_searchDays => 'selected="selected"',
+            'lang_date_filter' => $LANG09[71],
         ) );
-        $dateOptions  = '<option value="0"'  . ($this->_searchDays == 0   ? ' selected="selected"' : '') .'>'.$LANG09[4].'</option>';
-        $dateOptions .= '<option value="1"'  . ($this->_searchDays == 1   ? ' selected="selected"' : '') .'>'.$LANG09[75].'</option>';
-        $dateOptions .= '<option value="7"'  . ($this->_searchDays == 7   ? ' selected="selected"' : '') .'>'.$LANG09[76].'</option>';
-        $dateOptions .= '<option value="14"' . ($this->_searchDays == 14  ? ' selected="selected"' : '') .'>'.$LANG09[77].'</option>';
-        $dateOptions .= '<option value="30"' . ($this->_searchDays == 30  ? ' selected="selected"' : '') .'>'.$LANG09[78].'</option>';
-        $dateOptions .= '<option value="90"' . ($this->_searchDays == 90  ? ' selected="selected"' : '') .'>'.$LANG09[79].'</option>';
-        $dateOptions .= '<option value="180"'. ($this->_searchDays == 180 ? ' selected="selected"' : '') .'>'.$LANG09[80].'</option>';
-        $dateOptions .= '<option value="365"'. ($this->_searchDays == 365 ? ' selected="selected"' : '') .'>'.$LANG09[81].'</option>';
-        $T->set_var('date_options',$dateOptions);
-        $T->set_var('lang_date_filter',$LANG09[71]);
-
         $T->parse('output', 'searchform');
         $retval .= $T->finish($T->get_var('output'));
         return $retval;
