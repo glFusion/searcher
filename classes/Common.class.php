@@ -325,6 +325,40 @@ class Common
         return $result;
     }
 
+
+    /**
+    *   Determines if user is allowed to perform a search
+    *
+    *   glFusion has a number of settings that may prevent
+    *   the access anonymous users have to the search engine.
+    *   This performs those checks
+    *
+    *   @return boolean True if search is allowed, otherwise false
+    */
+    public function SearchAllowed()
+    {
+        global $_USER, $_CONF;
+
+        if ( COM_isAnonUser() &&
+            ( $_CONF['loginrequired'] || $_CONF['searchloginrequired'] ) ) {
+            return false;
+        }
+        return true;
+    }
+
+
+    /**
+    *   Shows an error message if search is not allowed
+    *
+    *   @author Tony Bibbs <tony AT geeklog DOT net>
+    *   @access private
+    *   @return string  HTML output for error message
+    */
+    public function getAccessDeniedMessage()
+    {
+        return (SEC_loginRequiredForm());
+    }
+
 }
 
 ?>

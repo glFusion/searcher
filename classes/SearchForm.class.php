@@ -124,46 +124,6 @@ class SearchForm extends Common
         $this->_charset = COM_getCharset();
     }
 
-    /**
-     * Shows an error message to anonymous users
-     *
-     * This is called when anonymous users attempt to access search
-     * functionality that has been locked down by the glFusion admin.
-     *
-     * @author Tony Bibbs <tony AT geeklog DOT net>
-     * @access private
-     * @return string HTML output for error message
-     *
-     */
-    function _getAccessDeniedMessage()
-    {
-        return (SEC_loginRequiredForm());
-    }
-
-    /**
-    * Determines if user is allowed to perform a search
-    *
-    * glFusion has a number of settings that may prevent
-    * the access anonymous users have to the search engine.
-    * This performs those checks
-    *
-    * @author Tony Bibbs <tony AT geeklog DOT net>
-    * @access private
-    * @return boolean True if search is allowed, otherwise false
-    *
-    */
-    function _isSearchAllowed()
-    {
-        global $_USER, $_CONF;
-
-        if ( COM_isAnonUser() ) {
-            if ( $_CONF['loginrequired'] == 1 OR $_CONF['searchloginrequired'] > 0 ) {
-                return false;
-            }
-        }
-        return true;
-    }
-
 
     /**
      * Shows search form
@@ -181,8 +141,8 @@ class SearchForm extends Common
         $options = '';
 
         // Verify current user my use the search form
-        if (!$this->_isSearchAllowed()) {
-            return $this->_getAccessDeniedMessage();
+        if (!$this->SearchAllowed()) {
+            return $this->getAccessDeniedMessage();
         }
         /*switch ($this->_keyType) {
         case 'phrase':
