@@ -1,19 +1,29 @@
 <?php
+/**
+*   Perform searches from the index maintained by the Indexer class
+*
+*   @author     Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2017 Lee Garner <lee@leegarner.com>
+*   @package    searcher
+*   @version    0.0.1
+*   @license    http://opensource.org/licenses/gpl-2.0.php
+*               GNU Public License v2 or later
+*   @filesource
+*/
 namespace Searcher;
 
 USES_searcher_class_common();
 
 /**
-*   glFusion Search Class
+*   Class to display the search form
+*   @package searcher
 */
 class SearchForm extends Common
 {
     var $_topic = '';
     var $_dateStart = null;
     var $_dateEnd = null;
-    var $_searchDays = 0;
     var $_author = '';
-    var $_type = '';
     var $_keyType = '';
     var $_results = 25;
     var $_names = array();
@@ -83,15 +93,15 @@ class SearchForm extends Common
                 $this->_author = '';
         }*/
         if (isset($_GET['type'])) {
-            $this->_type = COM_applyFilter($_GET['type']);
+            $this->setType($_GET['type']);
         } else if (isset($_POST['type'])) {
-            $this->_type = COM_applyFilter($_POST['type']);
+            $this->setType($_POST['type']);
         } else {
-            $this->_type = 'all';
+            $this->setType('all');
         }
+
         if (isset($_GET['st'])) {
-            $st = COM_applyFilter($_GET['st'],true);
-            $this->_searchDays = $st;
+            $this->setDays($_GET['st']);
         }
 /*
         if ( isset($_GET['keyType']) ) {

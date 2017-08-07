@@ -25,7 +25,7 @@ class Common
     protected static $stopwords = array();
     protected static $fields = array();
     protected $query = '';          // sanitized query string from user input
-    protected $type = '';           // item type filter
+    protected $_type = '';          // item type filter
     protected $tokens = array();    // tokenized query string
     protected $sql_tokens = '';     // sql-safe query string for searching
     protected $_searchDays = 0;     // number of days to limit search
@@ -88,8 +88,23 @@ class Common
     public function setType($type)
     {
         if (!empty($type) && $type != 'all') {
-            $this->type = DB_escapeString($type);
+            $this->_type = DB_escapeString($type);
+        } else {
+            $this->_type = '';
         }
+    }
+
+
+    /**
+    *   Set the number of days to limit search
+    *
+    *   @param  int  $days   Number of days to limit search or 0 for no limit
+    */
+    public function setDays($days)
+    {
+        $days = (int)$days;
+        if ($days < 0) $days = 0;
+        $this->_searchDays = $days;
     }
 
 
