@@ -94,8 +94,6 @@ class SearchForm extends Common
         }*/
         if (isset($_GET['type'])) {
             $this->setType($_GET['type']);
-        } else if (isset($_POST['type'])) {
-            $this->setType($_POST['type']);
         } else {
             $this->setType('all');
         }
