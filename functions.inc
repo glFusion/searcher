@@ -261,116 +261,6 @@ function plugin_getheadercss_searcher()
 
 
 /**
-*   Provides the getSearchInfo function for the built-in comment type
-*
-*   @deprecated
-*   @param  string  $id     Comment ID
-*   @return array           Article information for search display
-*/
-function plugin_getSearchInfo_comment($id)
-{
-    global $_TABLES, $_CONF;
-
-    static $names = array();
-
-    $retval = array();
-    $sql = "SELECT sid, title, uid, comment,
-                UNIX_TIMESTAMP(date) as ts
-            FROM {$_TABLES['comments']}
-            WHERE cid= '" . DB_escapeString($id) . "'";
-    $res = DB_query($sql);
-    if (DB_numRows($res) == 1) {
-        $A = DB_fetchArray($res, false);
-        $author = COM_getDisplayName($A['uid']);
-        $retval = array(
-            'title' => $A['title'],
-            'content' => $A['comment'],
-            'uid' => $A['uid'],
-            'author' => $author,
-            'date' => $A['ts'],
-            'url' => $_CONF['site_url'] . '/article.php?story=' . urlencode($A['sid']),
-        );
-    }
-    return $retval;
-}
-
-
-/**
-*   Provides the getSearchInfo function for the built-in article type
-*
-*   @deprecated
-*   @param  string  $id     Article ID
-*   @return array           Article information for search display
-*/
-function plugin_getSearchInfo_article($id)
-{
-    global $_TABLES, $_CONF;
-
-    static $names = array();
-
-    $retval = array();
-    $sql = "SELECT title, uid, introtext, bodytext, hits,
-                UNIX_TIMESTAMP(date) as ts, attribution_author
-            FROM {$_TABLES['stories']}
-            WHERE sid= '" . DB_escapeString($id) . "'" .
-            COM_getPermSQL('AND');
-    $res = DB_query($sql);
-    if (DB_numRows($res) == 1) {
-        $A = DB_fetchArray($res, false);
-        $author = empty($A['attribution_author']) ?
-                COM_getDisplayName($A['uid']) : $A['attribution_author'];
-        $retval = array(
-            'title' => $A['title'],
-            'content' => $A['introtext'] . ' ' . $A['bodytext'],
-            'uid' => $A['uid'],
-            'author' => $author,
-            'date' => $A['ts'],
-            'hits' => $A['hits'],
-            'url' => $_CONF['site_url'] . '/article.php?story=' . urlencode($id),
-        );
-    }
-    return $retval;
-}
-
-
-/**
-*   Provides the getSearchInfo function for staticpages.
-*   This should move to the staticpages plugin.
-*
-*   @deprecated
-*   @param  string  $id     Article ID
-*   @return array           Article information for search display
-*/
-function plugin_getSearchInfo_staticpages($id)
-{
-    global $_TABLES, $_CONF;
-
-    static $names = array();
-
-    $retval = array();
-    $sql = "SELECT sp_title, sp_uid, sp_content, sp_hits,
-                UNIX_TIMESTAMP(sp_date) as ts
-            FROM {$_TABLES['staticpage']}
-            WHERE sp_id = '" . DB_escapeString($id) . "'" .
-            COM_getPermSQL('AND');
-    $res = DB_query($sql);
-    if (DB_numRows($res) == 1) {
-        $A = DB_fetchArray($res, false);
-        $retval = array(
-            'title' => $A['sp_title'],
-            'content' => $A['sp_content'],
-            'uid' => $A['sp_id'],
-            'author' => COM_getDisplayName($A['sp_uid']),
-            'date' => $A['ts'],
-            'hits' => $A['sp_hits'],
-            'url' => $_CONF['site_url'] . '/page.php?page=' . urlencode($id),
-        );
-    }
-    return $retval;
-}
-
-
-/**
 *   Index an item when it is saved.
 *   First deletes any existing index records, then creates new ones.
 *
@@ -402,14 +292,7 @@ function plugin_itemsaved_searcher($id, $type, $old_id = '')
             'title' => $contentInfo['title'],
             'content' => $contentInfo['searchidx'],
             'date' => $contentInfo['date'],
-            'perms' => array(
-                'owner_id' => $contentInfo['perms']['owner_id'],
-                'group_id' => $contentInfo['perms']['group_id'],
-                'perm_owner' => $contentInfo['perms']['perm_owner'],
-                'perm_group' => $contentInfo['perms']['perm_group'],
-                'perm_members' => $contentInfo['perms']['perm_members'],
-                'perm_anon' => $contentInfo['perms']['perm_anon'],
-            ),
+            'perms' => $contentInfo['perms'],
         );
         if ( $old_id != '' && $id != $old_id ) {
             \Searcher\Indexer::RemoveDoc($type, $old_id);
