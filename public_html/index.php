@@ -14,36 +14,19 @@
 */
 namespace Searcher;
 require_once '../lib-common.php';
-USES_searcher_class_searchform();
 
-$display = COM_siteHeader('menu', $LANG09[11]);
-/*if (isset ($_GET['mode']) && ($_GET['mode'] == 'search')) {
-    //$display .= $searchObj->doSearch();
-} else {
-    $display = COM_siteHeader ('menu', $LANG09[1]);
-    //$display .= $searchObj->showForm();
-}*/
+USES_searcher_class_searcher();
+$S = new Searcher();
 
-$Form = new SearchForm();
-if (isset($_GET['query']) && $Form->SearchAllowed()) {
-    USES_searcher_class_searcher();
-    $query = $_GET['query'];
-    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-    $S = new Searcher($query);
-    if (isset($_GET['type'])) {
-        $S->setType($_GET['type']);
-    }
-    if ( isset($_GET['st']) ) {
-        $S->setDays($st);
-    }
-    $S->doSearch($page);
+if ($S->SearchAllowed()) {
+    $S->doSearch();
     $results = $S->Display();
-    $Form->setQuery($query);
 } else {
-    $results = '';
+    $results='';
 }
 
-$display .= $Form->showForm();
+$display = COM_siteHeader('menu', $LANG09[11]);
+$display .= $S->showForm();
 $display .= $results;
 $display .= COM_siteFooter();
 

@@ -24,11 +24,6 @@ class Common
     protected static $min_word_len = 3; // default
     protected static $stopwords = array();
     protected static $fields = array();
-    protected $query = '';          // sanitized query string from user input
-    protected $_type = '';          // item type filter
-    protected $tokens = array();    // tokenized query string
-    protected $sql_tokens = '';     // sql-safe query string for searching
-    protected $_searchDays = 0;     // number of days to limit search
 
 
     public function __construct()
@@ -55,56 +50,8 @@ class Common
         self::$fields = array(
             'content'   => $_SRCH_CONF['wt_content'],
             'title'     => $_SRCH_CONF['wt_title'],
-            //'comment'   => 3,
             'author'    => $_SRCH_CONF['wt_author'],
         );
-    }
-
-
-    /**
-    *   Sets the query string and extracts tokens.
-    *   This is in the Common class so it's available to the indexer, searcher
-    *   and search form, even though sql_tokens is only used by the searcher.
-    *
-    *   @param  string  $query  Query string
-    */
-    public function setQuery($query)
-    {
-        $tokens = array();
-        $this->query = self::_remove_punctuation($query);
-        $this->tokens = self::Tokenize($query);
-        foreach ($this->tokens as $token=>$dummy) {
-            $tokens[] = DB_escapeString($token);
-        }
-        $this->sql_tokens = "'" . implode("','", $tokens) . "'";
-    }
-
-
-    /**
-    *   Set the search scope by item type (article, staticpage, etc)
-    *
-    *   @param  string  $type   Type of item
-    */
-    public function setType($type)
-    {
-        if (!empty($type) && $type != 'all') {
-            $this->_type = DB_escapeString($type);
-        } else {
-            $this->_type = '';
-        }
-    }
-
-
-    /**
-    *   Set the number of days to limit search
-    *
-    *   @param  int  $days   Number of days to limit search or 0 for no limit
-    */
-    public function setDays($days)
-    {
-        $days = (int)$days;
-        if ($days < 0) $days = 0;
-        $this->_searchDays = $days;
     }
 
 
@@ -268,7 +215,7 @@ class Common
             }
             // Get the phrases into the token array. Add more weight to
             // longer phrases
-            for ($j = 1; $j < $_SRCH_CONF['max_word_phrase']; $j++) {
+            for ($j = 1; $j <= $_SRCH_CONF['max_word_phrase']; $j++) {
                 if (isset($terms[$i+$j])) {
                     // If not reaching the end of $terms, concatenate
                     // the next term(s)
@@ -323,40 +270,6 @@ class Common
             }
         }
         return $result;
-    }
-
-
-    /**
-    *   Determines if user is allowed to perform a search
-    *
-    *   glFusion has a number of settings that may prevent
-    *   the access anonymous users have to the search engine.
-    *   This performs those checks
-    *
-    *   @return boolean True if search is allowed, otherwise false
-    */
-    public function SearchAllowed()
-    {
-        global $_USER, $_CONF;
-
-        if ( COM_isAnonUser() &&
-            ( $_CONF['loginrequired'] || $_CONF['searchloginrequired'] ) ) {
-            return false;
-        }
-        return true;
-    }
-
-
-    /**
-    *   Shows an error message if search is not allowed
-    *
-    *   @author Tony Bibbs <tony AT geeklog DOT net>
-    *   @access private
-    *   @return string  HTML output for error message
-    */
-    public function getAccessDeniedMessage()
-    {
-        return (SEC_loginRequiredForm());
     }
 
 }

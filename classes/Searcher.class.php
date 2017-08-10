@@ -19,11 +19,16 @@ require_once __DIR__ . '/Common.class.php';
 */
 class Searcher extends Common
 {
-    private $count = NULL;
-    private $results = array();
-    private $page = 1;
-    private $_style = 'inline';
-    private $_keys = array();
+    protected $count = NULL;
+    protected $results = array();   // array of results information
+    protected $_page = 1;           // number of displayed results page
+    protected $_searchDays = 0;     // number of days to limit search
+    protected $_type = 'all';       // item type filter
+    protected $_style = 'inline';   // only supported results template style
+    protected $_keys = array();     // Array of search keys (content, author)
+    protected $query = '';          // sanitized query string from user input
+    protected $tokens = array();    // tokenized query string
+    protected $sql_tokens = '';     // sql-safe query string for searching
 
     /**
     *   Consrtructer. Call Parent initializer and set the query string
@@ -33,14 +38,76 @@ class Searcher extends Common
     public function __construct($query='')
     {
         parent::__construct();
+
+        if (isset($_GET['type'])) {
+            $this->setType($_GET['type']);
+        }
+
+        if (isset($_GET['st'])) {
+            $this->setDays($_GET['st']);
+        }
+
+        if (isset($_GET['page'])) {
+            $this->setPage($_GET['page']);
+        }
+
+        // Could pass in a query string, but most likely comes from $_GET
         if (!empty($query)) {
             $this->setQuery($query);
+        } elseif (isset($_GET['query'])) {
+            $this->setQuery($_GET['query']);
         }
+
         // Copy fields and weights into a local array
-        // May be overridden
+        // May be overridden by setKeys()
         foreach(self::$fields as $fld=>$wt) {
             $this->_keys[$fld] = $wt;
         }
+    }
+
+
+    /**
+    *   Sets the query string and extracts tokens.
+    *
+    *   @param  string  $query  Query string
+    */
+    public function setQuery($query)
+    {
+        $tokens = array();
+        $this->query = self::_remove_punctuation($query);
+        $this->tokens = self::Tokenize($query);
+        foreach ($this->tokens as $token=>$dummy) {
+            $tokens[] = DB_escapeString($token);
+        }
+        $this->sql_tokens = "'" . implode("','", $tokens) . "'";
+    }
+
+
+    /**
+    *   Set the search scope by item type (article, staticpage, etc)
+    *
+    *   @param  string  $type   Type of item
+    */
+    public function setType($type)
+    {
+        if (!empty($type) && $type != 'all') {
+            $this->_type = DB_escapeString($type);
+        } else {
+            $this->_type = '';
+        }
+    }
+
+
+    /**
+    *   Set the number of days to limit search
+    *
+    *   @param  int  $days   Number of days to limit search or 0 for no limit
+    */
+    public function setDays($days)
+    {
+        $days = (int)$days;
+        if ($days < 0) $days = 0;
+        $this->_searchDays = $days;
     }
 
 
@@ -55,6 +122,17 @@ class Searcher extends Common
         foreach ($keys as $key) {
             $this->_keys[$key] = self::$fields[$key];
         }
+    }
+
+
+    /**
+    *   Set the search page number, minimum is "1"
+    *
+    *   @param  int $page   Page number
+    */
+    public function setPage($page = 1)
+    {
+        $this->_page = $page > 0 ? (int)$page : 1;
     }
 
 
@@ -82,11 +160,9 @@ class Searcher extends Common
     /**
     *   Perform the search
     *
-    *   @param  string  $query  Optional query string if not set previously
-    *   @param  integer $page   Page number to retrieve
     *   @return array           Array of results (item_id, url, excerpt, etc.)
     */
-    public function doSearch($page = 1)
+    public function doSearch()
     {
         global $_TABLES, $_SRCH_CONF, $_USER;
 
@@ -94,8 +170,7 @@ class Searcher extends Common
             return array();
         }
 
-        $this->page = $page > 0 ? $page : 1;
-        $start = $page < 2 ? 0 : ($page - 1) * $_SRCH_CONF['perpage'];
+        $start = ($this->_page - 1) * $_SRCH_CONF['perpage'];
         foreach ($this->_keys as $fld=>$weight) {
             if ($_SRCH_CONF['max_occurrences'] > 0) {
                 $wts[] = '(LEAST(' . $fld . ',' .
@@ -240,7 +315,8 @@ class Searcher extends Common
 
         $start = false;
         if ('chars' == $type) {
-            $excerpt_length *= 5;
+            // TODO - remove this section?
+            $excerpt_length *= 5;   // convert number of words to number of chars
             $prev_count = floor($excerpt_length / 2);
             list($excerpt, $best_excerpt_term_hits, $start) = self::_extract_relevant(array_keys($this->tokens), $content, $excerpt_length, $prev_count);
         } else {
@@ -268,7 +344,7 @@ class Searcher extends Common
         }
 
         if ('' == $excerpt) {
-            // Just get the first X words
+            // No excerpt found? Shouldn't happen, but just get the first X words
             $excerpt = explode(' ', $content, $excerpt_length);
             array_pop($excerpt);
             $excerpt = implode(' ', $excerpt);
@@ -379,7 +455,7 @@ class Searcher extends Common
         return array($reltext, $besthits, $start);
     }
 
-    protected static function DEPRECATED_extract_phrases($q)
+    protected static function _extract_phrases($q)
     {
         $pos = call_user_func(self::$strpos, $q, '"');
         $phrases = array();
@@ -514,11 +590,11 @@ class Searcher extends Common
 
         $num_pages = ceil($this->totalResults() / $_SRCH_CONF['perpage']);
         $base_url = SRCH_URL . '/index.php?query=' . urlencode($this->query);
-        $pagination = COM_printPageNavigation($base_url, $this->page, $num_pages);
+        $pagination = COM_printPageNavigation($base_url, $this->_page, $num_pages);
         $T->set_var('google_paging', $pagination);
 
         if ($this->countResults() > 0) {
-            $first = (($this->page - 1) * $_SRCH_CONF['perpage']) + 1;
+            $first = (($this->_page - 1) * $_SRCH_CONF['perpage']) + 1;
             $last = min($first + $_SRCH_CONF['perpage'] - 1, $this->totalResults());
             $T->set_var(array(
                 'first_result' => $first,
@@ -550,6 +626,85 @@ class Searcher extends Common
                     ON DUPLICATE KEY UPDATE hits = hits + 1";
             DB_query($sql);
         }
+    }
+
+
+    /**
+    *   Shows search form
+    *
+    *   @return string  HTML output for form
+    */
+    public function showForm()
+    {
+        global $_CONF, $LANG09;
+
+        // Verify current user my use the search form
+        if (!$this->SearchAllowed()) {
+            return $this->getAccessDeniedMessage();
+        }
+
+        $T = new \Template(SRCH_PI_PATH . '/templates');
+        $T->set_file('searchform', 'searchform.thtml');
+
+        $plugintypes = array(
+            'all' => $LANG09[4],
+            'article' => $LANG09[6],
+        );
+        if (isset($_CONF['comment_engine']) && $_CONF['comment_engine'] == 'internal') {
+            $plugintypes['comment'] = $LANG09[7];
+        }
+        $plugintypes = array_merge($plugintypes, PLG_getSearchTypes());
+        $T->set_block('searchform', 'PluginTypes', 'PluginBlock');
+        foreach ($plugintypes as $key => $val) {
+            $T->set_var(array(
+                'pi_name'   => $key,
+                'pi_text'   => $val,
+                'selected'  => $this->_type == $key ? 'selected="selected"' : '',
+            ) );
+            $T->parse('PluginBlock', 'PluginTypes', true);
+        }
+
+        $T->set_var(array(
+            'query' => htmlspecialchars($this->query),
+            'dt_sel_' . $this->_searchDays => 'selected="selected"',
+            'lang_date_filter' => $LANG09[71],
+        ) );
+        $T->parse('output', 'searchform');
+        return $T->finish($T->get_var('output'));
+    }
+
+
+    /**
+    *   Determines if user is allowed to perform a search
+    *
+    *   glFusion has a number of settings that may prevent
+    *   the access anonymous users have to the search engine.
+    *   This performs those checks
+    *
+    *   @return boolean True if search is allowed, otherwise false
+    */
+    public function SearchAllowed()
+    {
+        global $_USER, $_CONF;
+
+        if ( COM_isAnonUser() &&
+            ( $_CONF['loginrequired'] || $_CONF['searchloginrequired'] ) ) {
+            return false;
+        }
+        return true;
+    }
+
+
+    /**
+    *   Shows an error message if search is not allowed
+    *
+    *   @author Tony Bibbs <tony AT geeklog DOT net>
+    *   @access private
+    *   @return string  HTML output for error message
+    */
+    public function getAccessDeniedMessage()
+    {
+        return (SEC_loginRequiredForm());
     }
 
 }
