@@ -12,8 +12,6 @@
 */
 namespace Searcher;
 
-USES_searcher_class_common();
-
 /**
 *   Class to display the search form
 *   @package searcher
