@@ -12,7 +12,7 @@
 */
 require_once '../../../lib-common.php';
 require_once '../../auth.inc.php';
-require_once 'admin.inc.php';
+require_once $_CONF['path'].'plugins/searcher/include/admin.inc.php';
 
 USES_lib_admin();
 
