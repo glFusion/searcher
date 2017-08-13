@@ -11,7 +11,6 @@
 *   @filesource
 */
 namespace Searcher;
-require_once __DIR__ . '/Common.class.php';
 
 /**
 *   Indexing class
