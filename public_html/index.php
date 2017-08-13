@@ -12,11 +12,9 @@
 *               GNU Public License v2 or later
 *   @filesource
 */
-namespace Searcher;
 require_once '../lib-common.php';
 
-USES_searcher_class_searcher();
-$S = new Searcher();
+$S = new Searcher\Searcher();
 
 if ($S->SearchAllowed()) {
     $S->doSearch();
