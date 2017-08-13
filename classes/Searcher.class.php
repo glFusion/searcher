@@ -89,10 +89,16 @@ class Searcher extends Common
     */
     public function setType($type)
     {
-        if (!empty($type) && $type != 'all') {
-            $this->_type = DB_escapeString($type);
-        } else {
+        switch ($type) {
+        case '':
+        case 'all':
             $this->_type = '';
+            break;
+        case 'stories':
+            $this->_type = 'article';
+            break;
+        default:
+            $this->_type = DB_escapeString($type);
         }
     }
 
@@ -234,7 +240,9 @@ class Searcher extends Common
             }
         }
         $this->updateCounter();
-        return $this->results;
+        $retval = $this->showForm();
+        $retval .= $this->Display();
+        return $retval;
     }
 
 
