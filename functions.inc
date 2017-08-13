@@ -22,6 +22,9 @@ if (!defined('GVERSION')) {
 $lgu_config = \config::get_instance();
 $_SRCH_CONF = $lgu_config->get_config('searcher');
 
+// tmp setting
+$_SRCH_CONF['replace_stock_search'] = true;
+
 /** Additional config items and table definitions are added here */
 require_once __DIR__ . '/searcher.php';
 define('SRCH_PI_PATH', __DIR__);
@@ -51,6 +54,10 @@ if (is_file("$langpath/custom/$langfile")) {
 /** Include the user-supplied configuration file, if any */
 if (is_file(SRCH_PI_PATH . '/config.php')) {
     include_once SRCH_PI_PATH . '/config.php';
+}
+
+if ( isset($_SRCH_CONF['replace_stock_search']) && $_SRCH_CONF['replace_stock_search'] == true ) {
+    PLG_registerService('search','\\Searcher\\Searcher');
 }
 
 /** Upgrade functions */
@@ -421,7 +428,8 @@ function plugin_IndexAll_comments($type, $pid, $perms=NULL)
             'parent_type' => $type,
             'type'  => 'comment',
             //'title' => $A['title'],
-            'author' => COM_getDisplayName($A['uid']),
+//            'author' => COM_getDisplayName($A['uid']),
+            'author' => $A['uid'],
             'content' => $A['comment'],
         );
         if (is_array($perms)) {
