@@ -78,7 +78,9 @@ class Searcher extends Common
         foreach ($this->tokens as $token=>$dummy) {
             $tokens[] = DB_escapeString($token);
         }
-        $this->sql_tokens = "'" . implode("','", $tokens) . "'";
+        if (!empty($tokens)) {
+            $this->sql_tokens = "'" . implode("','", $tokens) . "'";
+        }
     }
 
 
@@ -151,13 +153,18 @@ class Searcher extends Common
     private function _sql_where()
     {
         $type_sql = $this->_type ? " AND type = '{$this->_type}' " : '';
+        if ($this->_searchDays > 0) {
+            $daysback = time() - ($this->_searchDays * 86400);
+            $type_sql .= ' AND ts > ' . (int)$daysback;
+        }
 
-        $daysback = time() - ($this->_searchDays * 24 * 60 * 60);
-        $type_sql .= $this->_searchDays > 0 ? " AND ts > " . $daysback . " " : "";
-
-        $where = " term in ({$this->sql_tokens}) " . $type_sql .
-            $this->_getPermSQL() .
-            ' GROUP BY  type, item_id ';
+        if (!empty($this->sql_tokens)) {
+            $where = " term in ({$this->sql_tokens}) ";
+        } else {
+            $where = ' 1=1 ';
+        }
+        $where .= $type_sql . $this->_getPermSQL() .
+            ' GROUP BY type, item_id ';
         return $where;
     }
 
@@ -170,10 +177,6 @@ class Searcher extends Common
     public function doSearch()
     {
         global $_TABLES, $_SRCH_CONF, $_USER;
-
-        if (empty($this->tokens)) {
-            return array();
-        }
 
         $start = ($this->_page - 1) * $_SRCH_CONF['perpage'];
         foreach ($this->_keys as $fld=>$weight) {
