@@ -212,7 +212,7 @@ class Searcher extends Common
         $this->results = array();
         // Set field array for PLG_getItemInfo.
         // Stories have date-created, Pages have date-modified.
-        $what = 'id,title,description,author,date,date-created,date-modified,hits,url';
+        $what = 'id,title,description,author,author_name,date,date-created,date-modified,hits,url';
         while ($A = DB_fetchArray($res, false)) {
             $exc = PLG_getItemInfo($A['type'], $A['item_id'], $what, $_USER['uid']);
             if (!empty($exc['date'])) {
@@ -226,8 +226,13 @@ class Searcher extends Common
             }
             $excerpt = self::getExcerpt($exc['description']);
             $hits = isset($exc['hits']) ? $exc['hits'] : NULL;
-            $author = is_numeric($exc['author']) ?
-                    COM_getDisplayName($exc['author']) : $exc['author'];
+
+            if ( $exc['author_name'] == '' ) {
+                $author = is_numeric($exc['author']) ?
+                        COM_getDisplayName($exc['author']) : $exc['author'];
+            } else {
+                $author = $exc['author_name'];
+            }
             $title = $exc['title'];
             $uid = isset($exc['author']) ? $exc['author'] : NULL;
             if (isset($exc['url'])) {
@@ -600,7 +605,7 @@ class Searcher extends Common
                 'date'  => $row['ts'] ? $dt->format($_CONF['shortdate']) : NULL,
                 'src'   => $row['disp_type'],
                 'type'  => $row['type'],
-                'link_author' => $_SRCH_CONF['show_author'] == 2 ? true : false,
+                'link_author' => ($_SRCH_CONF['show_author'] == 2 && $row['uid'] > 1) ? true : false,
             ) );
             $T->parse('item_field', 'field', true);
 
@@ -613,6 +618,14 @@ class Searcher extends Common
 
         $num_pages = ceil($this->totalResults() / $_SRCH_CONF['perpage']);
         $base_url = SRCH_URL . '/index.php?query=' . urlencode($this->query);
+
+        if ( $this->_type != "" ) {
+            $base_url .= '&amp;type='.urlencode($this->_type);
+        }
+        if ( $this->_searchDays > 0 ) {
+            $base_url .= '&amp;st='.$this->_searchDays;
+        }
+
         $pagination = COM_printPageNavigation($base_url, $this->_page, $num_pages);
         $T->set_var('google_paging', $pagination);
 
