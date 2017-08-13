@@ -22,7 +22,7 @@ class Searcher extends Common
     protected $results = array();   // array of results information
     protected $_page = 1;           // number of displayed results page
     protected $_searchDays = 0;     // number of days to limit search
-    protected $_type = 'all';       // item type filter
+    protected $_type = '';          // item type filter
     protected $_style = 'inline';   // only supported results template style
     protected $_keys = array();     // Array of search keys (content, author)
     protected $query = '';          // sanitized query string from user input
