@@ -39,7 +39,6 @@ class Indexer extends Common
             isset($content['content']) && !empty($content['content'])) {
             $content['content'] = self::removeAutoTags($content['content']);
         }
-
         $insert_data = array();     // data to be inserted into DB
         foreach(self::$fields as $fld=>$weight) {
             // index content fields and get a count of tokens
@@ -65,6 +64,7 @@ class Indexer extends Common
             DB_escapeString($content['parent_type']) : $type;
         $ts = isset($content['date']) ? (int)$content['date'] : time();
         $grp_access = 2;    // default to all users access if no perms sent
+        $item_author = (isset($content['author']) ? (int) $content['author'] : 1);
         if (isset($content['perms']) && is_array($content['perms'])) {
             if ($content['perms']['perm_anon'] == 2) {
                 $grp_access = 2;    // anon users
@@ -84,7 +84,7 @@ class Indexer extends Common
             $term = DB_escapeString(trim($term));
             $weight = (float)$data['weight'];
             $values[] = "('$type', '$item_id', '$term', '$parent_id', '$parent_type',
-                    $ts, $content, $title, $author, $grp_access, $weight)";
+                    $ts, $content, $title, $item_author, $grp_access, $weight)";
         }
         if (empty($values)) {
             return true;
@@ -94,7 +94,6 @@ class Indexer extends Common
                 type, item_id, term, parent_id, parent_type, ts,
                 content, title, author, grp_access, weight
                 ) VALUES $values";
-
         $res = DB_query($sql);
         if (DB_error()) {
             COM_errorLog("Searcher Error Indexing $type, ID $item_id");

@@ -100,6 +100,7 @@ function SRCH_indexContentItemAjax()
             'title' => $contentInfo['title'],
             'content' => $contentInfo['searchidx'],
             'date' => $contentInfo['date'],
+            'author' => $contentInfo['author'],
             'perms' => array(
                 'owner_id' => $contentInfo['perms']['owner_id'],
                 'group_id' => $contentInfo['perms']['group_id'],
@@ -120,6 +121,7 @@ function SRCH_indexContentItemAjax()
                 $rc = true;
             }
             if ( $rc == true || $type == 'article') {
+//COM_errorLog("Calling plugin index all comments");
                 plugin_IndexAll_comments($type, $id, $props['perms']);
             }
         }
