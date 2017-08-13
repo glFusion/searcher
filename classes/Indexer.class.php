@@ -40,6 +40,15 @@ class Indexer extends Common
             $content['content'] = self::removeAutoTags($content['content']);
         }
 
+        // Set author name for the index
+        if (!isset($content['author_name']) || empty($content['author_name'])) {
+            $content['author_name'] = COM_getDisplayName($content['author']);
+        }
+        // TODO: uid is not currently used, Indexer uses 'author' for the
+        // author name.
+        $content['uid'] = (int)$content['author'];
+        $content['author'] = $content['author_name'];
+
         $insert_data = array();     // data to be inserted into DB
         foreach(self::$fields as $fld=>$weight) {
             // index content fields and get a count of tokens
@@ -94,7 +103,7 @@ class Indexer extends Common
                 type, item_id, term, parent_id, parent_type, ts,
                 content, title, author, grp_access, weight
                 ) VALUES $values";
-
+        //echo $sql;die;
         $res = DB_query($sql);
         if (DB_error()) {
             COM_errorLog("Searcher Error Indexing $type, ID $item_id");

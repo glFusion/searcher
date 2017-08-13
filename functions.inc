@@ -273,8 +273,10 @@ function plugin_itemsaved_searcher($id, $type, $old_id = '')
 {
     global $_TABLES;
 
-    $contentInfo = PLG_getItemInfo($type,$id,'id,date,title,searchidx,author,hits,perms,search_index');
-
+    $contentInfo = PLG_getItemInfo(
+        $type, $id,
+        'id,date,title,searchidx,author,author_name,hits,perms,search_index'
+    );
     if ( is_array($contentInfo) && count($contentInfo) > 0 ) {
         if (!isset($contentInfo['perms']) || empty($contentInfo['perms'])) {
             $contentInfo['pems'] = array(
@@ -289,6 +291,8 @@ function plugin_itemsaved_searcher($id, $type, $old_id = '')
         $props = array(
             'item_id' => $id,
             'type'  => $type,
+            'author' => $contentInfo['author'],
+            'author_name' => $contentInfo['author_name'],
             'title' => $contentInfo['title'],
             'content' => $contentInfo['searchidx'],
             'date' => $contentInfo['date'],
