@@ -191,7 +191,6 @@ class Common
 
         // Step 2: Stem the terms, if used. Leave duplicates
         if (!empty($_SRCH_CONF['stemmer'])) {
-            USES_search_class_stemmer();
             $S = Stemmer::getInstance($_SRCH_CONF['stemmer']);
             if ($S !== NULL) {
                 for ($i = 0; $i < $total_terms; $i++) {
