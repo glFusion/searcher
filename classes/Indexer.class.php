@@ -42,8 +42,8 @@ class Indexer extends Common
 
         // Set author name for the index if not provided and author field
         // is a numeric ID
-        if (is_numeric($_content['author']) && $content['author'] > 0 &&
-            (!isset($content['author_name']) || empty($content['author_name']))
+        if ( (!isset($content['author_name']) || empty($content['author_name']) )
+              && is_numeric($content['author']) && $content['author'] > 0
         ) {
             $content['author_name'] = COM_getDisplayName($content['author']);
         }
