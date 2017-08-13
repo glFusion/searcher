@@ -99,6 +99,9 @@ class Searcher extends Common
         case 'stories':
             $this->_type = 'article';
             break;
+        case 'comments':
+            $this->_type = 'comment';
+            break;
         default:
             $this->_type = DB_escapeString($type);
         }
@@ -152,18 +155,22 @@ class Searcher extends Common
     */
     private function _sql_where()
     {
-        $type_sql = $this->_type ? " AND type = '{$this->_type}' " : '';
-        if ($this->_searchDays > 0) {
-            $daysback = time() - ($this->_searchDays * 86400);
-            $type_sql .= ' AND ts > ' . (int)$daysback;
-        }
-
         if (!empty($this->sql_tokens)) {
             $where = " term in ({$this->sql_tokens}) ";
         } else {
             $where = ' 1=1 ';
         }
-        $where .= $type_sql . $this->_getPermSQL() .
+
+        if ($this->_type != '') {
+            $where .= " AND type = '{$this->_type}' ";
+        }
+
+        if ($this->_searchDays > 0) {
+            $daysback = time() - ($this->_searchDays * 86400);
+            $where .= ' AND ts > ' . (int)$daysback;
+        }
+
+        $where .= $this->_getPermSQL() .
             ' GROUP BY type, item_id ';
         return $where;
     }
