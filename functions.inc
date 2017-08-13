@@ -19,8 +19,7 @@ if (!defined('GVERSION')) {
 }
 
 /** Import configuration-handling class */
-require_once $_CONF['path_system'] . 'classes/config.class.php';
-$lgu_config = config::get_instance();
+$lgu_config = \config::get_instance();
 $_SRCH_CONF = $lgu_config->get_config('searcher');
 
 /** Additional config items and table definitions are added here */
@@ -58,24 +57,20 @@ if (is_file(SRCH_PI_PATH . '/config.php')) {
 function USES_searcher_upgrade()
 {   require_once SRCH_PI_PATH . '/upgrade.inc.php';   }
 
-/** Common Base class */
-function USES_searcher_class_common()
-{   require_once SRCH_PI_PATH . '/classes/Common.class.php';    }
+/* Auto loader */
 
-/** Common Base class */
-function USES_searcher_class_searchform()
-{   require_once SRCH_PI_PATH . '/classes/SearchForm.class.php';    }
+spl_autoload_register('searcher_autoloader');
 
-/** Searcher class */
-function USES_searcher_class_searcher()
-{   require_once SRCH_PI_PATH . '/classes/Searcher.class.php';    }
-
-/** Indexer class */
-function USES_searcher_class_indexer()
-{   require_once SRCH_PI_PATH . '/classes/Indexer.class.php';    }
-
-function USES_search_class_stemmer()
-{   require_once __DIR__ . '/classes/Stemmer.class.php'; }
+function searcher_autoloader($class) {
+    global $_CONF;
+    if (strpos($class, 'Searcher\\') === 0) {
+        $class = str_replace('Searcher\\', '', $class);
+    }
+    $path = $_CONF['path'].'plugins/searcher/classes/' . $class . '.class.php';
+    if (file_exists($path)) {
+        include $path;
+    }
+}
 
 /**
 *   Get the currently installed version.
@@ -262,7 +257,7 @@ function plugin_getheadercss_searcher()
 
 /**
 *   Index an item when it is saved.
-*   First deletes any existing index records, then creates new ones.
+*   First deletes any existing index records, then creates newones.
 *
 *   @param  string  $id     Item ID
 *   @param  string  $type   Item Type
@@ -270,8 +265,6 @@ function plugin_getheadercss_searcher()
 function plugin_itemsaved_searcher($id, $type, $old_id = '')
 {
     global $_TABLES;
-
-    USES_searcher_class_indexer();
 
     $contentInfo = PLG_getItemInfo($type,$id,'id,date,title,searchidx,author,hits,perms,search_index');
 
@@ -313,7 +306,6 @@ function plugin_itemsaved_searcher($id, $type, $old_id = '')
 */
 function plugin_itemdeleted_searcher($id, $type)
 {
-    USES_searcher_class_indexer();
     \Searcher\Indexer::RemoveDoc($type, $id);
 }
 
@@ -327,7 +319,6 @@ function plugin_IndexAll_links()
 {
     global $_TABLES;
 
-    USES_searcher_class_indexer();
     $sql = "SELECT lid, title, description,
                 owner_id, group_id,
                 perm_owner, perm_group, perm_members, perm_anon
@@ -367,7 +358,6 @@ function plugin_IndexAll_staticpages()
 {
     global $_TABLES;
 
-    USES_searcher_class_indexer();
     $sql = "SELECT sp_id, sp_title, sp_content,
                 owner_id, group_id,
                 perm_owner, perm_group, perm_members, perm_anon
@@ -412,7 +402,6 @@ function plugin_IndexAll_comments($type, $pid, $perms=NULL)
 {
     global $_TABLES;
 
-    USES_searcher_class_indexer();
 
     $type = DB_escapeString($type);
     $pid = DB_escapeString($pid);
@@ -460,7 +449,6 @@ function plugin_IndexAll_article()
 {
     global $_TABLES;
 
-    USES_searcher_class_indexer();
 
     $sql = "SELECT sid, uid, title, introtext, bodytext,
             attribution_author, owner_id, group_id,
@@ -509,7 +497,7 @@ function service_indexDoc_searcher($args, &$output, &$svc_msg)
     if (!isset($args['item_id']) || !isset($args['type']) || !isset($args['content'])) {
         return PLG_RET_ERROR;
     }
-    USES_searcher_class_indexer();
+
     \Searcher\Indexer::RemoveDoc($args['type'], $args['item_id']);
     if (!\Searcher\Indexer::IndexDoc($args))
         return PLG_RET_ERROR;
@@ -531,7 +519,6 @@ function plugin_indexDoc_searcher($args)
     ) {
         return false;
     }
-    USES_searcher_class_indexer();
     \Searcher\Indexer::RemoveDoc($args['type'], $args['item_id']);
     return \Searcher\Indexer::IndexDoc($args);
 }
@@ -552,7 +539,6 @@ function service_removeDoc_searcher($args, &$output, &$svc_msg)
     if (!isset($args['item_id']) || !isset($args['type']) || $args['type'] == 'all') {
         return PLG_RET_ERROR;
     }
-    USES_searcher_class_indexer();
     if (!\Searcher\Indexer::RemoveDoc($args['type'], $args['id'])) return PLG_RET_ERROR;
     \Searcher\Indexer::RemoveComments($args['type'], $args['id']);
     return PLG_RET_OK;
@@ -561,7 +547,6 @@ function service_removeDoc_searcher($args, &$output, &$svc_msg)
 
 function plugin_RemoveDoc_searcher($type, $item_id)
 {
-    USES_searcher_class_indexer();
     if (!\Searcher\Indexer::RemoveDoc($type, $item_id)) return false;
     \Searcher\Indexer::RemoveComments($type, $item_id);
     return true;
@@ -585,7 +570,6 @@ function service_removeAll_searcher($args, &$output, &$svc_msg)
     if (!isset($args['type']) || $args['type'] == 'all') {
         return PLG_RET_ERROR;
     }
-    USES_searcher_class_indexer();
     if (!\Searcher\Indexer::RemoveAll($type)) return PLG_RET_ERROR;
     \Searcher\Indexer::RemoveComments($type);
     return PLG_RET_OK;
@@ -598,7 +582,6 @@ function plugin_removeAll_searcher($type)
     if (empty($type) || $type == 'all') {
         return false;
     }
-    USES_searcher_class_indexer();
     if (!\Searcher\Indexer::RemoveAll($type)) return false;
     \Searcher\Indexer::RemoveComments($type);
     return true;
