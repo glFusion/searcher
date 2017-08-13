@@ -91,7 +91,7 @@ function SRCH_indexContentItemAjax()
     $contentList = array();
     $retval = array();
 
-    $contentInfo = PLG_getItemInfo($type,$id,'id,date,title,searchidx,author,hits,perms,search_index,reindex');
+    $contentInfo = PLG_getItemInfo($type,$id,'id,date,title,searchidx,author,author_name,hits,perms,search_index,reindex');
 
     if ( is_array($contentInfo) && count($contentInfo) > 0 ) {
         $props = array(
@@ -100,6 +100,8 @@ function SRCH_indexContentItemAjax()
             'title' => $contentInfo['title'],
             'content' => $contentInfo['searchidx'],
             'date' => $contentInfo['date'],
+            'author' => $contentInfo['author'],
+            'author_name' => $contentInfo['author_name'],
             'perms' => array(
                 'owner_id' => $contentInfo['perms']['owner_id'],
                 'group_id' => $contentInfo['perms']['group_id'],
