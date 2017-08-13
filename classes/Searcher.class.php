@@ -128,7 +128,13 @@ class Searcher extends Common
     */
     public function setKeys($keys)
     {
+        // Reset the keys array
         $this->_keys = array();
+
+        // Make sure $keys is an array
+        if (!is_array($keys)) {
+            $keys = array($keys);
+        }
         foreach ($keys as $key) {
             $this->_keys[$key] = self::$fields[$key];
         }
