@@ -40,13 +40,17 @@ class Indexer extends Common
             $content['content'] = self::removeAutoTags($content['content']);
         }
 
-        // Set author name for the index
-        if (!isset($content['author_name']) || empty($content['author_name'])) {
+        // Set author name for the index if not provided and author field
+        // is a numeric ID
+        if (is_numeric($_content['author']) && $content['author'] > 0 &&
+            (!isset($content['author_name']) || empty($content['author_name']))
+        ) {
             $content['author_name'] = COM_getDisplayName($content['author']);
         }
-        // TODO: uid is not currently used, Indexer uses 'author' for the
-        // author name.
-        $content['uid'] = (int)$content['author'];
+        // TODO: uid is not currently used, but save it anyway for future use.
+        // Indexer uses 'author' for the author name.
+        // May save numeric author ID in the future...
+        //$content['uid'] = (int)$content['author'];
         $content['author'] = $content['author_name'];
 
         $insert_data = array();     // data to be inserted into DB
