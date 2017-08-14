@@ -411,8 +411,11 @@ function plugin_IndexAll_staticpages()
 */
 function plugin_IndexAll_comments($type, $pid, $perms=NULL)
 {
-    global $_TABLES;
+    global $_CONF, $_TABLES;
 
+    if (isset($_CONF['comment_engine']) && $_CONF['comment_engine'] != 'internal') {
+        return 0;
+    }
 
     $type = DB_escapeString($type);
     $pid = DB_escapeString($pid);
