@@ -200,7 +200,7 @@ class Common
             }
             // Get the phrases into the token array. Add more weight to
             // longer phrases
-            for ($j = 1; $j <= $_SRCH_CONF['max_word_phrase']; $j++) {
+            for ($j = 1; $j < $_SRCH_CONF['max_word_phrase']; $j++) {
                 if (isset($terms[$i+$j])) {
                     // If not reaching the end of $terms, concatenate
                     // the next term(s)
