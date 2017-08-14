@@ -29,6 +29,7 @@ $LANG_SRCH = array(
     'search_title'  => 'Search Title',
     'search_author' => 'Search Author',
     'search_content'=> 'Search Content',
+    'query_too_short' => 'Query must contain at least %d letters',
     'hlp_gen_all'   => 'Re-generate all indexes for the selected content types. Use this option after installing the plugin, or after changing certain key configuration items such as the minimum word length or changing the stemmer.',
     'hlp_counters'  => 'Here are the search queries made by site visitors, along with the number of times each query was made.',
     'hlp_reindex'   => 'Reindexing content will remove all existing search items for the content type and re-scan the content to rebuild the search word index. This can take a significant amount of time on large volume content types such as Forums.',

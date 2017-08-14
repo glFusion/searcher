@@ -267,9 +267,10 @@ class Searcher extends Common
     {
         global $_TABLES, $_SRCH_CONF, $_USER;
 
-        if ( ($this->query == '' || empty($this->query) ) && count($this->_keys == 3 ) ) {
+        $x = strlen($this->query);
+        if ( $x < self::$min_word_len && count($this->_keys) == 3 ) {
             // no query and all keys enabled - return search form only - no search
-            return $this->showForm();
+            return $this->showForm($x);
         }
 
         $start = ($this->_page - 1) * $_SRCH_CONF['perpage'];
@@ -760,9 +761,9 @@ class Searcher extends Common
     *
     *   @return string  HTML output for form
     */
-    public function showForm()
+    public function showForm($query_len = -1)
     {
-        global $_CONF, $LANG09;
+        global $_CONF, $LANG09, $LANG_SRCH;
 
         // Verify current user my use the search form
         if (!$this->SearchAllowed()) {
@@ -802,7 +803,9 @@ class Searcher extends Common
         }
         if ( $this->_search_title ) $T->set_var('search_title_checked',' checked="checked" ');
         if ( $this->_search_content ) $T->set_var('search_content_checked',' checked="checked" ');
-
+        if ( $query_len > 0 && $query_len < self::$min_word_len ) {
+            $T->set_var('err_msg', sprintf($LANG_SRCH['query_too_short'], self::$min_word_len));
+        }
         $T->parse('output', 'searchform');
         return $T->finish($T->get_var('output'));
     }

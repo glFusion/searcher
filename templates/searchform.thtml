@@ -71,5 +71,8 @@
 	</div>
 
 </form>
+{!if err_msg}
+<div class="uk-alert uk-alert-danger">{err_msg}</div>
+{!endif}
 <script>$("#srchform").validate();</script>
 {# end {templatelocation} #}

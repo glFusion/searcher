@@ -17,14 +17,12 @@ require_once '../lib-common.php';
 $S = new Searcher\Searcher();
 
 if ($S->SearchAllowed()) {
-    $S->doSearch();
-    $results = $S->Display();
+    $results = $S->doSearch();
 } else {
     $results='';
 }
 
 $display = COM_siteHeader('menu', $LANG09[11]);
-$display .= $S->showForm();
 $display .= $results;
 $display .= COM_siteFooter();
 
