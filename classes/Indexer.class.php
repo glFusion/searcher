@@ -90,6 +90,7 @@ class Indexer extends Common
         }
 
         $values = array();
+        $insertCount = 0;
         foreach ($insert_data as $term => $data) {
             foreach (self::$fields as $var=>$weight) {
                 $$var = isset($data[$var]) ? (int)$data[$var] : 0;
@@ -98,6 +99,23 @@ class Indexer extends Common
             $weight = (float)$data['weight'];
             $values[] = "('$type', '$item_id', '$term', '$parent_id', '$parent_type',
                     $ts, $content, $title, $author, $grp_access, $weight)";
+            $insertCount++;
+
+            if ( $insertCount > 5000 ) {
+                $values = implode(', ', $values);
+                $sql = "INSERT IGNORE INTO {$_TABLES['searcher_index']} (
+                        type, item_id, term, parent_id, parent_type, ts,
+                        content, title, author, grp_access, weight
+                        ) VALUES $values";
+                //echo $sql;die;
+                $res = DB_query($sql);
+                if (DB_error()) {
+                    COM_errorLog("Searcher Error Indexing $type, ID $item_id");
+                    return false;
+                }
+                $values = array();
+                $insertCount = 0;
+            }
         }
         if (empty($values)) {
             return true;

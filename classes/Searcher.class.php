@@ -28,6 +28,9 @@ class Searcher extends Common
     protected $query = '';          // sanitized query string from user input
     protected $tokens = array();    // tokenized query string
     protected $sql_tokens = '';     // sql-safe query string for searching
+    protected $_search_title   = 0; // whether to consider title in search
+    protected $_search_content = 0; // whether to consider content in search
+    protected $_search_author  = 0; // whether to consider author in search
 
     /**
     *   Consrtructer. Call Parent initializer and set the query string
@@ -62,6 +65,39 @@ class Searcher extends Common
         foreach(self::$fields as $fld=>$wt) {
             $this->_keys[$fld] = $wt;
         }
+
+        $searchKeys = array();
+
+        // check to see which search keys are enabled
+        if ( isset($_GET['author'])) {
+            $this->setSearchKey('author',COM_applyFilter($_GET['author']));
+            if ( $this->_search_author > 1 ) {
+                if ( $this->query == '' || empty($this->query)) {
+                    $authorName = COM_getDisplayName($this->_search_author);
+                    if ( $authorName != '' ) {
+                        $this->setQuery($authorName);
+                    }
+                }
+            }
+            $searchKeys[] = 'author';
+        }
+        if ( isset($_GET['title']) ) {
+              $searchKeys[] = 'title';
+              $this->setSearchKey('title',1);
+        }
+        if ( isset($_GET['content'])) {
+            $searchKeys[] = 'content';
+            $this->setSearchKey('content',1);
+        }
+
+        // failsafe - if no search keys checked then enable all
+        if ( count($searchKeys) == 0 ) {
+            $searchKeys = array('content','title','author');
+            $this->setSearchKey('author',1);
+            $this->setSearchKey('content',1);
+            $this->setSearchKey('title',1);
+        }
+        $this->setKeys($searchKeys);
     }
 
 
@@ -151,6 +187,32 @@ class Searcher extends Common
         $this->_page = $page > 0 ? (int)$page : 1;
     }
 
+    /**
+    *   Set search keys
+    *
+    *   @param  char $tiem  Search key (content, title, author)
+    *   @param  int  $value value to search
+    */
+    public function setSearchKey($item,$value)
+    {
+        switch ( $item ) {
+            case 'author' :
+                // set _search_author to UID to search
+                // UID is only used if query is blank in which case
+                // Searcher will populate query with results of COM_getDisplayName()
+                $value = (int)$value;
+                if ($value < 0) $value = 0;
+                $this->_search_author = $value;
+                break;
+            case 'content' :
+                $this->_search_content = 1;
+                break;
+            case 'title' :
+                $this->_search_title = 1;
+                break;
+        }
+    }
+
 
     /**
     *   Get the "where" and "group by" clauses for sql statements.
@@ -176,8 +238,22 @@ class Searcher extends Common
             $where .= ' AND ts > ' . (int)$daysback;
         }
 
+        // if only 1 or 2 search keys are checked
+        // build approach SQL to limit search to only those keys
+        if ( count($this->_keys) != 3 ) {
+            $skWhere = '';
+            $skLoop = 0;
+            foreach ($this->_keys AS $key => $weight) {
+                if ( $skLoop > 0 ) $skWhere .= ' OR ';
+                $skWhere .= $key . ' > 0 ';
+                $skLoop++;
+            }
+            $where .= ' AND (' . $skWhere .' ) ';
+        }
+
         $where .= $this->_getPermSQL() .
             ' GROUP BY type, item_id ';
+
         return $where;
     }
 
@@ -190,6 +266,11 @@ class Searcher extends Common
     public function doSearch()
     {
         global $_TABLES, $_SRCH_CONF, $_USER;
+
+        if ( ($this->query == '' || empty($this->query) ) && count($this->_keys == 3 ) ) {
+            // no query and all keys enabled - return search form only - no search
+            return $this->showForm();
+        }
 
         $start = ($this->_page - 1) * $_SRCH_CONF['perpage'];
         foreach ($this->_keys as $fld=>$weight) {
@@ -625,6 +706,15 @@ class Searcher extends Common
         if ( $this->_searchDays > 0 ) {
             $base_url .= '&amp;st='.$this->_searchDays;
         }
+        if ( $this->_search_author > 0 ) {
+            $base_url .= '&amp;author='.$this->_search_author;
+        }
+        if ( $this->_search_title > 0 ) {
+            $base_url .= '&amp;title=x';
+        }
+        if ( $this->_search_content > 0 ) {
+            $base_url .= '&amp;content=x';
+        }
 
         $pagination = COM_printPageNavigation($base_url, $this->_page, $num_pages);
         $T->set_var('google_paging', $pagination);
@@ -705,6 +795,14 @@ class Searcher extends Common
             'dt_sel_' . $this->_searchDays => 'selected="selected"',
             'lang_date_filter' => $LANG09[71],
         ) );
+
+        if ( $this->_search_author ) {
+            $T->set_var('search_author_checked',' checked="checked" ');
+            $T->set_var('search_author_value', $this->_search_author);
+        }
+        if ( $this->_search_title ) $T->set_var('search_title_checked',' checked="checked" ');
+        if ( $this->_search_content ) $T->set_var('search_content_checked',' checked="checked" ');
+
         $T->parse('output', 'searchform');
         return $T->finish($T->get_var('output'));
     }
