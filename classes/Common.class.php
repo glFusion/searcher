@@ -18,9 +18,6 @@ namespace Searcher;
 */
 class Common
 {
-    protected static $strpos;
-    protected static $substr;
-    protected static $strrpos;
     protected static $min_word_len = 3; // default
     protected static $stopwords = array();
     protected static $fields = array();
@@ -41,11 +38,8 @@ class Common
 
         include_once __DIR__ . '/../stopwords/english.php';
         self::$stopwords = $stopwords;
-
-        self::$strpos = function_exists('mb_strpos') ? 'mb_strpos' : 'strpos';
-        self::$substr = function_exists('mb_substr') ? 'mb_substr' : 'substr';
-        self::$strrpos = function_exists('mb_strrpos') ? 'mb_strrpos' : 'strrpos';
         self::$min_word_len = $_SRCH_CONF['min_word_len'];
+
         // set supported fields
         self::$fields = array(
             'content'   => $_SRCH_CONF['wt_content'],
@@ -87,19 +81,6 @@ class Common
 
 
     /**
-    *   Determine the length of a string.
-    *   Uses mb_strlen() if available, falls back to strlen()
-    *
-    *   @param  string  $s      String to check
-    *   @return integer         Length of string
-    */
-    protected static function _strlen($s)
-    {
-        return function_exists('mb_strlen') ? mb_strlen($s) : strlen($s);
-    }
-
-
-    /**
     *   Callback function to sort strings by length
     *
     *   @param  string  $a  First string
@@ -108,25 +89,8 @@ class Common
     */
     protected static function _strlen_sort($a, $b)
     {
+        return utf8_strlen($b) - utf8_strlen($a);
         return self::_strlen($b) - self::_strlen($a);
-    }
-
-
-    /* Helper function that does mb_stripos, falls back to mb_strpos and mb_strtoupper
-     * if that cannot be found, and falls back to just strpos if even that is not possible.
-     */
-    protected static function _stripos($content, $term, $offset = 0)
-    {
-        if ($offset > self::_strlen($content)) return false;
-
-        if (function_exists('mb_stripos')) {
-            $pos = ("" == $content) ? false : mb_stripos($content, $term, $offset);
-        } else if (function_exists('mb_strpos') && function_exists('mb_strtoupper') && function_exists('mb_substr')) {
-            $pos = mb_strpos(mb_strtoupper($content), mb_strtoupper($term), $offset);
-        } else {
-            $pos = strpos(strtoupper($content), strtoupper($term), $offset);
-        }
-        return $pos;
     }
 
 
@@ -167,7 +131,7 @@ class Common
         $tmp = array();
         foreach ($terms as $term) {
             if (in_array($term, self::$stopwords) ||
-                    self::_strlen($term) < self::$min_word_len) {
+                    utf8_strlen($term) < self::$min_word_len) {
                 continue;
             }
             $tmp[] = $term;

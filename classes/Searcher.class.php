@@ -518,11 +518,11 @@ class Searcher extends Common
     {
         $locations = array();
         foreach ($words as $word) {
-            $wordlen = self::_strlen($word);
-            $loc = self::_stripos($fulltext, $word, 0);
+            $wordlen = utf8_strlen($word);
+            $loc = utf8_stripos($fulltext, $word, 0);
             while($loc !== FALSE) {
                 $locations[] = $loc;
-                $loc = self::_stripos($fulltext, $word, $loc + $wordlen);
+                $loc = utf8_stripos($fulltext, $word, $loc + $wordlen);
             }
         }
         $locations = array_unique($locations);
@@ -536,7 +536,7 @@ class Searcher extends Common
     // in the middle of the extract
     protected static function _extract_relevant($words, $fulltext, $rellength=300, $prevcount=50)
     {
-        $textlength = self::_strlen($fulltext);
+        $textlength = utf8_strlen($fulltext);
 
         if ($textlength <= $rellength) {
             return array($fulltext, 1, 0);
@@ -550,11 +550,11 @@ class Searcher extends Common
             $startpos = $startpos - ($textlength-$startpos)/2;
         }
 
-        $reltext = call_user_func(self::$substr, $fulltext, $startpos, $rellength);
+        $reltext = utf8_substr($fulltext, $startpos, $rellength);
 
         // check to ensure we dont snip the last word if thats the match
         if ($startpos + $rellength < $textlength) {
-            $reltext = call_user_func(self::$substr, $reltext, 0, call_user_func(self::$strrpos, $reltext, " ")); // remove last word
+            $reltext = utf8_substr($reltext, 0, utf8_strrpos($reltext, " ")); // remove last word
         }
 
         $start = false;
@@ -567,18 +567,18 @@ class Searcher extends Common
 
     protected static function _extract_phrases($q)
     {
-        $pos = call_user_func(self::$strpos, $q, '"');
+        $pos = utf8_strpos($q, '"');
         $phrases = array();
         while ($pos !== false) {
             $start = $pos;
-            $end = call_user_func(self::$strpos, $q, '"', $start + 1);
+            $end = utf8_strpos($q, '"', $start + 1);
             if ($end === false) {
                 // just one " in the query
                 $pos = $end;
                 continue;
             }
-            $phrase = call_user_func(self::$substr, $q, $start + 1, $end - $start - 1);
-            $phrase = trim($phrase);
+            $phrase = utf8_substr($q, $start + 1, $end - $start - 1);
+            $phrase = utf8_trim($phrase);
 
             if (!empty($phrase)) $phrases[] = $phrase;
             $pos = $end;
