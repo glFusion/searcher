@@ -403,4 +403,57 @@ function plugin_configmanager_select_stemmer_searcher()
     return $A;
 }
 
+
+/**
+*   Reindex all comments for the given type
+*
+*   @param  string  $type   Content type, e.g. "article", "staticpages"
+*   @param  mixed   $pid    Parent content item ID
+*   @param  mixed   $perms  Permission array from content item, or NULL
+*   @return integer     Count of articles indexed
+*/
+function plugin_IndexAll_comments($type, $pid, $perms=NULL)
+{
+    global $_CONF, $_TABLES;
+
+    if (isset($_CONF['comment_engine']) && $_CONF['comment_engine'] != 'internal') {
+        return 0;
+    }
+
+    $type = DB_escapeString($type);
+    $pid = DB_escapeString($pid);
+    $sql = "SELECT cid, sid, uid, title, comment
+        FROM {$_TABLES['comments']}
+        WHERE type = '$type' AND sid = '$pid'";
+    //echo $sql;die;
+    $res = DB_query($sql);
+    $count = 0;
+    // Remove all existing index records for this content
+    \Searcher\Indexer::RemoveComments($type, $pid);
+    while ($A = DB_fetchArray($res, false)) {
+        $count++;
+        $props = array(
+            'item_id' => $A['cid'],
+            'parent_id' => $A['sid'],
+            'parent_type' => $type,
+            'type'  => 'comment',
+            //'title' => $A['title'],
+            'author' => $A['uid'],
+            'content' => $A['comment'],
+        );
+        if (is_array($perms)) {
+            $props['perms'] = array(
+                'owner_id' => $perms['owner_id'],
+                'group_id' => $perms['group_id'],
+                'perm_owner' => $perms['perm_owner'],
+                'perm_group' => $perms['perm_group'],
+                'perm_members' => $perms['perm_members'],
+                'perm_anon' => $perms['perm_anon'],
+            );
+        }
+        \Searcher\Indexer::IndexDoc($props);
+    }
+    return $count;
+}
+
 ?>
