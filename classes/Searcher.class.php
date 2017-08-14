@@ -795,6 +795,7 @@ class Searcher extends Common
             'query' => htmlspecialchars($this->query),
             'dt_sel_' . $this->_searchDays => 'selected="selected"',
             'lang_date_filter' => $LANG09[71],
+            'min_word_len' => self::$min_word_len,
         ) );
 
         if ( $this->_search_author ) {

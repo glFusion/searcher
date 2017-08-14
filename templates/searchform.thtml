@@ -74,5 +74,14 @@
 {!if err_msg}
 <div class="uk-alert uk-alert-danger">{err_msg}</div>
 {!endif}
-<script>$("#srchform").validate();</script>
+<script>
+$( "#srchform" ).validate({
+  rules: {
+    query: {
+      required: true,
+      minlength: {min_word_len}
+    }
+  }
+});
+</script>
 {# end {templatelocation} #}
