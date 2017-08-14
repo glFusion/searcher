@@ -79,6 +79,7 @@ class Common
     {
         if (!is_string($str)) return '';
         $str = strip_tags($str);
+        $str = html_entity_decode($str);
         $str = preg_replace("/[^\p{L}\p{N}]/", ' ', $str);
         $str = preg_replace('/\s\s+/', ' ', $str);
         return trim($str);
@@ -159,7 +160,7 @@ class Common
 
         // Get all the words from the content string. Check against stopwords
         // and minimum word length, if passed then add to the "terms" array.
-        $terms = preg_split('/[\s,]+/', $str);
+        $terms = preg_split('/\s+/', $str);
 
         // Step 1: Get all the terms that aren't excluded by length or
         // stopword status
