@@ -1,28 +1,75 @@
 {# begin {templatelocation} #}
 <h2>{$LANG09[1]}</h2>
 <form id="srchform" class="uk-form uk-form-stacked uk-width-1-1" method="get" action="{site_url}/searcher/index.php">
-    {$LANG_SRCH['find']}
-    <input class="uk-search required" type="search" id="query" name="query" value="{query}" placeholder="{$LANG09[10]}">
-    {$LANG_SRCH['in']}
-    <select name="type">
-    <!-- BEGIN PluginTypes -->
-      <option value="{pi_name}" {selected}>{pi_text}</option>
-    <!-- END PluginTypes -->
-    </select>
-    {lang_date_filter}
-    <select name="st">
-      <option value="0" {dt_sel_0}>{$LANG09[4]}</option>
-      <option value="1" {dt_sel_1}>{$LANG09[75]}</option>
-      <option value="7" {dt_sel_7}>{$LANG09[76]}</option>
-      <option value="14" {dt_sel_14}>{$LANG09[77]}</option>
-      <option value="30" {dt_sel_30}>{$LANG09[78]}</option>
-      <option value="90" {dt_sel_90}>{$LANG09[79]}</option>
-      <option value="180" {dt_sel_180}>{$LANG09[80]}</option>
-      <option value="365" {dt_sel_365}>{$LANG09[81]}</option>
-    </select>
-    <button class="uk-button uk-button-success searcher-button" type="submit" name="submit" value="{$LANG09[10]}">{$LANG09[10]}</button>
-</form>
-<div style="padding:10px"></div>
-<script>$("#srchform").validate();</script>
 
+	<input class="uk-search required" type="search" id="query" name="query" value="{query}" placeholder="{$LANG09[10]}">
+	<button class="uk-button uk-button-success searcher-button" type="submit" name="submit" value="{$LANG09[10]}">{$LANG09[10]}</button>
+	<button type="button" class="uk-button uk-button-primary uk-margin-small" data-uk-toggle="{target:'#advanced'}">
+		{$LANG09[2]}
+	</button>
+
+	<div id="advanced" class="uk-hidden uk-margin-top  uk-animation-fade">
+		<div class="uk-grid uk-margin-bottom">
+			<div class="uk-width-medium-1-5">
+				<label class="uk-form-label">
+					{$LANG09[70]}
+				</label>
+				<div class="uk-form-controls">
+			    <select name="type">
+			    <!-- BEGIN PluginTypes -->
+			      <option value="{pi_name}" {selected}>{pi_text}</option>
+			    <!-- END PluginTypes -->
+			    </select>
+				</div>
+			</div>
+			<div class="uk-width-medium-1-5">
+				<label class="uk-form-label">
+					{$LANG09[71]}
+				</label>
+				<div class="uk-form-controls">
+			    <select name="st">
+			      <option value="0" {dt_sel_0}>{$LANG09[4]}</option>
+			      <option value="1" {dt_sel_1}>{$LANG09[75]}</option>
+			      <option value="7" {dt_sel_7}>{$LANG09[76]}</option>
+			      <option value="14" {dt_sel_14}>{$LANG09[77]}</option>
+			      <option value="30" {dt_sel_30}>{$LANG09[78]}</option>
+			      <option value="90" {dt_sel_90}>{$LANG09[79]}</option>
+			      <option value="180" {dt_sel_180}>{$LANG09[80]}</option>
+			      <option value="365" {dt_sel_365}>{$LANG09[81]}</option>
+			    </select>
+				</div>
+			</div>
+
+			<div class="uk-width-medium-1-5">
+				<label class="uk-form-label uk-text-center">
+					{$LANG_SRCH[search_title]}
+				</label>
+				<div class="uk-form-controls uk-text-center">
+					<input type="checkbox" name="title" value="1" {search_title_checked}">
+				</div>
+			</div>
+
+			<div class="uk-width-medium-1-5">
+				<label class="uk-form-label uk-text-center">
+					{$LANG_SRCH[search_content]}
+				</label>
+				<div class="uk-form-controls uk-text-center">
+					<input type="checkbox" name="content" value="1" {search_content_checked}>
+				</div>
+			</div>
+
+			<div class="uk-width-medium-1-5">
+				<label class="uk-form-label uk-text-center">
+					{$LANG_SRCH[search_author]}
+				</label>
+				<div class="uk-form-controls uk-text-center">
+					<input type="checkbox" name="author" value="{search_author_value}" {search_author_checked}>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+</form>
+<script>$("#srchform").validate();</script>
 {# end {templatelocation} #}
