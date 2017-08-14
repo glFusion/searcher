@@ -79,22 +79,8 @@ class Common
     {
         if (!is_string($str)) return '';
         $str = strip_tags($str);
-        $repl_nospace = array(          // Replace with nothing
-            '.', '…', '€', '&shy;', "\r", '@', '!',
-        );
-
-        $repl_space = array(            // Replace these with empty space
-            chr(194) . chr(160),
-            "'", '&nbsp;', '&#8217;', '"',
-            "\n", "\t", '(', ')', '{', '}', '%', '$', '#', '[', ']', '+', '=',
-            '_', '-', '`', ',', '<', '>', '=', ':', '?', ';', '&', '/', '\\',
-        );
-
-        //$str = preg_replace ('/<[^>]*>/', ' ', $str);
-        $str = str_replace($repl_nospace, '', $str);
-        $str = str_replace($repl_space, ' ', $str);
+        $str = preg_replace("/[^\p{L}\p{N}]/", ' ', $str);
         $str = preg_replace('/\s\s+/', ' ', $str);
-        preg_replace("/[^[:alnum:][:space:]]/u", '', $str);
         return trim($str);
     }
 
