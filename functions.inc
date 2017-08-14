@@ -322,205 +322,6 @@ function plugin_itemdeleted_searcher($id, $type)
 
 
 /**
-*   Called from the plugin admin page to re-index all links.
-*
-*   @return integer     Count of links indexed
-*/
-function plugin_IndexAll_links()
-{
-    global $_TABLES;
-
-    $sql = "SELECT lid, title, description,
-                owner_id, group_id,
-                perm_owner, perm_group, perm_members, perm_anon
-            FROM {$_TABLES['links']}";
-    //echo $sql;die;
-    $res = DB_query($sql, 1);
-    \Searcher\Indexer::Removeall('staticpages');
-    $count = 0;
-    while ($A = DB_fetchArray($res, false)) {
-        $count++;
-        $props = array(
-            'item_id' => $A['lid'],
-            'type'  => 'links',
-            'title' => $A['title'],
-            'content' => $A['description'],
-            'perms' => array(
-                'owner_id' => $A['owner_id'],
-                'group_id' => $A['group_id'],
-                'perm_owner' => $A['perm_owner'],
-                'perm_group' => $A['perm_group'],
-                'perm_members' => $A['perm_members'],
-                'perm_anon' => $A['perm_anon'],
-            ),
-        );
-        \Searcher\Indexer::IndexDoc($props);
-    }
-    return $count;
-}
-
-
-/**
-*   Called from the plugin admin page to re-index all staticpages.
-*
-*   @return integer     Count of articles indexed
-*/
-function plugin_IndexAll_staticpages()
-{
-    global $_TABLES;
-
-    $sql = "SELECT sp_id, sp_title, sp_content,
-                owner_id, group_id,
-                perm_owner, perm_group, perm_members, perm_anon
-            FROM {$_TABLES['staticpage']}
-            WHERE sp_status = 1 AND sp_search = 1";
-    //echo $sql;die;
-    $res = DB_query($sql, 1);
-    \Searcher\Indexer::Removeall('staticpages');
-    $count = 0;
-    while ($A = DB_fetchArray($res, false)) {
-        $count++;
-        $props = array(
-            'item_id' => $A['sp_id'],
-            'type'  => 'staticpages',
-            'title' => $A['sp_title'],
-            'content' => $A['sp_content'],
-            'perms' => array(
-                'owner_id' => $A['owner_id'],
-                'group_id' => $A['group_id'],
-                'perm_owner' => $A['perm_owner'],
-                'perm_group' => $A['perm_group'],
-                'perm_members' => $A['perm_members'],
-                'perm_anon' => $A['perm_anon'],
-            ),
-        );
-        \Searcher\Indexer::IndexDoc($props);
-        plugin_IndexAll_comments('staticpages', $A['sp_id'], $props['perms']);
-    }
-    return $count;
-}
-
-
-/**
-*   Called from plugin_IndexAll_* functions to re-index associated comments
-*
-*   @param  string  $type   Content type, e.g. "article", "staticpages"
-*   @param  mixed   $pid    Parent content item ID
-*   @param  mixed   $perms  Permission array from content item, or NULL
-*   @return integer     Count of articles indexed
-*/
-function plugin_IndexAll_comments($type, $pid, $perms=NULL)
-{
-    global $_CONF, $_TABLES;
-
-    if (isset($_CONF['comment_engine']) && $_CONF['comment_engine'] != 'internal') {
-        return 0;
-    }
-
-    $type = DB_escapeString($type);
-    $pid = DB_escapeString($pid);
-    $sql = "SELECT cid, sid, uid, title, comment
-        FROM {$_TABLES['comments']}
-        WHERE type = '$type' AND sid = '$pid'";
-    //echo $sql;die;
-    $res = DB_query($sql);
-    $count = 0;
-    // Remove all existing index records for this content
-    \Searcher\Indexer::RemoveComments($type, $pid);
-    while ($A = DB_fetchArray($res, false)) {
-        $count++;
-        $props = array(
-            'item_id' => $A['cid'],
-            'parent_id' => $A['sid'],
-            'parent_type' => $type,
-            'type'  => 'comment',
-            //'title' => $A['title'],
-//            'author' => COM_getDisplayName($A['uid']),
-            'author' => $A['uid'],
-            'content' => $A['comment'],
-        );
-        if (is_array($perms)) {
-            $props['perms'] = array(
-                'owner_id' => $perms['owner_id'],
-                'group_id' => $perms['group_id'],
-                'perm_owner' => $perms['perm_owner'],
-                'perm_group' => $perms['perm_group'],
-                'perm_members' => $perms['perm_members'],
-                'perm_anon' => $perms['perm_anon'],
-            );
-        }
-        \Searcher\Indexer::IndexDoc($props);
-    }
-    return $count;
-}
-
-
-/**
-*   Called from the plugin admin page to re-index all articles.
-*
-*   @return integer     Count of articles indexed
-*/
-function plugin_IndexAll_article()
-{
-    global $_TABLES;
-
-
-    $sql = "SELECT sid, uid, title, introtext, bodytext,
-            attribution_author, owner_id, group_id,
-            perm_owner, perm_group, perm_members, perm_anon
-        FROM {$_TABLES['stories']}
-        WHERE draft_flag = 0";
-    //echo $sql;die;
-    $res = DB_query($sql);
-    $count = 0;
-    \Searcher\Indexer::RemoveAll('article');
-    while ($A = DB_fetchArray($res, false)) {
-        $count++;
-        $props = array(
-            'item_id' => $A['sid'],
-            'type'  => 'article',
-            'title' => $A['title'],
-            'author' => COM_getDisplayName($A['uid'], $A['attribution_author']),
-            'content' => $A['introtext'] . ' ' . $A['bodytext'],
-            'perms' => array(
-                'owner_id' => $A['owner_id'],
-                'group_id' => $A['group_id'],
-                'perm_owner' => $A['perm_owner'],
-                'perm_group' => $A['perm_group'],
-                'perm_members' => $A['perm_members'],
-                'perm_anon' => $A['perm_anon'],
-            ),
-        );
-        \Searcher\Indexer::IndexDoc($props);
-        plugin_IndexAll_comments('article', $A['sid'], $props['perms']);
-    }
-    return $count;
-}
-
-
-/**
-*   Service function to be invoked when an item is saved.
-*
-*   @param  array   $args       Array of item info.
-*   @param  mixed   $output     Output to set (not used)
-*   @param  mixed   $svc_msg    Service message (not used)
-*   @return integer     PLG_RET_OK on success, PLG_RET_ERROR on error
-*/
-function service_indexDoc_searcher($args, &$output, &$svc_msg)
-{
-    // Check that the minimum required fields are set
-    if (!isset($args['item_id']) || !isset($args['type']) || !isset($args['content'])) {
-        return PLG_RET_ERROR;
-    }
-
-    \Searcher\Indexer::RemoveDoc($args['type'], $args['item_id']);
-    if (!\Searcher\Indexer::IndexDoc($args))
-        return PLG_RET_ERROR;
-    return PLG_RET_OK;
-}
-
-
-/**
 *   PLG function to index a single document
 *
 *   @param  array   $args       Args, including type, item_id, title, etc.
@@ -540,7 +341,7 @@ function plugin_indexDoc_searcher($args)
 
 
 /**
-*   Service function to remove an item from the index.
+*   PLG function to remove an item from the index.
 *   Makes sure that a valid type and item_id are set to remove one item.
 *
 *   @param  array   $args       Array of item info.
@@ -548,18 +349,6 @@ function plugin_indexDoc_searcher($args)
 *   @param  mixed   $svc_msg    Service message (not used)
 *   @return integer     PLG_RET_OK on success, PLG_RET_ERROR on error
 */
-function service_removeDoc_searcher($args, &$output, &$svc_msg)
-{
-    // Check that the minimum required fields are set
-    if (!isset($args['item_id']) || !isset($args['type']) || $args['type'] == 'all') {
-        return PLG_RET_ERROR;
-    }
-    if (!\Searcher\Indexer::RemoveDoc($args['type'], $args['id'])) return PLG_RET_ERROR;
-    \Searcher\Indexer::RemoveComments($args['type'], $args['id']);
-    return PLG_RET_OK;
-}
-
-
 function plugin_RemoveDoc_searcher($type, $item_id)
 {
     if (!\Searcher\Indexer::RemoveDoc($type, $item_id)) return false;
@@ -569,7 +358,7 @@ function plugin_RemoveDoc_searcher($type, $item_id)
 
 
 /**
-*   Service function to remove all items for a plugin from the index.
+*   PLG function to remove all items for a plugin from the index.
 *   May be called during plugin removal.
 *   Makes sure that a valid type is set to remove all items for a single type.
 *
@@ -578,18 +367,6 @@ function plugin_RemoveDoc_searcher($type, $item_id)
 *   @param  mixed   $svc_msg    Service message (not used)
 *   @return integer     PLG_RET_OK on success, PLG_RET_ERROR on error
 */
-function service_removeAll_searcher($args, &$output, &$svc_msg)
-{
-    // Check that the minimum required fields are set. Don't allwow plugins
-    // to accidentally delete all.
-    if (!isset($args['type']) || $args['type'] == 'all') {
-        return PLG_RET_ERROR;
-    }
-    if (!\Searcher\Indexer::RemoveAll($type)) return PLG_RET_ERROR;
-    \Searcher\Indexer::RemoveComments($type);
-    return PLG_RET_OK;
-}
-
 function plugin_removeAll_searcher($type)
 {
     // Check that the minimum required fields are set. Don't allwow plugins
