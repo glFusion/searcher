@@ -8,7 +8,7 @@
 *   @author     Lee Garner <lee@leegarner.com>
 *   @copyright  Copyright (c) 2017 Lee Garner <lee@leegarner.com>
 *   @package    searcher
-*   @version    0.0.1
+*   @version    0.0.8
 *   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
@@ -23,7 +23,7 @@ global $_SRCH_CONF;
 
 $_SRCH_CONF['pi_name']            = 'searcher';
 $_SRCH_CONF['pi_display_name']    = 'Searcher';
-$_SRCH_CONF['pi_version']         = '0.0.7';
+$_SRCH_CONF['pi_version']         = '0.0.8';
 $_SRCH_CONF['gl_version']         = '1.7.0';
 $_SRCH_CONF['pi_url']             = 'http://www.glfusion.org';
 

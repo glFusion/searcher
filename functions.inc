@@ -22,9 +22,6 @@ if (!defined('GVERSION')) {
 $lgu_config = \config::get_instance();
 $_SRCH_CONF = $lgu_config->get_config('searcher');
 
-// tmp setting
-$_SRCH_CONF['replace_stock_search'] = true;
-
 /** Additional config items and table definitions are added here */
 require_once __DIR__ . '/searcher.php';
 define('SRCH_PI_PATH', __DIR__);

@@ -70,6 +70,7 @@ $LANG_confignames['searcher'] = array(
     'stemmer'           => 'Select Stemmer (Experimental)',
     'ignore_autotags'   => 'Ignore Auto Tags',
     'max_word_phrase'   => 'Max words in a phrase',
+    'replace_stock_search' => 'Replace stock glFusion search?',
 );
 
 $LANG_configsubgroups['searcher'] = array(
