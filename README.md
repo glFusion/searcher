@@ -56,6 +56,18 @@ indexes if this option is changed.
 
 Default: None
 
+#### Ignore Auto Tags
+If selected, then autotags are removed completely before generating indexes.
+This will prevent the raw content of autotags from causing pages to appear
+in the search results where the page does not visibly contain the search terms.
+In either case, autotags are not processed before indexing.
+
+#### Replace stock glFusion search
+If selected then the Searcher plugin will be used by glFusion's search.php file,
+replacing the stock search engine. If this is set to "No", then the normal
+glFusion search will be used but the Search plugin can still be accessed at
+{site_url}/searcher/index.php
+
 ### Weighting
 Different weights can be assigned to words that appear in different fields.
 For example, you might want to give a higher weight, or priority, to search
