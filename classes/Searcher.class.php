@@ -110,7 +110,7 @@ class Searcher extends Common
     {
         $tokens = array();
         $this->query = self::_remove_punctuation($query);
-        $this->tokens = self::Tokenize($query);
+        $this->tokens = self::Tokenize($query, true);
         foreach ($this->tokens as $token=>$dummy) {
             $tokens[] = DB_escapeString($token);
         }
@@ -796,6 +796,7 @@ class Searcher extends Common
             'dt_sel_' . $this->_searchDays => 'selected="selected"',
             'lang_date_filter' => $LANG09[71],
             'min_word_len' => self::$min_word_len,
+            'show_adv' => isset($_GET['adv']) ? true : false,
         ) );
 
         if ( $this->_search_author ) {

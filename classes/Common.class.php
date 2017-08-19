@@ -99,10 +99,10 @@ class Common
     *   Optionally skip any "stop words"
     *
     *   @param  string  $str        Base string to split
-    *   @param  boolean $phrases    True to create phrases, false to not.
+    *   @param  boolean $query      True if querying, False if indexing
     *   @return array       Array of tokens
     */
-    public static function Tokenize($str, $phrases=true)
+    public static function Tokenize($str, $query = false)
     {
         global $_SRCH_CONF;
 
@@ -137,8 +137,10 @@ class Common
             $tmp[] = $term;
         }
         $terms = $tmp;
-        unset($tmp);
         $total_terms = count($terms);
+        if (!$query) {  // if a query string, save $tmp for later
+            unset($tmp);
+        }
 
         // Step 2: Stem the terms, if used. Leave duplicates
         if (!empty($_SRCH_CONF['stemmer'])) {
@@ -146,6 +148,17 @@ class Common
             if ($S !== NULL) {
                 for ($i = 0; $i < $total_terms; $i++) {
                     $terms[$i] = $S->stem($terms[$i]);
+                }
+                // If this is a query string, add the original non-stemmed
+                // words into the terms array. This is mostly for highlighting.
+                if ($query) {
+                    foreach ($tmp as $word) {
+                        if (!in_array($word, $terms)) {
+                            $terms[] = $word;
+                        }
+                    }
+                    // Update counter for original terms added back in
+                    $total_terms = count($terms);
                 }
             }
         }
