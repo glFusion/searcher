@@ -420,8 +420,7 @@ class Searcher extends Common
         $content = " $content";
 
         // longest search terms first, because those are generally more significant
-        $terms = $this->tokens;     // Copy the token array
-        uksort($terms, array(__CLASS__, '_strlen_sort'));
+        uksort($this->tokens, array(__CLASS__, '_strlen_sort'));
 
         $start = false;
         if ('chars' == $type) {
@@ -443,7 +442,7 @@ class Searcher extends Common
 
                 $excerpt_slice = " $excerpt_slice";
                 $term_hits = 0;
-                $count = self::_count_matches(array_keys($terms), $excerpt_slice);
+                $count = self::_count_matches(array_keys($this->tokens), $excerpt_slice);
 
                 if ($count > 0 && $count > $best_excerpt_term_hits) {
                     $best_excerpt_term_hits = $count;
