@@ -794,7 +794,7 @@ class Searcher extends Common
             'dt_sel_' . $this->_searchDays => 'selected="selected"',
             'lang_date_filter' => $LANG09[71],
             'min_word_len' => self::$min_word_len,
-            'show_adv' => isset($_GET['adv']) ? true : false,
+            'show_adv' => isset($_GET['adv']) && $_GET['adv'] == 1 ? 1 : 0,
         ) );
 
         if ( $this->_search_author ) {

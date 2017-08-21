@@ -3,12 +3,18 @@
 <form id="srchform" class="uk-form uk-form-stacked uk-width-1-1" method="get" action="{site_url}/searcher/index.php">
 
 	<input class="uk-search required" type="search" id="query" name="query" value="{query}" placeholder="{$LANG09[10]}">
+    <input id="frm_adv" type="hidden" name="adv" value="{show_adv}" />
 	<button class="uk-button uk-button-success uk-margin-small searcher-button" type="submit" name="submit" value="{$LANG09[10]}">{$LANG09[10]}</button>
-	<button type="button" class="uk-button uk-button-primary uk-margin-small" data-uk-toggle="{target:'#advanced'}">
+	<button type="button" class="uk-button uk-button-primary uk-margin-small" data-uk-toggle="{target:'#advanced'}"
+      onclick="toggleAdv();">
 		{$LANG09[2]}
 	</button>
 
-	<div id="advanced" class="uk-hidden uk-margin-top  uk-animation-fade">
+{!if show_adv}
+	<div id="advanced" class="uk-margin-top uk-animation-fade">
+{!else}
+	<div id="advanced" class="uk-hidden uk-margin-top uk-animation-fade">
+{!endif}
 		<div class="uk-grid uk-margin-bottom">
 			<div class="uk-width-medium-1-5">
 				<label class="uk-form-label">
@@ -83,5 +89,13 @@ $( "#srchform" ).validate({
     }
   }
 });
+var show_adv={show_adv};
+function toggleAdv()
+{
+    show_adv = show_adv ? 0 : 1;
+    document.getElementById("advanced").display = show_adv ? "" : "hidden";
+    document.getElementById("frm_adv").value = show_adv;
+}
+
 </script>
 {# end {templatelocation} #}
