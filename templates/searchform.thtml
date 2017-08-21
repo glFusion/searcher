@@ -93,7 +93,6 @@ var show_adv={show_adv};
 function toggleAdv()
 {
     show_adv = show_adv ? 0 : 1;
-    document.getElementById("advanced").display = show_adv ? "" : "hidden";
     document.getElementById("frm_adv").value = show_adv;
 }
 
