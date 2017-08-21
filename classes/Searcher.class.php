@@ -111,6 +111,9 @@ class Searcher extends Common
         $tokens = array();
         $this->query = self::_remove_punctuation($query);
         $this->tokens = self::Tokenize($query, true);
+        // longest search terms first, because those are generally more significant
+        uksort($this->tokens, array(__CLASS__, '_strlen_sort'));
+
         foreach ($this->tokens as $token=>$dummy) {
             $tokens[] = DB_escapeString($token);
         }
@@ -419,9 +422,6 @@ class Searcher extends Common
         $content = strip_tags($content);
         $content = " $content";
 
-        // longest search terms first, because those are generally more significant
-        uksort($this->tokens, array(__CLASS__, '_strlen_sort'));
-
         $start = false;
         if ('chars' == $type) {
             // TODO - remove this section?
@@ -439,7 +439,6 @@ class Searcher extends Common
 
                 $excerpt_slice = array_slice($words, $i, $excerpt_length);
                 $excerpt_slice = implode(' ', $excerpt_slice);
-
                 $excerpt_slice = " $excerpt_slice";
                 $term_hits = 0;
                 $count = self::_count_matches(array_keys($this->tokens), $excerpt_slice);
