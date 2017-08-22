@@ -8,12 +8,6 @@
     font-weight: bold;
 }
 
-.searcher-button {
-    /* Changes the default uk-button behavior to put the buton
-    *   to the right of the query input field */
-    float:inherit;
-}
-
 div.srch_admin_header {
     margin-top: 10px;
 }

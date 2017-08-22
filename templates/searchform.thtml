@@ -4,7 +4,7 @@
 
 	<input class="uk-search required" type="search" id="query" name="query" value="{query}" placeholder="{$LANG09[10]}">
     <input id="frm_adv" type="hidden" name="adv" value="{show_adv}" />
-	<button class="uk-button uk-button-success uk-margin-small searcher-button" type="submit" name="submit" value="{$LANG09[10]}">{$LANG09[10]}</button>
+	<button class="uk-button uk-button-success uk-margin-small" type="submit" name="submit" value="{$LANG09[10]}">{$LANG09[10]}</button>
 	<button type="button" class="uk-button uk-button-primary uk-margin-small" data-uk-toggle="{target:'#advanced'}"
       onclick="toggleAdv();">
 		{$LANG09[2]}
