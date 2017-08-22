@@ -113,7 +113,6 @@ class Searcher extends Common
         $this->tokens = self::Tokenize($query, true);
         // longest search terms first, because those are generally more significant
         uksort($this->tokens, array(__CLASS__, '_strlen_sort'));
-
         foreach ($this->tokens as $token=>$dummy) {
             $tokens[] = DB_escapeString($token);
         }
@@ -619,13 +618,37 @@ class Searcher extends Common
     */
     public static function Highlight($content, $terms)
     {
+        // Get all the unique search words from the phrases
+        $arr = array();
         foreach ($terms as $term=>$count) {
-            $term = trim($term);    // Numbers have a leading space
-            preg_match_all("/$term+/i", $content, $matches);
-            if (is_array($matches[0]) && count($matches[0]) >= 1) {
-                foreach ($matches[0] as $match) {
-                    $content = str_replace($match, '<span class="highlight">'.$match.'</span>', $content);
+            $words = explode(' ', $term);
+            foreach ($words as $word) {
+                $arr[$word] = $word;
+            }
+        }
+        $terms = $arr;
+        // Sort again because long phrases might have shorter words.
+        // Highlighting short terms within words prevents highlighting the
+        // whole word.
+        uksort($terms, array(__CLASS__, '_strlen_sort'));
+
+        // Duplicate COM_highlightQuery() without the word
+        // boundary to highlight partial words matched by the stemmer.
+        foreach ($terms as $word) {
+            $before = "/(?!(?:[^<]+>|[^>]+<\/a>))\b";
+            $after = "/i";
+            if ($word <> utf8_encode($word)) {
+                if (@preg_match('/^\pL$/u', urldecode('%C3%B1'))) { // Unicode property support
+                    $before = "/(?<!\p{L})";
+                    $after = "(?!\p{L})/u";
+                } else {
+                    $before = "/";
+                    $after = "/u";
                 }
+            }
+            $HLtext = @preg_replace($before . $word. $after, "<span class=\"highlight\">\\0</span>", $content);
+            if ($HLtext !== NULL) {
+                $content = $HLtext;
             }
         }
         return $content;
