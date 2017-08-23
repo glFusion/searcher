@@ -272,7 +272,7 @@ function plugin_itemsaved_searcher($id, $type, $old_id = '')
 
     $contentInfo = PLG_getItemInfo(
         $type, $id,
-        'id,date,title,searchidx,author,author_name,hits,perms,search_index'
+        'id,date,parent_type,parent_id,title,searchidx,author,author_name,hits,perms,search_index'
     );
     if ( is_array($contentInfo) && count($contentInfo) > 0 ) {
         if (!isset($contentInfo['perms']) || empty($contentInfo['perms'])) {
@@ -290,10 +290,13 @@ function plugin_itemsaved_searcher($id, $type, $old_id = '')
             'type'  => $type,
             'author' => $contentInfo['author'],
             'author_name' => $contentInfo['author_name'],
-            'title' => $contentInfo['title'],
+            // Hack to avoid indexing comment titles which don't show anyway
+            'title' => $type == 'comment' ? NULL : $contentInfo['title'],
             'content' => $contentInfo['searchidx'],
             'date' => $contentInfo['date'],
             'perms' => $contentInfo['perms'],
+            'parent_id' => $contentInfo['parent_id'],
+            'parent_type' => $contentInfo['parent_type'],
         );
         if ( $old_id != '' && $id != $old_id ) {
             \Searcher\Indexer::RemoveDoc($type, $old_id);
