@@ -72,9 +72,9 @@ class Indexer extends Common
         }
         $item_id = DB_escapeString($content['item_id']);
         $type = DB_escapeString($content['type']);
-        $parent_id = isset($content['parent_id']) ?
+        $parent_id = isset($content['parent_id']) && !empty($content['parent_id']) ?
             DB_escapeString($content['parent_id']) : $item_id;
-        $parent_type = isset($content['parent_type']) ?
+        $parent_type = isset($content['parent_type']) && !empty($content['parent_type']) ?
             DB_escapeString($content['parent_type']) : $type;
         $ts = isset($content['date']) ? (int)$content['date'] : time();
         $grp_access = 2;    // default to all users access if no perms sent
@@ -159,7 +159,7 @@ class Indexer extends Common
             COM_errorLog("Searcher: Error removing $type, ID $item_id");
             return false;
         } else {
-            return true;
+            return self::RemoveComments($type, $item_id);
         }
     }
 
@@ -178,6 +178,7 @@ class Indexer extends Common
             DB_query("TRUNCATE {$_TABLES['searcher_index']}");
         } else {
             DB_delete($_TABLES['searcher_index'], 'type', $type);
+            self::RemoveComments($type);
         }
         return DB_error() ? false : true;
     }
@@ -185,11 +186,12 @@ class Indexer extends Common
 
     /**
     *   Remove all comments for a specific parent type/id
-    *   Specify 'all' as the item ID to remove all comments for all
+    *   Leave the item ID as NULL to remove all comments for all
     *   content items of type $type.
     *
     *   @param  string  $type       Type of content (article, staticpage, etc.)
     *   @param  mixed   $item_id    ID of article, page, etc.
+    *   @return boolean             True on success, False on failure
     */
     public static function RemoveComments($parent_type, $item_id=NULL)
     {
@@ -202,6 +204,12 @@ class Indexer extends Common
             $values[] = $item_id;
         }
         DB_delete($_TABLES['searcher_index'], $params, $values);
+        if (DB_error()) {
+            COM_errorLog("Searcher RemoveComments Error: $parent_type, ID $item_id");
+            return false;
+        } else {
+            return true;
+        }
     }
 
 }
