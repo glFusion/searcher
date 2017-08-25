@@ -1,7 +1,10 @@
 <?php
 /**
-*   Perform searches from the index maintained by the Indexer class
-*   Adapted from Joomla com_finder component
+*   Uses the Porter Stemmer algorithm to find word roots.
+*
+*   Adapted from Joomla com_finder component.
+*   Based on the Porter stemmer algorithm:
+*   <https://tartarus.org/martin/PorterStemmer/c.txt>
 *
 *   @author     Lee Garner <lee@leegarner.com>
 *   @copyright  Copyright (C) 2017 Lee Garner <lee@leegarner.com>
@@ -75,8 +78,26 @@ class StemmerPorter_en extends Stemmer
         return $this->cache[$lang][$token];
     }
 
+
     /**
-    *   Step 1
+    *   step1ab() gets rid of plurals and -ed or -ing. e.g.
+    *
+    *   caresses  ->  caress
+    *   ponies    ->  poni
+    *   ties      ->  ti
+    *   caress    ->  caress
+    *   cats      ->  cat
+    *
+    *   feed      ->  feed
+    *   agreed    ->  agree
+    *   disabled  ->  disable
+    *
+    *   matting   ->  mat
+    *   mating    ->  mate
+    *   meeting   ->  meet
+    *   milling   ->  mill
+    *   messing   ->  mess
+    *   meetings  ->  meet
     *
     *   @param   string  $word  The token to stem.
     *   @return  string
@@ -122,8 +143,9 @@ class StemmerPorter_en extends Stemmer
         return $word;
     }
 
+
     /**
-    *   Step 1c
+    *   step1c() turns terminal y to i when there is another vowel in the stem.
     *
     *   @param  string  $word  The token to stem.
     *   @return string
@@ -140,8 +162,11 @@ class StemmerPorter_en extends Stemmer
         return $word;
     }
 
+
     /**
-    *   Step 2
+    *   step2() maps double suffices to single ones. so -izationi
+    *   ( = -ize plus -ation) maps to -ize etc.
+    *   Note that the string before the suffix must give m() > 0.
     *
     *   @param  string  $word  The token to stem.
     *   @return string
@@ -188,12 +213,12 @@ class StemmerPorter_en extends Stemmer
                 or self::replace($word, 'iviti', 'ive', 0);
                 break;
         }
-
         return $word;
     }
 
+
     /**
-    *   Step 3
+    *   step3() deals with -ic-, -full, -ness etc. similar strategy to step2.
     *
     *   @param  string  $word  The token to stem.
     *   @return string
@@ -222,12 +247,12 @@ class StemmerPorter_en extends Stemmer
                 self::replace($word, 'alize', 'al', 0);
                 break;
         }
-
         return $word;
     }
 
+
     /**
-    *   Step 4
+    *   step4() takes off -ant, -ence etc., in context <c>vcvc<v>.
     *
     *   @param  string  $word  The token to stem.
     *   @return string
@@ -286,12 +311,12 @@ class StemmerPorter_en extends Stemmer
                 self::replace($word, 'ize', '', 1);
                 break;
         }
-
         return $word;
     }
 
+
     /**
-    *   Step 5
+    *   step5() removes a final -e if m() > 1, and changes -ll to -l if m() > 1.
     *
     *   @param  string  $word  The token to stem.
     *   @return string
@@ -323,9 +348,11 @@ class StemmerPorter_en extends Stemmer
         return $word;
     }
 
+
     /**
-    * Replaces the first string with the second, at the end of the string. If third
-    * arg is given, then the preceding string must match that m count at least.
+    *   Replaces the first string with the second, at the end of the string. If
+    *   third arg is given, then the preceding string must match that m count
+    *   at least.
     *
     *   @param  string  &$str   String to check
     *   @param  string  $check  Ending to check for
@@ -340,12 +367,10 @@ class StemmerPorter_en extends Stemmer
     {
         $len = 0 - strlen($check);
 
-        if (substr($str, $len) == $check)
-        {
+        if (substr($str, $len) == $check) {
             $substr = substr($str, 0, $len);
 
-            if (is_null($m) or self::m($substr) > $m)
-            {
+            if (is_null($m) or self::m($substr) > $m) {
                 $str = $substr . $repl;
             }
 
@@ -354,6 +379,7 @@ class StemmerPorter_en extends Stemmer
 
         return false;
     }
+
 
     /**
     *   m() - measures the number of consonant sequences in $str. if c is
@@ -381,6 +407,7 @@ class StemmerPorter_en extends Stemmer
         return count($matches[1]);
     }
 
+
     /**
     *   Returns true/false as to whether the given string contains two
     *   of the same consonant next to each other at the end of the string.
@@ -394,6 +421,7 @@ class StemmerPorter_en extends Stemmer
 
         return preg_match("#$c{2}$#", $str, $matches) and $matches[0]{0} == $matches[0]{1};
     }
+
 
     /**
     *   Checks for ending CVC sequence where second C is not W, X or Y
@@ -409,6 +437,7 @@ class StemmerPorter_en extends Stemmer
         return preg_match("#($c$v$c)$#", $str, $matches) and strlen($matches[1]) == 3 and $matches[1]{2} != 'w' and $matches[1]{2} != 'x'
             and $matches[1]{2} != 'y';
     }
+
 }
 
 ?>
