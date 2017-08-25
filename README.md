@@ -46,9 +46,9 @@ without a link, or hide the name altogether.
 Default: Yes, with link
 
 #### Stemmer (Experimental)
-This plugin includes an adaptation of the Porter language stemmer to determine
-the roots of words. To use this select "Porter_en", otherwise select "None"
-(the default).
+This plugin includes an adaptation of the [Porter language stemmer](https://tartarus.org/martin/PorterStemmer/index.html)
+to determine the roots of words. To use this select "Porter_en", otherwise
+select "None" (the default).
 
 The stemmer is experimental and may lead to odd results but will also include
 results based on word variations such as plurals. You must regenerate all
@@ -62,11 +62,15 @@ This will prevent the raw content of autotags from causing pages to appear
 in the search results where the page does not visibly contain the search terms.
 In either case, autotags are not processed before indexing.
 
+Default: False
+
 #### Replace stock glFusion search
 If selected then the Searcher plugin will be used by glFusion's search.php file,
 replacing the stock search engine. If this is set to "No", then the normal
 glFusion search will be used but the Search plugin can still be accessed at
 {site_url}/searcher/index.php
+
+Default: False
 
 ### Weighting
 Different weights can be assigned to words that appear in different fields.
@@ -82,6 +86,10 @@ Defaults:
 
 ## API functions
 API functions are called using ```PLG_callFunctionForOnePlugin(function, $args);```
+
+The Searcher plugin also provides functions to handle ItemSaved and ItemDeleted
+events which should be sufficient. The functions below can be called in special
+cases.
 
 Functions and the required arguments array are listed below:
 
