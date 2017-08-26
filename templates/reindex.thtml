@@ -8,12 +8,11 @@
 	var lang_no_errors = "{lang_no_errors}";
 	var lang_error_getcontenttypes = "{lang_error_getcontenttypes}";
 	var lang_error_getcontentlist = "Getcontentlist";
-/*
-	var lang_error_db = "{lang_error_db}";
-	var lang_error_table = "{lang_error_table}";
-	var lang_error_getcolumn = "{lang_error_getcolumn}";
-	var lang_sc_error = "{lang_sc_error}";
-*/
+  var lang_remove_content_1 = "{lang_remove_content_1}";
+  var lang_remove_content_2 = "{lang_remove_content_2}";
+  var lang_content_type = "{lang_content_type}";
+  var lang_remove_fail = "{lang_remove_fail}";
+  var lang_retrieve_content_list = "{lang_retrieve_content_list}";
 	var destination = 'index.php';
 </script>
 <script src="{site_admin_url}/plugins/searcher/indexer.js"></script>

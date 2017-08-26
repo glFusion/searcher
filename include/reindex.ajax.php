@@ -44,6 +44,30 @@ function SRCH_getContentTypesAjax()
     exit;
 }
 
+function SRCH_removeOldContentAjax()
+{
+    global $_PLUGINS;
+
+    if ( !COM_isAjax()) die();
+
+    if ( !isset($_POST['type'])) die();
+
+    $type = COM_applyFilter($_POST['type']);
+    if ( empty($type) || $type == "" ) die();
+
+    $contentList = array();
+    $retval = array();
+
+    Searcher\Indexer::Removeall($type);
+
+    $retval['errorCode'] = 0;
+    $retval['statusMessage'] = 'Old Entries Purged';
+
+    $return["js"] = json_encode($retval);
+
+    echo json_encode($return);
+    exit;
+}
 
 function SRCH_getContentListAjax()
 {

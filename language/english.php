@@ -49,6 +49,11 @@ $LANG_SRCH_ADM = array(
     'error_getcontenttypes' => 'Unable to retrieve content types from glFusion',
     'current_progress'  => 'Current Progress',
     'overall_progress'  => 'Overall Progress',
+    'remove_content_1'  => 'Removing existing index entries for ',
+    'remove_content_2'  => ' - This can take several minutes....',
+    'content_type'      => 'Content Type',
+    'remove_fail'       => 'Failed to remove existing index entries.',
+    'retrieve_content_list' => 'Retrieving content list for ',
 );
 
 // Localization of the Admin Configuration UI

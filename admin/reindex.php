@@ -58,6 +58,12 @@ function SRCHER_reindex()
         'lang_error_getcontenttypes' => $LANG_SRCH_ADM['error_getcontenttypes'],
         'lang_current_progress' => $LANG_SRCH_ADM['current_progress'],
         'lang_overall_progress' => $LANG_SRCH_ADM['overall_progress'],
+        'lang_remove_content_1' => $LANG_SRCH_ADM['remove_content_1'],
+        'lang_remove_content_2' => $LANG_SRCH_ADM['remove_content_2'],
+        'lang_content_type' => $LANG_SRCH_ADM['content_type'],
+        'lang_remove_fail'  => $LANG_SRCH_ADM['remove_fail'],
+        'lang_retrieve_content_list' => $LANG_SRCH_ADM['retrieve_content_list'],
+
     ));
 
     $T->parse('output', 'page');
@@ -66,12 +72,9 @@ function SRCHER_reindex()
     return $retval;
 }
 
-
-
-
 // main driver
 $action = '';
-$expected = array('reindex','getcontenttypes','getcontentlist','index');
+$expected = array('reindex','getcontenttypes','getcontentlist','index','removeoldcontent');
 foreach($expected as $provided) {
     if (isset($_POST[$provided])) {
         $action = $provided;
@@ -90,6 +93,9 @@ switch ($action) {
     case 'getcontenttypes' :
         // return json encoded list of content types
         SRCH_getContentTypesAjax();
+        break;
+    case 'removeoldcontent' :
+        SRCH_removeOldContentAjax();
         break;
     case 'getcontentlist' :
         // return list of all content type ids
