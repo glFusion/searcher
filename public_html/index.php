@@ -16,11 +16,7 @@ require_once '../lib-common.php';
 
 $S = new Searcher\Searcher();
 
-if ($S->SearchAllowed()) {
-    $results = $S->doSearch();
-} else {
-    $results='';
-}
+$results = $S->doSearch();
 
 $display = COM_siteHeader('menu', $LANG09[11]);
 $display .= $results;
