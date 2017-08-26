@@ -28,18 +28,18 @@ var searcherinit = (function() {
 
     // private vars
     var contenttypes  = null,  // array of all content types
-    contenttype       = null,  // current table being processed
+    contenttype       = null,  // current content type being processed
     contentLists      = null,
     content           = null,
-    contentCount    = 0,
-    contentDone     = 1,
-    url             = null,
-    done            = 1,
-    count           = 0,
-    contenttypeErrorCount  = 0,  // track errors per table - reset each time we start a new table - if non-zero do not convert table
-    indexingMessage = '',
-    $m          = null;
-    $t          = null;
+    contentCount      = 0,
+    contentDone       = 1,
+    url               = null,
+    done              = 1,
+    count             = 0,
+    contenttypeErrorCount  = 0,
+    indexingMessage   = '',
+    $m                = null;
+    $t                = null;
 
     /**
     * sets HTML
@@ -92,7 +92,6 @@ var searcherinit = (function() {
     * initialize everything
     */
     pub.init = function() {
-        if ( gl != 'log') return;
         // $m is the status message area
         $m = $('#batchinterface_msg');
         $t = $('#t');
@@ -138,15 +137,54 @@ var searcherinit = (function() {
     };
 
     /**
-    * retrieves a list of all content types (item ids)
+    * Remove existing index entries
     */
 
     var initContent = function() {
         if (contenttype) {
+            console.log("removing old content: " + contenttype);
+            message(lang_remove_content_1 + contenttype + lang_remove_content_2);
+            var dataS = {
+                "removeoldcontent" : 'x',
+                "type" : contenttype,
+            };
+            data = $.param(dataS);
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                url: url,
+                data: data,
+                timeout:120000
+            }).done(function(data) {
+                var result = $.parseJSON(data["js"]);
+                if ( result.errorCode != 0 ) {
+                    console.log("Indexer: " + result.message );
+                    contentypeErrorCount++;
+                    indexingMessage = indexingMessage + lang_content_type + ': ' + contenttype + ' :: ' + result.message + '<br>';
+                }
+            }).fail(function(jqXHR, textStatus ) {
+                indexingMessage = indexingMessage + lang_content_type + ': ' + contenttype + ' :: ' + lang_remove_fail + '<br>';
+                if (textStatus === 'timeout') {
+                    console.log("Indexer: Timeout removing existing index entries for " + contenttype);
+                    var wait = 120000;
+                    window.setTimeout(getContentList, wait);
+                }
+            }).always(function( xhr, status ) {
+                var wait = 250;
+                window.setTimeout(getContentList, wait);
+            });
+        }
+    };
+
+    /**
+    * Remove existing index entries
+    */
+    var getContentList = function() {
+        if (contenttype) {
             console.log("processing content type " + contenttype);
             itemList = null;
 
-            message('Retrieving content list for ' + contenttype);
+        message(lang_retrieve_content_list + contenttype);
 
             var dataS = {
                 "getcontentlist" : 'x',
@@ -171,14 +209,14 @@ var searcherinit = (function() {
                 if ( result.errorCode != 0 ) {
                     console.log("Indexer: " + result.message );
                     contentypeErrorCount++;
-                    indexingMessage = indexingMessage + 'ContentType: ' + contenttype + ' :: ' + result.message + '<br>';
+                    indexingMessage = indexingMessage + lang_content_type + ': ' + contenttype + ' :: ' + result.message + '<br>';
                 }
                 contentLists = result.contentlist;
                 contentCount = contentLists.length;
                 console.log("There are " + contentCount + " items for content type " + contenttype);
                 content = contentLists.shift();
             }).fail(function(jqXHR, textStatus ) {
-                indexingMessage = indexingMessage + 'ContentType: ' + contenttype + ' :: ' + 'Failed to retrieve content list<br>';
+                indexingMessage = indexingMessage + lang_content_type + ': ' + contenttype + ' :: ' + 'Failed to retrieve content list<br>';
                 if (textStatus === 'timeout') {
                     console.log("Indexer: Unable to retrieve content list for " + contenttype);
                     alert(lang_error_getcontentlist + " :: " + contenttype);
@@ -197,13 +235,12 @@ var searcherinit = (function() {
     *
     * if a column cannot convert - display in the error section
     */
-
     var processContent = function() {
 
         if (content) {
 
             var dataS = {
-                "index" : 'x',  // need to change.
+                "index" : 'x',
                 "type" : contenttype,
                 "id" : content.id,
             };
@@ -230,17 +267,17 @@ var searcherinit = (function() {
                 if ( result.errorCode != 0 ) {
                     console.log("Indexer: Error indexing content");
                     contenttypeErrorCount++;
-                    indexingMessage = indexingMessage + 'ContentType: ' + contenttype + ' ID: ' + content.id + ' :: ' + result.statusMessage + '<br>';
+                    indexingMessage = indexingMessage + lang_content_type + ': ' + contenttype + ' ID: ' + content.id + ' :: ' + result.statusMessage + '<br>';
                 }
             }).fail(function(jqXHR, textStatus ) {
                 if (textStatus === 'timeout') {
                     console.log("Indexer: Error indexing item " + content);
-                    indexingMessage = indexingMessage + 'Content Type: ' + contenttype + ' ID: ' + content.id + ' :: ' + result.statusMessage + '<br>';
+                    indexingMessage = indexingMessage + lang_content_type + ': ' + contenttype + ' ID: ' + content.id + ' :: ' + result.statusMessage + '<br>';
                 }
             }).always(function( xhr, status ) {
                 contentDone++;
                 content = contentLists.shift();
-                var wait = 50;
+                var wait = 250;
                 window.setTimeout(processContent, wait);
             });
         } else {
@@ -258,7 +295,6 @@ var searcherinit = (function() {
     * that currently fails as we are not setup for this one
     * need to update.
     */
-
     var finished = function() {
 
         $('#pb').css('width', "100%");
