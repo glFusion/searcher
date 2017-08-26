@@ -225,6 +225,8 @@ class Searcher extends Common
     */
     private function _sql_where()
     {
+        global $_CONF;
+
         if (!empty($this->sql_tokens)) {
             $where = " term in ({$this->sql_tokens}) ";
         } else {
@@ -233,6 +235,11 @@ class Searcher extends Common
 
         if ($this->_type != '') {
             $where .= " AND type = '{$this->_type}' ";
+        }
+
+        // Don't search comments if internal comments are disabled
+        if (isset($_CONF['comment_engine']) && $_CONF['comment_engine'] != 'internal') {
+            $where .= " AND type <> 'comment' ";
         }
 
         if ($this->_searchDays > 0) {
