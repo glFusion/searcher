@@ -270,7 +270,7 @@ class Searcher extends Common
         global $_TABLES, $_SRCH_CONF, $_USER;
 
         $x = strlen($this->query);
-        if ( $x < self::$min_word_len && count($this->_keys) == 3 ) {
+        if (! self::SearchAllowed() || ( $x < self::$min_word_len && count($this->_keys) == 3 ) ) {
             // no query and all keys enabled - return search form only - no search
             return $this->showForm($x);
         }
