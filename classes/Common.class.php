@@ -235,6 +235,22 @@ class Common
         return $result;
     }
 
+
+    /**
+    *   Check if the internal comment engine is used.
+    *   Searcher doesn't index or search external comments on disqus, etc. so
+    *   comments can be considered "disabled" if anything but the internal
+    *   engine is used.
+    *
+    *   @return boolean     True if internal comments are enabled, False if not
+    */
+    public static function CommentsEnabled()
+    {
+        global $_CONF;
+
+        return (isset($_CONF['comment_engine']) && $_CONF['comment_engine'] == 'internal');
+    }
+
 }
 
 ?>

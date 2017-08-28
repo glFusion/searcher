@@ -195,9 +195,9 @@ class Indexer extends Common
     */
     public static function RemoveComments($parent_type, $item_id=NULL)
     {
-        global $_TABLES, $_CONF;
+        global $_TABLES;
 
-        if (isset($_CONF['comment_engine']) && $_CONF['comment_engine'] != 'internal') {
+        if ( ! self::CommentsEnabled() ) {
             return true;
         }
 

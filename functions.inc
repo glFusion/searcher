@@ -414,9 +414,9 @@ function plugin_configmanager_select_stemmer_searcher()
 */
 function plugin_IndexAll_comments($type, $pid, $perms=NULL)
 {
-    global $_CONF, $_TABLES;
+    global $_TABLES;
 
-    if (isset($_CONF['comment_engine']) && $_CONF['comment_engine'] != 'internal') {
+    if ( ! \Searcher\Indexer::CommentsEnabled() ) {
         return 0;
     }
 

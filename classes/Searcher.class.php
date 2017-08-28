@@ -225,8 +225,6 @@ class Searcher extends Common
     */
     private function _sql_where()
     {
-        global $_CONF;
-
         if (!empty($this->sql_tokens)) {
             $where = " term in ({$this->sql_tokens}) ";
         } else {
@@ -238,7 +236,7 @@ class Searcher extends Common
         }
 
         // Don't search comments if internal comments are disabled
-        if (isset($_CONF['comment_engine']) && $_CONF['comment_engine'] != 'internal') {
+        if ( ! self::CommentsEnabled() ) {
             $where .= " AND type <> 'comment' ";
         }
 
@@ -791,7 +789,7 @@ class Searcher extends Common
     */
     public function showForm($query_len = -1)
     {
-        global $_CONF, $LANG09, $LANG_SRCH;
+        global $LANG09, $LANG_SRCH;
 
         // Verify current user my use the search form
         if (!$this->SearchAllowed()) {
@@ -805,7 +803,7 @@ class Searcher extends Common
             'all' => $LANG09[4],
             'article' => $LANG09[6],
         );
-        if (isset($_CONF['comment_engine']) && $_CONF['comment_engine'] == 'internal') {
+        if (self::CommentsEnabled()) {
             $plugintypes['comment'] = $LANG09[7];
         }
         $plugintypes = array_merge($plugintypes, PLG_getSearchTypes());
