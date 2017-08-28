@@ -1,10 +1,12 @@
 <?php
 /**
-*   Perform searches from the index maintained by the Indexer class
+*   Wrapper class for a word stemmer.
+*   Creates or gets the current instance of the Stemmer class.
 *   Adapted from Joomla com_finder component
 *
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (C) 2005 - 2017 Open Source Matters, Inc. All rights reserved.
+*   @copyright  Copyright (c) 2017 Lee Garner
+*   @copyright  Copyright (c) 2005 - 2017 Open Source Matters, Inc. All rights reserved.
 *   @package    searcher
 *   @version    0.0.1
 *   @license    http://opensource.org/licenses/gpl-2.0.php
@@ -35,7 +37,7 @@ abstract class Stemmer
     */
     public static function getInstance($adapter)
     {
-        static $instances;
+        static $instances = NULL;
 
         // Only create one stemmer for each adapter.
         if (isset($instances[$adapter])) {
