@@ -792,8 +792,8 @@ class Searcher extends Common
         global $LANG09, $LANG_SRCH;
 
         // Verify current user my use the search form
-        if (!$this->SearchAllowed()) {
-            return $this->getAccessDeniedMessage();
+        if (! self::SearchAllowed() ) {
+            return self::getAccessDeniedMessage();
         }
 
         $T = new \Template(SRCH_PI_PATH . '/templates');
@@ -848,28 +848,36 @@ class Searcher extends Common
     *
     *   @return boolean True if search is allowed, otherwise false
     */
-    public function SearchAllowed()
+    public static function SearchAllowed()
     {
-        global $_USER, $_CONF;
+        global $_CONF;
 
-        if ( COM_isAnonUser() &&
-            ( $_CONF['loginrequired'] || $_CONF['searchloginrequired'] ) ) {
-            return false;
+        // The checks aren't expensive functions, but this gets called twice
+        // so save the result.
+        static $isAllowed = NULL;
+
+        if ($isAllowed === NULL) {
+            if ( COM_isAnonUser() &&
+                ( $_CONF['loginrequired'] || $_CONF['searchloginrequired'] ) ) {
+                $isAllowed = false;
+            } else {
+                $isAllowed = true;
+            }
         }
-        return true;
+        return $isAllowed;
     }
 
 
     /**
-    *   Shows an error message if search is not allowed
+    *   Shows an error message if search is not allowed.
+    *   Search access is only disallowed is if the user is anonymous, so show
+    *   the login form as the "error message".
     *
-    *   @author Tony Bibbs <tony AT geeklog DOT net>
-    *   @access private
     *   @return string  HTML output for error message
     */
-    public function getAccessDeniedMessage()
+    public static function getAccessDeniedMessage()
     {
-        return (SEC_loginRequiredForm());
+        return SEC_loginRequiredForm();
     }
 
 }
