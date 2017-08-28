@@ -783,8 +783,11 @@ class Searcher extends Common
 
 
     /**
-    *   Shows search form
+    *   Shows search form.
+    *   If the query_len is >=0 but less than min_word_len, then also show
+    *   an error message.
     *
+    *   @param  integer $query_len  Length of current query
     *   @return string  HTML output for form
     */
     public function showForm($query_len = -1)
@@ -831,7 +834,7 @@ class Searcher extends Common
         }
         if ( $this->_search_title ) $T->set_var('search_title_checked',' checked="checked" ');
         if ( $this->_search_content ) $T->set_var('search_content_checked',' checked="checked" ');
-        if ( $query_len > 0 && $query_len < self::$min_word_len ) {
+        if ( $query_len > -1 && $query_len < self::$min_word_len ) {
             $T->set_var('err_msg', sprintf($LANG_SRCH['query_too_short'], self::$min_word_len));
         }
         $T->parse('output', 'searchform');
