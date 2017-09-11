@@ -7,7 +7,7 @@ requiring a fulltext index.
 ## Configuration
 ### Main Settings
 #### Minimum Word Length to Consider
-Enter the minimum number of letters to be considered a "word". Words with less
+Enter the minimum number of letters to be considered a "word". Words with fewer 
 than this number of letters will not be added to the index.
 
 Default: 3
