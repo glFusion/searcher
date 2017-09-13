@@ -276,7 +276,7 @@ function plugin_itemsaved_searcher($id, $type, $old_id = '')
     );
     if ( is_array($contentInfo) && count($contentInfo) > 0 ) {
         if (!isset($contentInfo['perms']) || empty($contentInfo['perms'])) {
-            $contentInfo['pems'] = array(
+            $contentInfo['perms'] = array(
                 'owner_id' => 2,
                 'group_id' => 1,
                 'perm_owner' => 3,
@@ -286,7 +286,7 @@ function plugin_itemsaved_searcher($id, $type, $old_id = '')
             );
         }
         $props = array(
-            'item_id' => $id,
+            'item_id' => $contentInfo['id'],
             'type'  => $type,
             'author' => $contentInfo['author'],
             'author_name' => $contentInfo['author_name'],
@@ -304,7 +304,7 @@ function plugin_itemsaved_searcher($id, $type, $old_id = '')
         \Searcher\Indexer::RemoveDoc($type, $id);
         \Searcher\Indexer::IndexDoc($props);
     } else {
-        COM_errorLog("Error retrieving content info - Type = " . $type . " ID = " . $id);
+        COM_errorLog("Error retrieving content info - Type = $type, ID = $id");
     }
 }
 
