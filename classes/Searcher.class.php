@@ -325,9 +325,15 @@ class Searcher extends Common
             $title = $exc['title'];
             $uid = isset($exc['author']) ? $exc['author'] : NULL;
             if (isset($exc['url'])) {
-                $url = $exc['url'];
-                $sep = strpos($url, '?') ? '&' : '?';
-                $url .= $sep . 'query=' . urlencode($this->query);
+                $urlArray = parse_url($exc['url']);
+                $url = $urlArray['scheme'] . '://';
+                $url .= ( isset($urlArray['user'] ) ? $urlArray['user'].':' : '');
+                $url .= ( isset($urlArray['pass'] ) ? $urlArray['pass'].'@' : '');
+                $url .= $urlArray['host'];
+                $url .= ( isset($urlArray['port']) ? ':'.$urlArray['port'] : '');
+                $url .= ( isset($urlArray['path']) ? $urlArray['path'] : '' );
+                $url .= ( isset($urlArray['query']) ? '?' . $urlArray['query'].'&query='.urlencode($this->query) : '?query=' . urlencode($this->query));
+                $url .= ( isset($urlArray['fragment']) ? '#'.$urlArray['fragment'] : '');
             } else {
                 $url = NULL;
             }
