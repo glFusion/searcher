@@ -1,14 +1,41 @@
 # Searcher plugin for glFusion
 ## Overview
-This plugin is an attempt to provide an improved search function for glFusion
-using one or more index tables to allow fulltext-type searching without
+This plugin provides an improved search function for glFusion
+using one an index table to allow fulltext-type searching without
 requiring a fulltext index.
+
+## Preparation for Use
+Before the Searcher plugin can be used, the initial index must be created.
+After this is done any content changes will automatically update the index.
+
+1. Go through the configuration options below and set them according to your preferences.
+1. Create the initial index
+    1. Visit `{site_url}/admin/plugins/searcher/index.php`
+    1. Click "Reindex Content"
+    1. Select all the available content types
+    1. Click the "Reindex" button. This will take some time but uses AJAX to prevent browser timeouts.
+
+If a previously-installed plugin is updated to a version that supports glFusion 1.7.0, you will want to revisit the indexing page again and reindex content for that plugin.
+
+## Searching
+Visit `{site_url}/searcher/index.php` and enter a search phrase.
+Click the "Advanced Options" button to make available other options:
+* Limit to one content type
+* Limit to recent items
+* Search any combination of Title, Author Name or Content fields
+
+By default, all content types and all fields are searched.
+
+Once the plugin is confirmed to be working correctly, re-visit the global configuration and set "Replace Stock glFusion Search" to "Yes".
+At this point the default search box in the header as well as the standard `/search.php` URL will utilize the Searcher plugin.
 
 ## Configuration
 ### Main Settings
 #### Minimum Word Length to Consider
 Enter the minimum number of letters to be considered a "word". Words with fewer 
 than this number of letters will not be added to the index.
+
+Reducing this number may catch more search results but will increase the index size.
 
 Default: 3
 
@@ -47,8 +74,8 @@ Default: Yes, with link
 
 #### Stemmer (Experimental)
 This plugin includes an adaptation of the [Porter language stemmer](https://tartarus.org/martin/PorterStemmer/index.html)
-to determine the roots of words. To use this select "Porter_en", otherwise
-select "None" (the default).
+to determine the roots of words. To use this select `Porter_en`, otherwise
+select `None` (the default).
 
 The stemmer is experimental and may lead to odd results but will also include
 results based on word variations such as plurals. You must regenerate all
@@ -60,7 +87,8 @@ Default: None
 If selected, then autotags are removed completely before generating indexes.
 This will prevent the raw content of autotags from causing pages to appear
 in the search results where the page does not visibly contain the search terms.
-In either case, autotags are not processed before indexing.
+
+Regardless of this setting, autotags are not processed before indexing or searching.
 
 Default: False
 
@@ -68,7 +96,7 @@ Default: False
 If selected then the Searcher plugin will be used by glFusion's search.php file,
 replacing the stock search engine. If this is set to "No", then the normal
 glFusion search will be used but the Search plugin can still be accessed at
-{site_url}/searcher/index.php
+`{site_url}/searcher/index.php`.
 
 Default: False
 
