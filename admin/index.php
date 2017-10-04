@@ -61,15 +61,16 @@ function SRCH_admin_terms()
         'has_extras' => true,
         'form_url' => SRCH_ADMIN_URL . '/index.php?counters=x',
     );
+    $filter .= '<button type="submit" name="clearcounters" style="float:left;" class="uk-button uk-button-danger">' .
+        'Clear Counters' . '</button>';
 
     $query_arr = array('table' => 'searcher_counters',
         'sql' => "SELECT term, hits FROM {$_TABLES['searcher_counters']}",
         'query_fields' => array('term'),
         'default_filter' => 'WHERE 1=1',
     );
-
     $retval .= ADMIN_list('searcher', 'SRCH_getListField_counters', $header_arr,
-                    $text_arr, $query_arr, $defsort_arr, '', $token, '', '');
+                    $text_arr, $query_arr, $defsort_arr, $filter, $token, '', '');
 
     return $retval;
 }
@@ -108,15 +109,17 @@ $view = '';
 $action = '';
 $expected = array(
     // Actions
-    'genindex',
+    'genindex', 'clearcounters',
     // Views, no action
     'gen_all', 'counters',
 );
 foreach($expected as $provided) {
     if (isset($_POST[$provided])) {
         $action = $provided;
+        break;
     } elseif (isset($_GET[$provided])) {
         $action = $provided;
+        break;
     }
 }
 
@@ -136,6 +139,11 @@ case 'genindex':
         }
     }
     break;
+case 'clearcounters':
+    DB_query("TRUNCATE {$_TABLES['searcher_counters']}");
+    $view = 'counters';
+    break;
+
 default:
     $view = $action;
     break;
