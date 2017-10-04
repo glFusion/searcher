@@ -51,6 +51,12 @@ function SRCH_admin_terms()
             'sort' => true,
             'align' => 'right',
         ),
+        array(
+            'text' => $LANG_SRCH['results'],
+            'field' => 'results',
+            'sort' => true,
+            'align' => 'right',
+        ),
     );
 
     $defsort_arr = array('field' => 'hits', 'direction' => 'desc');
@@ -65,7 +71,7 @@ function SRCH_admin_terms()
         $LANG_SRCH['clear_counters'] . '</button>';
 
     $query_arr = array('table' => 'searcher_counters',
-        'sql' => "SELECT term, hits FROM {$_TABLES['searcher_counters']}",
+        'sql' => "SELECT term, hits, results FROM {$_TABLES['searcher_counters']}",
         'query_fields' => array('term'),
         'default_filter' => 'WHERE 1=1',
     );

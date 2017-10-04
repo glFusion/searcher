@@ -26,6 +26,7 @@ $LANG_SRCH = array(
     'none'          => 'None',
     'search_terms'  => 'Search Terms',
     'queries'       => 'Queries',
+    'results'       => 'Results',
     'clear_counters' => 'Clear Counters',
     'search_title'  => 'Search Title',
     'search_author' => 'Search Author',
