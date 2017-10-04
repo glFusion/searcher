@@ -1,7 +1,7 @@
 # Searcher plugin for glFusion
 ## Overview
 This plugin provides an improved search function for glFusion
-using one an index table to allow fulltext-type searching without
+using an index table to allow fulltext-type searching without
 requiring a fulltext index.
 
 ## Preparation for Use
@@ -32,7 +32,7 @@ At this point the default search box in the header as well as the standard `/sea
 ## Configuration
 ### Main Settings
 #### Minimum Word Length to Consider
-Enter the minimum number of letters to be considered a "word". Words with fewer 
+Enter the minimum number of letters to be considered a "word". Words with fewer
 than this number of letters will not be added to the index.
 
 Reducing this number may catch more search results but will increase the index size.
