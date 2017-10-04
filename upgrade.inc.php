@@ -40,6 +40,7 @@ function SRCH_do_upgrade()
     } else {
         return false;
     }
+    $installed_ver = plugin_chkVersion_searcher();
 
     // Get the config object
     $c = config::get_instance();
@@ -107,9 +108,20 @@ function SRCH_do_upgrade()
         if (!SRCH_do_set_version($current_ver)) return false;
     }
 
+    if (!COM_checkVersion($current_ver, '0.0.9')) {
+        // upgrade from 0.0.8 to 0.0.9
+        $current_ver = '0.0.9';
+        COM_errorLog("Updating Plugin to $current_ver");
+        if (!SRCH_do_upgrade_sql($current_ver)) return false;
+        if (!SRCH_do_set_version($current_ver)) return false;
+    }
+
     // Final version setting in case there was no upgrade process for
     // this version
-    if (!SRCH_do_set_version($_SRCH_CONF['pi_version'])) return false;
+    // Final extra check to catch code-only patch versions
+    if (!COM_checkVersion($current_ver, $installed_ver)) {
+        if (!SRCH_do_set_version($installed_ver)) return false;
+    }
     return true;
 }
 

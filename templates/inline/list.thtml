@@ -1,8 +1,8 @@
 {# begin {templatelocation} #}
 <div style="margin-top:5px;margin-bottom:5px;border-bottom:1px solid #ccc;"></div>
 {list_top}
-{!if first_result}
-Showing {first_result} - {last_result} of {total_results} Results
+{!if showing_results}
+{showing_results}
 {!endif}
 {item_row}
 

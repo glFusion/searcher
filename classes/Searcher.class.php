@@ -673,7 +673,7 @@ class Searcher extends Common
     */
     public function Display()
     {
-        global $_CONF, $_SRCH_CONF, $LANG_ADMIN, $LANG09,$LANG05;
+        global $_CONF, $_SRCH_CONF, $LANG_ADMIN, $LANG09,$LANG05, $LANG_SRCH;
 
         $retval = '';
 
@@ -755,17 +755,12 @@ class Searcher extends Common
         if ($this->countResults() > 0) {
             $first = (($this->_page - 1) * $_SRCH_CONF['perpage']) + 1;
             $last = min($first + $_SRCH_CONF['perpage'] - 1, $this->totalResults());
-            $T->set_var(array(
-                'first_result' => $first,
-                'last_result' => $last,
-                'total_results' => $this->totalResults(),
-            ) );
+            $T->set_var('showing_results',
+                sprintf($LANG_SRCH['showing_results'], $first, $last, $this->totalResults()));
         }
 
-        $T->parse('output', 'list');
-
         // Do the actual output
-        //$retval = '<div style="margin-top:5px;margin-bottom:5px;border-bottom:1px solid #ccc;"></div>';
+        $T->parse('output', 'list');
         $retval .= $T->finish($T->get_var('output'));
         return $retval;
     }
@@ -778,11 +773,14 @@ class Searcher extends Common
     {
         global $_TABLES;
 
-        if (!isset($_GET['nc'])) {
+        // To count unique queries, only count if on the first page
+        if (!isset($_GET['nc']) && $this->_page == 1) {
+            $results = $this->totalResults();
             $query = DB_escapeString($this->query);
             $sql = "INSERT INTO {$_TABLES['searcher_counters']}
-                    (term, hits) VALUES ('$query', 1)
-                    ON DUPLICATE KEY UPDATE hits = hits + 1";
+                    (term, hits, results) VALUES ('$query', 1, $results)
+                    ON DUPLICATE KEY UPDATE
+                        hits = hits + 1";
             DB_query($sql);
         }
     }

@@ -62,7 +62,7 @@ function SRCH_admin_terms()
         'form_url' => SRCH_ADMIN_URL . '/index.php?counters=x',
     );
     $filter .= '<button type="submit" name="clearcounters" style="float:left;" class="uk-button uk-button-danger">' .
-        'Clear Counters' . '</button>';
+        $LANG_SRCH['clear_counters'] . '</button>';
 
     $query_arr = array('table' => 'searcher_counters',
         'sql' => "SELECT term, hits FROM {$_TABLES['searcher_counters']}",

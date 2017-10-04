@@ -32,6 +32,14 @@ $_SQL['searcher_index'] = "CREATE TABLE `{$_TABLES['searcher_index']}` (
   KEY `parent` (`parent_type`,`parent_id`)
 ) ENGINE=MyISAM";
 
+$_SQL['searcher_counters'] = "CREATE TABLE `{$_TABLES['searcher_counters']}` (
+  `term` varchar(40) NOT NULL,
+  `hits` int(11) unsigned NOT NULL DEFAULT '1',
+  `results` int(11) unsigned NOT NULL DEFAULT '1',
+  PRIMARY KEY (`term`),
+  KEY `hits` (`hits`)
+) ENGINE=MyISAM";
+
 $_UPGRADE_SQL = array(
     '0.0.2' => array(
         "ALTER TABLE {$_TABLES['searcher_index']}
@@ -63,7 +71,10 @@ $_UPGRADE_SQL = array(
             DROP owner_id, DROP group_id, DROP perm_owner, DROP perm_group,
             DROP perm_members, DROP perm_anon",
     ),
+    '0.0.9' => array(
+        "ALTER TABLE {$_TABLES['searcher_counters']}
+            ADD results int(11) unsigned NOT NULL DEFAULT '1'",
+    ),
 );
-$_SQL['searcher_counters'] = $_UPGRADE_SQL['0.0.4'][0];
 
 ?>
