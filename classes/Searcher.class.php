@@ -780,7 +780,8 @@ class Searcher extends Common
             $sql = "INSERT INTO {$_TABLES['searcher_counters']}
                     (term, hits, results) VALUES ('$query', 1, $results)
                     ON DUPLICATE KEY UPDATE
-                        hits = hits + 1";
+                        hits = hits + 1,
+                        results = $results";
             DB_query($sql);
         }
     }
