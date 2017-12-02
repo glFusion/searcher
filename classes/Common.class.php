@@ -90,7 +90,6 @@ class Common
     protected static function _strlen_sort($a, $b)
     {
         return utf8_strlen($b) - utf8_strlen($a);
-        return self::_strlen($b) - self::_strlen($a);
     }
 
 
