@@ -90,7 +90,8 @@ The Metaphone and Soundex aren't actually stemmers, but use the PHP function
 by the same name to create a key value from the phonetic sound of a word.
 These will help catch mispellings such as "baloon", "pikup truk", etc.
 
-The Metaphone function is a newer implementation.
+The Metaphone function is a newer implementation. Both work only with English
+pronunciations.
 
 #### Ignore Auto Tags
 If selected, then autotags are removed completely before generating indexes.
