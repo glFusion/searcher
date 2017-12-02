@@ -27,6 +27,7 @@ abstract class Stemmer
     */
     public $cache = array();
 
+    protected static $min_word_len = 3;
 
     /**
     *   Method to get a stemmer, creating it if necessary.
