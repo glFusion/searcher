@@ -73,15 +73,24 @@ without a link, or hide the name altogether.
 Default: Yes, with link
 
 #### Stemmer (Experimental)
-This plugin includes an adaptation of the [Porter language stemmer](https://tartarus.org/martin/PorterStemmer/index.html)
-to determine the roots of words. To use this select `Porter_en`, otherwise
-select `None` (the default).
+Stemmers and related functions will help catch mispellings and variations on words.
+You should determine which option is best for your site based on usage; you can
+check the keywords that guests are submitting in the Searcher admin screen.
 
-The stemmer is experimental and may lead to odd results but will also include
-results based on word variations such as plurals. You must regenerate all
-indexes if this option is changed.
+All indexes if this option is changed.
 
 Default: None
+
+##### Porter_en
+This plugin includes an adaptation of the [Porter language stemmer](https://tartarus.org/martin/PorterStemmer/index.html).
+This stemmer will help catch plurals, possessives and other variations of words.
+
+##### Soundex_en, Metphone_en
+The Metaphone and Soundex aren't actually stemmers, but use the PHP function
+by the same name to create a key value from the phonetic sound of a word.
+These will help catch mispellings such as "baloon", "pikup truk", etc.
+
+The Metaphone function is a newer implementation.
 
 #### Ignore Auto Tags
 If selected, then autotags are removed completely before generating indexes.
