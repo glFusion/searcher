@@ -274,12 +274,6 @@ function plugin_itemsaved_searcher($id, $type, $old_id = '')
         $type, $id,
         'id,date,parent_type,parent_id,title,searchidx,author,author_name,hits,perms,search_index,status'
     );
-
-    // If an "enabled" status isn't returned by the plugin, assume enabled
-    if (!isset($contentInfo['status']) || is_null($contentInfo['status'])) {
-        $contentInfo['status'] = 1;
-    }
-
     if ( is_array($contentInfo) && count($contentInfo) > 0 ) {
         if (!isset($contentInfo['perms']) || empty($contentInfo['perms'])) {
             $contentInfo['perms'] = array(
@@ -290,6 +284,10 @@ function plugin_itemsaved_searcher($id, $type, $old_id = '')
                 'perm_members' => 2,
                 'perm_anon' => 2,
             );
+        }
+        // If an "enabled" status isn't returned by the plugin, assume enabled
+        if (!isset($contentInfo['status']) || is_null($contentInfo['status'])) {
+            $contentInfo['status'] = 1;
         }
 
         $props = array(
