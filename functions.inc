@@ -272,8 +272,14 @@ function plugin_itemsaved_searcher($id, $type, $old_id = '')
 
     $contentInfo = PLG_getItemInfo(
         $type, $id,
-        'id,date,parent_type,parent_id,title,searchidx,author,author_name,hits,perms,search_index'
+        'id,date,parent_type,parent_id,title,searchidx,author,author_name,hits,perms,search_index,status'
     );
+
+    // If an "enabled" status isn't returned by the plugin, assume enabled
+    if (!isset($contentInfo['status']) || is_null($contentInfo['status'])) {
+        $contentInfo['status'] = 1;
+    }
+
     if ( is_array($contentInfo) && count($contentInfo) > 0 ) {
         if (!isset($contentInfo['perms']) || empty($contentInfo['perms'])) {
             $contentInfo['perms'] = array(
@@ -285,6 +291,7 @@ function plugin_itemsaved_searcher($id, $type, $old_id = '')
                 'perm_anon' => 2,
             );
         }
+
         $props = array(
             'item_id' => $contentInfo['id'],
             'type'  => $type,
@@ -302,7 +309,10 @@ function plugin_itemsaved_searcher($id, $type, $old_id = '')
             \Searcher\Indexer::RemoveDoc($type, $old_id);
         }
         \Searcher\Indexer::RemoveDoc($type, $id);
-        \Searcher\Indexer::IndexDoc($props);
+        if ($contentInfo['status']) {
+            // Index only if status is nonzero (i.e. not draft or disabled)
+            \Searcher\Indexer::IndexDoc($props);
+        }
     } else {
         COM_errorLog("Error retrieving content info - Type = $type, ID = $id");
     }
