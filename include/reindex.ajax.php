@@ -115,9 +115,10 @@ function SRCH_indexContentItemAjax()
     $contentList = array();
     $retval = array();
 
-    $contentInfo = PLG_getItemInfo($type,$id,'id,date,title,searchidx,author,author_name,hits,perms,search_index,reindex');
+    $contentInfo = PLG_getItemInfo($type,$id,'id,date,title,searchidx,author,author_name,hits,perms,search_index,reindex,status');
 
-    if ( is_array($contentInfo) && count($contentInfo) > 0 ) {
+    if ( is_array($contentInfo) && count($contentInfo) > 0 &&
+            (!isset($contentInfo['status']) || $contentInfo['status'] == 1) ) {
         $props = array(
             'item_id' => $id,
             'type'  => $type,
