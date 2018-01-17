@@ -23,14 +23,20 @@ class Indexer extends Common
     *   Index a single document
     *
     *   @param  array   $content    Array of item elements
+    *   @param  boolean $use_queue  True to queue the DB inserts
     *   @return boolean     True on success, False on DB error
     */
-    public static function IndexDoc($content)
+    public static function IndexDoc($content, $use_queue = false)
     {
-        global $_TABLES, $_SRCH_CONF;
+        global $_SRCH_CONF;
 
         if (empty(self::$stopwords)) {
             self::Init();
+        }
+
+        $values = SESS_getVar('searcher_queue');
+        if ($values === 0) {
+            $values = array();
         }
 
         // Remove autotags if so configured and the content field is used.
@@ -89,7 +95,6 @@ class Indexer extends Common
             }
         }
 
-        $values = array();
         $insertCount = 0;
         foreach ($insert_data as $term => $data) {
             foreach (self::$fields as $var=>$weight) {
@@ -102,33 +107,50 @@ class Indexer extends Common
             $insertCount++;
 
             if ( $insertCount > 5000 ) {
-                $values = implode(', ', $values);
-                $sql = "INSERT IGNORE INTO {$_TABLES['searcher_index']} (
-                        type, item_id, term, parent_id, parent_type, ts,
-                        content, title, author, grp_access, weight
-                        ) VALUES $values";
-                //echo $sql;die;
-                $res = DB_query($sql);
-                if (DB_error()) {
-                    COM_errorLog("Searcher Error Indexing $type, ID $item_id");
-                    return false;
-                }
+                // Write out the values so far and reset the values array
+                self::FlushQueue($values);
                 $values = array();
                 $insertCount = 0;
             }
         }
-        if (empty($values)) {
+        if ($use_queue) {
+            SESS_setVar('searcher_queue', $values);
             return true;
+        } else {
+            return self::FlushQueue($values);
         }
+    }
+
+
+    /**
+    *   Save the search data in the DB.
+    *   If provided, $values is expectedd to be an array of ('x', 'y', ...)
+    *   items that will be concatenated into a single SQL statement.
+    *   If $values is not provided then the values are obtained from the
+    *   session var.
+    *   Values must already be SQL-safe.
+    *
+    *   @param  mixed   $values     Array of value clauses, NULL if not used
+    */
+    public static function FlushQueue($values = NULL)
+    {
+        global $_TABLES;
+
+        if ($values === NULL) {     // get values from session var
+            $values = SESS_getVar('searcher_queue');
+        }
+        if (empty($values)) return true;    // nothing to do
+
         $values = implode(', ', $values);
         $sql = "INSERT IGNORE INTO {$_TABLES['searcher_index']} (
-                type, item_id, term, parent_id, parent_type, ts,
-                content, title, author, grp_access, weight
+                    type, item_id, term, parent_id, parent_type, ts,
+                    content, title, author, grp_access, weight
                 ) VALUES $values";
         //echo $sql;die;
         $res = DB_query($sql);
+        SESS_setVar('searcher_queue', array());
         if (DB_error()) {
-            COM_errorLog("Searcher Error Indexing $type, ID $item_id");
+            COM_errorLog("Searcher Indexing Error: $sql");
             return false;
         } else {
             return true;
