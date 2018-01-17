@@ -322,9 +322,13 @@ function plugin_itemsaved_searcher($id, $type, $old_id = '')
 *
 *   @param  string  $id     Item ID
 *   @param  string  $type   Item Type, e.g. plugin name
+*   @param  string  $children   Optional comma-separated values to delete
 */
-function plugin_itemdeleted_searcher($id, $type)
+function plugin_itemdeleted_searcher($id, $type, $children='')
 {
+    if (!empty($children)) {
+        $id = explode(',', $children);
+    }
     \Searcher\Indexer::RemoveDoc($type, $id);
 }
 

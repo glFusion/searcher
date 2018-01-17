@@ -141,7 +141,7 @@ class Indexer extends Common
     *   Deletes all records that match $type and $item_id
     *
     *   @param  string  $type       Type of document
-    *   @param  string  $item_id    Document ID
+    *   @param  mixed   $item_id    Document ID, single or array
     *   @return boolean     True on success, False on failure
     */
     public static function RemoveDoc($type, $item_id)
@@ -150,16 +150,23 @@ class Indexer extends Common
 
         if ($item_id == '*') {
             return self::RemoveAll($type);
+        } elseif (is_array($item_id)) {
+            $item_id_str = implode("','", array_map('DB_escapeString', $item_id));
+        } else {
+            $item_id_str = DB_escapeString($item_id);
         }
+        $item_id_str = "'" . $item_id_str . "'";
+        $type = DB_escapeString($type);
 
-        DB_delete($_TABLES['searcher_index'],
-                array('type', 'item_id'),
-                array($type, $item_id) );
+        $sql = "DELETE FROM {$_TABLES['searcher_index']}
+                WHERE type = '$type'
+                AND item_id IN ($item_id_str)";
+        DB_query($sql);
         if (DB_error()) {
-            COM_errorLog("Searcher: Error removing $type, ID $item_id");
+            COM_errorLog("Searcher: Error removing $type, ID $item_id_str");
             return false;
         } else {
-            return self::RemoveComments($type, $item_id);
+            return self::RemoveComments($type, $item_id_str, true);
         }
     }
 
@@ -185,15 +192,16 @@ class Indexer extends Common
 
 
     /**
-    *   Remove all comments for a specific parent type/id
-    *   Leave the item ID as NULL to remove all comments for all
-    *   content items of type $type.
+    *   Remove all comments for a specific parent type and optional id
+    *   $item_id may be a single value or an array, leave as NULL to remove
+    *   all comments for all content items of type $type.
     *
     *   @param  string  $type       Type of content (article, staticpage, etc.)
     *   @param  mixed   $item_id    ID of article, page, etc.
+    *   @param  boolean $sanitized  True if the item_id is already SQL-safe
     *   @return boolean             True on success, False on failure
     */
-    public static function RemoveComments($parent_type, $item_id=NULL)
+    public static function RemoveComments($parent_type, $item_id=NULL, $sanitized=false)
     {
         global $_TABLES;
 
@@ -201,13 +209,16 @@ class Indexer extends Common
             return true;
         }
 
-        $params = array('type', 'parent_type');
-        $values = array('comment', $parent_type);
-        if ($item_id !== NULL) {
-            $params[] = 'parent_id';
-            $values[] = $item_id;
+        $sql = "DELETE FROM {$_TABLES['searcher_index']}
+                WHERE type = 'comment'
+                AND parent_type = $parent_type ";
+        if (is_array($item_id)) {
+            $item_id = implode("','", array_map('DB_escapeString', $item_id));
+            $sql .= "AND item_id IN ('$item_id')";
+        } elseif ($item_id !== NULL) {
+            if (!$sanitized) $item_id = DB_escapeString($item_id);
+            $sql .= "AND item_id IN ('$item_id')";
         }
-        DB_delete($_TABLES['searcher_index'], $params, $values);
         if (DB_error()) {
             COM_errorLog("Searcher RemoveComments Error: $parent_type, ID $item_id");
             return false;
