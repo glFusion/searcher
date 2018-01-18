@@ -136,6 +136,46 @@ var searcherinit = (function() {
         }
     };
 
+
+    /**
+    * Called when all content items in a content type have been processed
+    */
+
+    var finishContent = function() {
+        console.log('Indexer: In finishContent()');
+          var dataS = {
+              "contentcomplete" : 'x',
+              "type" : contenttype,
+          };
+          data = $.param(dataS);
+          $.ajax({
+              type: "POST",
+              dataType: "json",
+              url: url,
+              data: data,
+              timeout:120000
+          }).done(function(data) {
+              var result = $.parseJSON(data["js"]);
+              if ( result.errorCode != 0 ) {
+                  console.log("Indexer: " + result.message );
+                  contentypeErrorCount++;
+                  indexingMessage = indexingMessage + lang_content_type + ': ' + contenttype + ' :: ' + result.message + '<br>';
+              }
+          }).fail(function(jqXHR, textStatus ) {
+              indexingMessage = indexingMessage + lang_content_type + ': ' + contenttype + ' :: ' + lang_remove_fail + '<br>';
+              if (textStatus === 'timeout') {
+                  console.log("Indexer: Timeout in finishContent " + contenttype);
+              }
+          }).always(function( xhr, status ) {
+            var percent = 100;
+            done++;
+            $('#pb-current').css('width', percent + "%");
+            $('#pb-current').html(percent + "%");
+            contenttype = contenttypes.shift();
+            window.setTimeout(processContentTypes,250);
+          });
+    };
+
     /**
     * Remove existing index entries
     */
@@ -281,12 +321,15 @@ var searcherinit = (function() {
                 window.setTimeout(processContent, wait);
             });
         } else {
+        	window.setTimeout(finishContent,250);
+/*
             var percent = 100;
             done++;
             $('#pb-current').css('width', percent + "%");
             $('#pb-current').html(percent + "%");
             contenttype = contenttypes.shift();
             window.setTimeout(processContentTypes,250);
+*/
         }
     };
 

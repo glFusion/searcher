@@ -74,7 +74,7 @@ function SRCHER_reindex()
 
 // main driver
 $action = '';
-$expected = array('reindex','getcontenttypes','getcontentlist','index','removeoldcontent','complete');
+$expected = array('reindex','getcontenttypes','getcontentlist','index','removeoldcontent','complete','contentcomplete');
 foreach($expected as $provided) {
     if (isset($_POST[$provided])) {
         $action = $provided;
@@ -104,6 +104,9 @@ switch ($action) {
     case 'index' :
         // index a content item via ajax
         SRCH_indexContentItemAjax();
+        break;
+    case 'contentcomplete' :
+        SRCH_completeContentAjax();
         break;
     case 'complete' :
         SRCH_completeAjax();
