@@ -303,6 +303,25 @@ var searcherinit = (function() {
         message(lang_success);
 
         window.setTimeout(function() {
+            // ajax call when reindexing is complete
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                url: url,
+		            data: {"complete" : "x" },
+            }).done(function(data) {
+	            UIkit.modal.alert(lang_success);
+	            var $msgWindow = $('#indexer_messages');
+	            if ( indexingMessage == '' ) indexingMessage = lang_no_errors;
+	            $msgWindow.html(indexingMessage);
+	            $("#indexer_message_window").show();
+	            $("#reindexbutton").html(lang_index);
+	            $('#reindexbutton').prop("disabled",false);
+            });
+        }, 3000);
+
+/* - this part comes out
+        window.setTimeout(function() {
             UIkit.modal.alert(lang_success);
             var $msgWindow = $('#indexer_messages');
             if ( indexingMessage == '' ) indexingMessage = lang_no_errors;
@@ -311,6 +330,7 @@ var searcherinit = (function() {
             $("#reindexbutton").html(lang_index);
             $('#reindexbutton').prop("disabled",false);
         }, 3000);
+*/
     };
 
     /**

@@ -163,4 +163,18 @@ function SRCH_indexContentItemAjax()
     echo json_encode($return);
     exit;
 }
+
+function SRCH_completeAjax()
+{
+    global $_PLUGINS;
+
+    if ( !COM_isAjax()) die();
+
+    $retval['errorCode'] = 0;
+    $retval['statusMessage'] = 'Reindexing Successful';
+    $return["js"] = json_encode($retval);
+
+    echo json_encode($return);
+    exit;
+}
 ?>
