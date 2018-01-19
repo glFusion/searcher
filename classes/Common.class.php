@@ -19,7 +19,7 @@ namespace Searcher;
 class Common
 {
     protected static $min_word_len = 3; // default
-    protected static $stopwords = array();
+    public static $stopwords = array();
     protected static $fields = array();
 
 
@@ -36,8 +36,7 @@ class Common
     {
         global $_SRCH_CONF;
 
-        include_once __DIR__ . '/../stopwords/english.php';
-        self::$stopwords = $stopwords;
+        self::getStopwords();
         self::$min_word_len = $_SRCH_CONF['min_word_len'];
 
         // set supported fields
@@ -248,6 +247,31 @@ class Common
         global $_CONF;
 
         return (isset($_CONF['comment_engine']) && $_CONF['comment_engine'] == 'internal');
+    }
+
+
+    /**
+    *   Load the stopwords into the static array variable.
+    *   Only English is currrently supported, but additional stopwords can be
+    *   added by creating a "english.php" file in the "stopwords/custom" subdirectory
+    *   and adding strings in any language.
+    *
+    *   @return void    No return, sets the static $stopwords variable
+    */
+    private static function getStopwords()
+    {
+        $langfile = 'english.php';
+        $langpath = SRCH_PI_PATH . '/stopwords';
+        if (is_file("$langpath/$langfile")) {
+            require_once "$langpath/$langfile";
+            self::$stopwords = $stopwords;
+        }
+
+        // Include any custom language file, if found
+        if (is_file("$langpath/custom/$langfile")) {
+            include_once "$langpath/custom/$langfile";
+        }
+        self::$stopwords = array_merge(self::$stopwords, $stopwords);
     }
 
 }
