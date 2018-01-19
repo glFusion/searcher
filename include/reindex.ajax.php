@@ -137,7 +137,7 @@ function SRCH_indexContentItemAjax()
             ),
         );
 
-        Searcher\Indexer::IndexDoc($props);
+        Searcher\Indexer::IndexDoc($props, true);   // call indexer using queue
 
         if (function_exists('plugin_commentsupport_'.$type ) || $type == 'article' ) {
             if ( $type != 'article' ) {
@@ -169,6 +169,8 @@ function SRCH_completeContentAjax()
     global $_PLUGINS;
 
     if ( !COM_isAjax()) die();
+
+    Searcher\Indexer::FlushQueue();     // write any pending DB updates
 
     // $_POST['type'] will hold the content type that was just completed.
     $contentType = isset($_POST['type']) ? COM_applyFilter($_POST['type']) : 'unknown';

@@ -95,7 +95,7 @@ class Indexer extends Common
             }
         }
 
-        $insertCount = 0;
+        $insertCount = count($values);
         foreach ($insert_data as $term => $data) {
             foreach (self::$fields as $var=>$weight) {
                 $$var = isset($data[$var]) ? (int)$data[$var] : 0;
@@ -106,7 +106,7 @@ class Indexer extends Common
                     $ts, $content, $title, $author, $grp_access, $weight)";
             $insertCount++;
 
-            if ( $insertCount > 5000 ) {
+            if ( $insertCount > 500 ) {
                 // Write out the values so far and reset the values array
                 self::FlushQueue($values);
                 $values = array();
