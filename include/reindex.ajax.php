@@ -163,4 +163,35 @@ function SRCH_indexContentItemAjax()
     echo json_encode($return);
     exit;
 }
+
+function SRCH_completeContentAjax()
+{
+    global $_PLUGINS;
+
+    if ( !COM_isAjax()) die();
+
+    // $_POST['type'] will hold the content type that was just completed.
+    $contentType = isset($_POST['type']) ? COM_applyFilter($_POST['type']) : 'unknown';
+
+    $retval['errorCode'] = 0;
+    $retval['statusMessage'] = 'Reindexing ' . $contentType . 'Successful';
+    $return["js"] = json_encode($retval);
+
+    echo json_encode($return);
+    exit;
+}
+
+function SRCH_completeAjax()
+{
+    global $_PLUGINS;
+
+    if ( !COM_isAjax()) die();
+
+    $retval['errorCode'] = 0;
+    $retval['statusMessage'] = 'Reindexing Successful';
+    $return["js"] = json_encode($retval);
+
+    echo json_encode($return);
+    exit;
+}
 ?>
