@@ -136,6 +136,46 @@ var searcherinit = (function() {
         }
     };
 
+
+    /**
+    * Called when all content items in a content type have been processed
+    */
+
+    var finishContent = function() {
+        console.log('Indexer: In finishContent()');
+          var dataS = {
+              "contentcomplete" : 'x',
+              "type" : contenttype,
+          };
+          data = $.param(dataS);
+          $.ajax({
+              type: "POST",
+              dataType: "json",
+              url: url,
+              data: data,
+              timeout:120000
+          }).done(function(data) {
+              var result = $.parseJSON(data["js"]);
+              if ( result.errorCode != 0 ) {
+                  console.log("Indexer: " + result.message );
+                  contentypeErrorCount++;
+                  indexingMessage = indexingMessage + lang_content_type + ': ' + contenttype + ' :: ' + result.message + '<br>';
+              }
+          }).fail(function(jqXHR, textStatus ) {
+              indexingMessage = indexingMessage + lang_content_type + ': ' + contenttype + ' :: ' + lang_remove_fail + '<br>';
+              if (textStatus === 'timeout') {
+                  console.log("Indexer: Timeout in finishContent " + contenttype);
+              }
+          }).always(function( xhr, status ) {
+            var percent = 100;
+            done++;
+            $('#pb-current').css('width', percent + "%");
+            $('#pb-current').html(percent + "%");
+            contenttype = contenttypes.shift();
+            window.setTimeout(processContentTypes,250);
+          });
+    };
+
     /**
     * Remove existing index entries
     */
@@ -281,12 +321,15 @@ var searcherinit = (function() {
                 window.setTimeout(processContent, wait);
             });
         } else {
+        	window.setTimeout(finishContent,250);
+/*
             var percent = 100;
             done++;
             $('#pb-current').css('width', percent + "%");
             $('#pb-current').html(percent + "%");
             contenttype = contenttypes.shift();
             window.setTimeout(processContentTypes,250);
+*/
         }
     };
 
@@ -303,6 +346,25 @@ var searcherinit = (function() {
         message(lang_success);
 
         window.setTimeout(function() {
+            // ajax call when reindexing is complete
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                url: url,
+		            data: {"complete" : "x" },
+            }).done(function(data) {
+	            UIkit.modal.alert(lang_success);
+	            var $msgWindow = $('#indexer_messages');
+	            if ( indexingMessage == '' ) indexingMessage = lang_no_errors;
+	            $msgWindow.html(indexingMessage);
+	            $("#indexer_message_window").show();
+	            $("#reindexbutton").html(lang_index);
+	            $('#reindexbutton').prop("disabled",false);
+            });
+        }, 3000);
+
+/* - this part comes out
+        window.setTimeout(function() {
             UIkit.modal.alert(lang_success);
             var $msgWindow = $('#indexer_messages');
             if ( indexingMessage == '' ) indexingMessage = lang_no_errors;
@@ -311,6 +373,7 @@ var searcherinit = (function() {
             $("#reindexbutton").html(lang_index);
             $('#reindexbutton').prop("disabled",false);
         }, 3000);
+*/
     };
 
     /**

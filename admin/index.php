@@ -37,6 +37,8 @@ function SRCH_admin_terms()
     global $_CONF, $_SRCH_CONF, $_TABLES, $LANG_ADMIN, $LANG_SRCH, $LANG_LINKS_ADMIN;
 
     $retval = '';
+    $filter = '';
+
     $token = SEC_createToken();
 
     $header_arr = array(      # display 'text' and use table field 'field'
