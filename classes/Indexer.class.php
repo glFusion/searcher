@@ -106,7 +106,7 @@ class Indexer extends Common
                     $ts, $content, $title, $author, $grp_access, $weight)";
             $insertCount++;
 
-            if ( $insertCount > 500 ) {
+            if ( $insertCount > 2000 ) {
                 // Write out the values so far and reset the values array
                 self::FlushQueue($values);
                 $values = array();
