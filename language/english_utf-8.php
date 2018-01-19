@@ -57,6 +57,7 @@ $LANG_SRCH_ADM = array(
     'content_type'      => 'Content Type',
     'remove_fail'       => 'Failed to remove existing index entries.',
     'retrieve_content_list' => 'Retrieving content list for ',
+    'chk_unchk_all'     => 'Check/Uncheck All',
 );
 
 // Localization of the Admin Configuration UI
