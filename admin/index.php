@@ -61,16 +61,17 @@ function SRCH_admin_terms()
         ),
     );
 
-    $defsort_arr = array('field' => 'hits', 'direction' => 'desc');
-
     $retval .= SRCH_adminMenu('counters');
 
+    $defsort_arr = array('field' => 'hits', 'direction' => 'desc');
+    $options = array();
+    $form_arr = array(
+        'top' => $clear_text,
+    );
     $text_arr = array(
         'has_extras' => true,
         'form_url' => SRCH_ADMIN_URL . '/index.php?counters=x',
     );
-    $filter .= '<button type="submit" name="clearcounters" style="float:left;" class="uk-button uk-button-danger">' .
-        $LANG_SRCH['clear_counters'] . '</button>';
 
     $query_arr = array('table' => 'searcher_counters',
         'sql' => "SELECT term, hits, results FROM {$_TABLES['searcher_counters']}",
@@ -78,7 +79,7 @@ function SRCH_admin_terms()
         'default_filter' => 'WHERE 1=1',
     );
     $retval .= ADMIN_list('searcher', 'SRCH_getListField_counters', $header_arr,
-                    $text_arr, $query_arr, $defsort_arr, $filter, $token, '', '');
+                    $text_arr, $query_arr, $defsort_arr, $filter, $token, $options, $form_arr);
 
     return $retval;
 }

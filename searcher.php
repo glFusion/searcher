@@ -6,7 +6,7 @@
 *   glFusion configuration system, such as allowed file types.
 *
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2017 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2017-2018 Lee Garner <lee@leegarner.com>
 *   @package    searcher
 *   @version    0.1.1
 *   @license    http://opensource.org/licenses/gpl-2.0.php

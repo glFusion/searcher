@@ -1,8 +1,6 @@
 <?php
 /**
 *   glFusion API functions for the Searcher plugin.
-*   This plugin's job is simply to load javascript and css files that are
-*   required by other plugins.
 *
 *   @author     Lee Garner <lee@leegarner.com>
 *   @copyright  Copyright (c) 2012-2017 Lee Garner <lee@leegarner.com>
@@ -12,7 +10,6 @@
 *               GNU Public License v2 or later
 *   @filesource
 */
-
 
 if (!defined('GVERSION')) {
     die('This file can not be used on its own.');

@@ -1,8 +1,9 @@
 # Changelog - Searcher plugin for glFusion
 
 ## Version 0.1.1
-Release TBD
-- Provide the ability to add custom stopwords
+Release 2018-04-23
+- Fix button to clear counters in admin.
+- Provide the ability to add custom stopwords via custom language file.
 - Queue database writes during batch indexing to improve performance
 - Handle multiple child IDs in plugin_itemdeleted function
 - Do not index disabled or draft documents
