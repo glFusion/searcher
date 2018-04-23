@@ -66,7 +66,8 @@ function SRCH_admin_terms()
     $defsort_arr = array('field' => 'hits', 'direction' => 'desc');
     $options = array();
     $form_arr = array(
-        'top' => $clear_text,
+        'top' => '<button class="uk-button uk-button-small uk-button-danger" name="clearcounters">' .
+                    $LANG_SRCH['clear_counters'] . '</button>',
     );
     $text_arr = array(
         'has_extras' => true,
