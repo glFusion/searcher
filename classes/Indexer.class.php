@@ -177,12 +177,11 @@ class Indexer extends Common
         } else {
             $item_id_str = DB_escapeString($item_id);
         }
-        $item_id_str = "'" . $item_id_str . "'";
         $type = DB_escapeString($type);
 
         $sql = "DELETE FROM {$_TABLES['searcher_index']}
                 WHERE type = '$type'
-                AND item_id IN ($item_id_str)";
+                AND item_id IN ('$item_id_str')";
         DB_query($sql);
         if (DB_error()) {
             COM_errorLog("Searcher: Error removing $type, ID $item_id_str");

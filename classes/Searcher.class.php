@@ -298,7 +298,6 @@ class Searcher extends Common
             WHERE " . $this->_sql_where() .
             " ORDER BY relevance DESC, ts DESC
             LIMIT $start, {$_SRCH_CONF['perpage']}";
-       //echo $sql."\n";die;
         $res = DB_query($sql);
         $this->results = array();
         // Set field array for PLG_getItemInfo.
