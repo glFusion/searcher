@@ -5,7 +5,7 @@
 *   @author     Lee Garner <lee@leegarner.com>
 *   @copyright  Copyright (c) 2017 Lee Garner <lee@leegarner.com>
 *   @package    searcher
-*   @version    0.0.1
+*   @version    0.1.2
 *   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
@@ -56,6 +56,8 @@ class Searcher extends Common
         // Could pass in a query string, but most likely comes from $_GET
         if (!empty($query)) {
             $this->setQuery($query);
+        } elseif (isset($_GET['q'])) {
+            $this->setQuery($_GET['q']);
         } elseif (isset($_GET['query'])) {
             $this->setQuery($_GET['query']);
         }
@@ -296,7 +298,7 @@ class Searcher extends Common
             WHERE " . $this->_sql_where() .
             " ORDER BY relevance DESC, ts DESC
             LIMIT $start, {$_SRCH_CONF['perpage']}";
-        //echo $sql."\n";die;
+       //echo $sql."\n";die;
         $res = DB_query($sql);
         $this->results = array();
         // Set field array for PLG_getItemInfo.

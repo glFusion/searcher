@@ -1,5 +1,9 @@
 # Changelog - Searcher plugin for glFusion
 
+## Version 0.1.2
+Release TBD
+- Accept either `q` or `query` as search parameter.
+
 ## Version 0.1.1
 Release 2018-04-23
 - Fix button to clear counters in admin.

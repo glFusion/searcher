@@ -2,7 +2,7 @@
 <h2>{$LANG09[1]}</h2>
 <form id="srchform" class="uk-form uk-form-stacked uk-width-1-1" method="get" action="{site_url}/searcher/index.php">
 
-	<input class="uk-search required" type="search" id="query" name="query" value="{query}" placeholder="{$LANG09[10]}">
+	<input class="uk-search required" type="search" id="query" name="q" value="{query}" placeholder="{$LANG09[10]}">
     <input id="frm_adv" type="hidden" name="adv" value="{show_adv}" />
 	<button class="uk-button uk-button-success uk-margin-small" type="submit" name="submit" value="{$LANG09[10]}">{$LANG09[10]}</button>
 	<button type="button" class="uk-button uk-button-primary uk-margin-small" data-uk-toggle="{target:'#advanced'}"
