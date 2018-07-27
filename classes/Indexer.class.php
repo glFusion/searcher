@@ -231,9 +231,10 @@ class Indexer extends Common
             return true;
         }
 
+        $parent_type = DB_escapeString($parent_type);
         $sql = "DELETE FROM {$_TABLES['searcher_index']}
                 WHERE type = 'comment'
-                AND parent_type = $parent_type ";
+                AND parent_type = '$parent_type' ";
         if (is_array($item_id)) {
             $item_id = implode("','", array_map('DB_escapeString', $item_id));
             $sql .= "AND item_id IN ('$item_id')";
@@ -241,6 +242,7 @@ class Indexer extends Common
             if (!$sanitized) $item_id = DB_escapeString($item_id);
             $sql .= "AND item_id IN ('$item_id')";
         }
+        DB_query($sql);
         if (DB_error()) {
             COM_errorLog("Searcher RemoveComments Error: $parent_type, ID $item_id");
             return false;

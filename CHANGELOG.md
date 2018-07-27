@@ -3,6 +3,7 @@
 ## Version 0.1.2
 Release TBD
 - Accept either `q` or `query` as search parameter.
+- Add missing DB_query() call to Indexer::RemoveComments()
 
 ## Version 0.1.1
 Release 2018-04-23
