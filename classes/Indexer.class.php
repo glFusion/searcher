@@ -3,9 +3,9 @@
 *   Maintain an index table for the Searcher plugin
 *
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2017 Lee Garner <lee@leegarner.com>
+*   @copyright  Copyright (c) 2017-2018 Lee Garner <lee@leegarner.com>
 *   @package    searcher
-*   @version    0.0.1
+*   @version    0.1.2
 *   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
@@ -170,6 +170,10 @@ class Indexer extends Common
     {
         global $_TABLES;
 
+        if (!self::_indexExists()) {
+            return true;
+        }
+
         if ($item_id == '*') {
             return self::RemoveAll($type);
         } elseif (is_array($item_id)) {
@@ -202,6 +206,11 @@ class Indexer extends Common
     public static function RemoveAll($type = 'all')
     {
         global $_TABLES;
+
+        if (!self::_indexExists()) {
+            return true;
+        }
+
         if ($type === 'all') {
             DB_query("TRUNCATE {$_TABLES['searcher_index']}");
         } else {
@@ -248,6 +257,23 @@ class Indexer extends Common
         } else {
             return true;
         }
+    }
+
+
+    /**
+     * Protect against DB errors if an index function is called after the table
+     * has been removed. This may happen during callbacks during plugin removal
+     *
+     * @return  boolean     Results from DB_checkTableExists()
+     */
+    private static function _indexExists()
+    {
+        static $exists = NULL;
+
+        if ($exists === NULL) {
+            $exists = DB_checkTableExists('searcher_index');
+        }
+        return $exists;
     }
 
 }
