@@ -96,7 +96,7 @@ function plugin_autouninstall_searcher()
 */
 function plugin_load_configuration_searcher()
 {
-    require_once dirname(__FILE__) . '/install_defaults.php';
+    require_once __DIR__ . '/install_defaults.php';
     return plugin_initconfig_searcher();
 }
 

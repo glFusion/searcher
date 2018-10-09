@@ -3,9 +3,9 @@
 *   Configuration Defaults for the Searcher plugin for glFusion.
 *
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2012 Lee Garner
+*   @copyright  Copyright (c) 2017-2018 Lee Garner
 *   @package    searcher
-*   @version    0.0.1
+*   @version    0.1.2
 *   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
@@ -16,83 +16,222 @@ if (!defined ('GVERSION')) {
     die ('This file can not be used on its own.');
 }
 
-/** Utility plugin configuration data
-*   @global array */
-global $_SRCH_CONF;
-if (!isset($_SRCH_CONF) || empty($_SRCH_CONF)) {
-    $_SRCH_CONF = array();
-    require_once dirname(__FILE__) . '/searcher.php';
-}
+/** Searcher plugin default configurations
+ *   @global array */
+global $searcherConfigData;
+$searcherConfigData = array(
+    array(
+        'name' => 'sg_main',
+        'default_value' => NULL,
+        'type' => 'subgroup',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => NULL,
+        'sort' => 0,
+        'set' => true,
+        'group' => 'searcher',
+    ),
+    array(
+        'name' => 'fs_main',
+        'default_value' => NULL,
+        'type' => 'fieldset',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => NULL,
+        'sort' => 0,
+        'set' => true,
+        'group' => 'searcher',
+    ),
+    array(
+        'name' => 'pi_display_name',
+        'default_value' => 'Searcher',
+        'type' => 'text',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 0,
+        'sort' => 10,
+        'set' => true,
+        'group' => 'searcher',
+    ),
+    array(
+        'name' => 'min_word_len',
+        'default_value' => 1,
+        'type' => 'text',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 0,
+        'sort' => 20,
+        'set' => true,
+        'group' => 'searcher',
+    ),
+    array(
+        'name' => 'max_word_phrase',
+        'default_value' => 3,
+        'type' => 'text',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 0,
+        'sort' => 30,
+        'set' => true,
+        'group' => 'searcher',
+    ),
+    array(
+        'name' => 'perpage',
+        'default_value' => 20,
+        'type' => 'text',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 0,
+        'sort' => 40,
+        'set' => true,
+        'group' => 'searcher',
+    ),
+    array(
+        'name' => 'excerpt_len',
+        'default_value' => 50,
+        'type' => 'text',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 0,
+        'sort' => 50,
+        'set' => true,
+        'group' => 'searcher',
+    ),
+    array(
+        'name' => 'max_occurrences',
+        'default_value' => 5,
+        'type' => 'text',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 0,
+        'sort' => 60,
+        'set' => true,
+        'group' => 'searcher',
+    ),
+    array(
+        'name' => 'show_author',
+        'default_value' => 2,
+        'type' => 'select',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 11,
+        'sort' => 70,
+        'set' => true,
+        'group' => 'searcher',
+    ),
+    array(
+        'name' => 'stemmer',
+        'default_value' => '',
+        'type' => 'select',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 0,     // uses helper function
+        'sort' => 80,
+        'set' => true,
+        'group' => 'searcher',
+    ),
+    array(
+        'name' => 'ignore_autotags',
+        'default_value' => 0,
+        'type' => 'select',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 1,
+        'sort' => 90,
+        'set' => true,
+        'group' => 'searcher',
+    ),
+    array(
+        'name' => 'replace_stock_search',
+        'default_value' => 0,
+        'type' => 'select',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 1,
+        'sort' => 100,
+        'set' => true,
+        'group' => 'searcher',
+    ),
 
-/** Utility plugin default configurations
-*   @global array */
-global $_SRCH_DEFAULTS;
-$_SRCH_DEFAULTS = array(
-    'pi_display_name' => 'Searcher',
-    'min_word_len' => 3,
-    'perpage' => 20,
-    'excerpt_len' => 50,
-    'wt_title' => 1.5,
-    'wt_author' => 1.2,
-    'wt_content' => 1,
-    'max_occurrences' => 5,
-    'show_author' => 2,     // Show author name with link
-    'stemmer' => '',
-    'ignore_autotags' => 0,
-    'max_word_phrase' => 3,
-    'replace_stock_search' => false,
+    // Relevance weights
+    array(
+        'name' => 'fs_weight',
+        'default_value' => NULL,
+        'type' => 'fieldset',
+        'subgroup' => 0,
+        'fieldset' => 10,
+        'selection_array' => NULL,
+        'sort' => 0,
+        'set' => true,
+        'group' => 'searcher',
+    ),
+    array(
+        'name' => 'wt_title',
+        'default_value' => 1.5,
+        'type' => 'text',
+        'subgroup' => 0,
+        'fieldset' => 10,
+        'selection_array' => 0,
+        'sort' => 10,
+        'set' => true,
+        'group' => 'searcher',
+    ),
+    array(
+        'name' => 'wt_author',
+        'default_value' => 1.2,
+        'type' => 'text',
+        'subgroup' => 0,
+        'fieldset' => 10,
+        'selection_array' => 0,
+        'sort' => 20,
+        'set' => true,
+        'group' => 'searcher',
+    ),
+
+    array(
+        'name' => 'wt_content',
+        'default_value' => 1,
+        'type' => 'text',
+        'subgroup' => 0,
+        'fieldset' => 10,
+        'selection_array' => 0,
+        'sort' => 30,
+        'set' => true,
+        'group' => 'searcher',
+    ),
 );
 
+
 /**
-*   Initialize Searcher plugin configuration
-*
-*   @return boolean             true: success; false: an error occurred
-*/
-function plugin_initconfig_searcher()
+ * Initialize Paypal plugin configuration
+ *
+ * @param   integer $group_id   Admin Group ID (not used)
+ * @return  boolean             True
+ */
+function plugin_initconfig_searcher($group_id = 0)
 {
-    global $_CONF, $_SRCH_CONF, $_SRCH_DEFAULTS;
+    global $searcherConfigData;
 
     $c = config::get_instance();
+    if (!$c->group_exists('searcher')) {
+        USES_lib_install();
+        foreach ($searcherConfigData AS $cfgItem) {
+            _addConfigItem($cfgItem);
+        }
+    }
+    return true;
+}
 
-    if (!$c->group_exists($_SRCH_CONF['pi_name'])) {
 
-        $c->add('sg_main', NULL, 'subgroup', 0, 0, NULL, 0, true,
-                $_SRCH_CONF['pi_name']);
-        $c->add('fs_main', NULL, 'fieldset', 0, 0, NULL, 0, true,
-                $_SRCH_CONF['pi_name']);
+/**
+ * Sync the configuration in the DB to the above configs
+ */
+function plugin_updateconfig_searcher()
+{
+    global $searcherConfigData;
 
-        $c->add('pi_display_name', $_SRCH_DEFAULTS['pi_display_name'],
-                'text', 0, 0, NULL, 5, true, $_SRCH_CONF['pi_name']);
-
-        $c->add('min_word_len', $_SRCH_DEFAULTS['min_word_len'],
-                'text', 0, 0, NULL, 10, true, $_SRCH_CONF['pi_name']);
-        $c->add('max_word_phrase', $_SRCH_DEFAULTS['max_word_phrase'],
-                'text', 0, 0, NULL, 15, true, $_SRCH_CONF['pi_name']);
-        $c->add('perpage', $_SRCH_DEFAULTS['perpage'],
-                'text', 0, 0, NULL, 20, true, $_SRCH_CONF['pi_name']);
-        $c->add('excerpt_len', $_SRCH_DEFAULTS['excerpt_len'],
-                'text', 0, 0, NULL, 30, true, $_SRCH_CONF['pi_name']);
-        $c->add('max_occurrences', $_SRCH_DEFAULTS['max_occurrences'],
-                'text', 0, 0, NULL, 40, true, $_SRCH_CONF['pi_name']);
-        $c->add('show_author', $_SRCH_DEFAULTS['show_author'],
-                'select', 0, 0, 11, 50, true, $_SRCH_CONF['pi_name']);
-        $c->add('stemmer', $_SRCH_DEFAULTS['stemmer'],
-                'select', 0, 0, 0, 60, true, $_SRCH_CONF['pi_name']);
-        $c->add('ignore_autotags', $_SRCH_DEFAULTS['ignore_autotags'],
-                'select', 0, 0, 1, 70, true, $_SRCH_CONF['pi_name']);
-        $c->add('replace_stock_search', $_SRCH_DEFAULTS['replace_stock_search'],
-                'select', 0, 0, 1, 70, true, $_SRCH_CONF['pi_name']);
-
-        $c->add('fs_weight', NULL, 'fieldset', 0, 10, NULL, 0, true,
-                $_SRCH_CONF['pi_name']);
-        $c->add('wt_title', $_SRCH_DEFAULTS['wt_title'],
-                'text', 0, 10, NULL, 10, true, $_SRCH_CONF['pi_name']);
-        $c->add('wt_content', $_SRCH_DEFAULTS['wt_content'],
-                'text', 0, 10, NULL, 20, true, $_SRCH_CONF['pi_name']);
-        $c->add('wt_author', $_SRCH_DEFAULTS['wt_author'],
-                'text', 0, 10, NULL, 30, true, $_SRCH_CONF['pi_name']);
-     }
-     return true;
+    USES_lib_install();
+    _update_config('searcher', $searcherConfigData);
 }
 
 ?>
