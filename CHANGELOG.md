@@ -2,6 +2,7 @@
 
 ## Version 0.1.2
 Release TBD
+- Add `type_item` key for more efficient reindexing
 - Implement more flexible method to install plugin configurations
 - Add table check to prevent callback functions from causing errors during plugin removal
 - Accept either `q` or `query` as search parameter.

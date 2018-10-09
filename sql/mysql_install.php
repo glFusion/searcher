@@ -26,7 +26,7 @@ $_SQL['searcher_index'] = "CREATE TABLE `{$_TABLES['searcher_index']}` (
   `title` mediumint(9) NOT NULL DEFAULT '0',
   `author` mediumint(9) NOT NULL DEFAULT '0',
   `weight` float unsigned NOT NULL DEFAULT '1',
-  KEY `terms` (`term`),
+  KEY `type_item` (`type`, `item_id`),
   KEY `terms_pid` (`term`,`parent_id`),
   KEY `type_pid` (`type`,`parent_id`),
   KEY `parent` (`parent_type`,`parent_id`)
@@ -72,8 +72,11 @@ $_UPGRADE_SQL = array(
             DROP perm_members, DROP perm_anon",
     ),
     '0.0.9' => array(
-        "ALTER TABLE {$_TABLES['searcher_counters']}
-            ADD results int(11) unsigned NOT NULL DEFAULT '1'",
+        "ALTER TABLE {$_TABLES['searcher_counters']} ADD results int(11) unsigned NOT NULL DEFAULT '1'",
+    ),
+    '0.1.2' => array(
+        "ALTER TABLE {$_TABLES['searcher_index']} DROP KEY `terms`",
+        "ALTER TABLE {$_TABLES['searcher_index']} ADD KEY `type_item` (`type`, `item_id`)",
     ),
 );
 
