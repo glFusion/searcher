@@ -6,7 +6,7 @@
 *   @copyright  Copyright (c) 2017 Lee Garner <lee@leegarner.com>
 *   @package    searcher
 *   @version    0.0.1
-*   @license    http://opensource.org/licenses/gpl-2.0.php 
+*   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
 */
@@ -36,7 +36,7 @@ $base_path  = "{$_CONF['path']}plugins/searcher";
 require_once "$base_path/autoinstall.php";
 USES_lib_install();
 
-/* 
+/*
 * Main Function
 */
 if (SEC_checkToken()) {

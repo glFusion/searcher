@@ -5,10 +5,10 @@
 *   Adapted from Joomla com_finder component
 *
 *   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2017 Lee Garner
+*   @copyright  Copyright (c) 2017-2018 Lee Garner
 *   @copyright  Copyright (c) 2005 - 2017 Open Source Matters, Inc. All rights reserved.
 *   @package    searcher
-*   @version    0.0.1
+*   @version    0.1.2
 *   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
@@ -38,39 +38,27 @@ abstract class Stemmer
     */
     public static function getInstance($adapter)
     {
-        static $instances = NULL;
+        static $instances = array();
 
         // Only create one stemmer for each adapter.
         if (isset($instances[$adapter])) {
             return $instances[$adapter];
         }
 
-        // Create an array of instances if necessary.
-        if (!is_array($instances)) {
-            $instances = array();
-        }
-
         // Setup the adapter for the stemmer.
         $adapter = ucfirst($adapter);
-        $path = __DIR__ . '/stemmer/' . $adapter . '.class.php';
-        $class = __NAMESPACE__ . '\\Stemmer' . $adapter;
+        $class = __NAMESPACE__ . '\\Stemmers\\' . $adapter;
 
-        // Check if a stemmer exists for the adapter.
-        if (!file_exists($path)) {
-            COM_errorLog("Searcher:: Stemmer $adapter not found");
-            return NULL;
+        // Instantiate the stemmer.
+        if (class_exists($class)) {
+            $instances[$adapter] = new $class;
         } else {
-            // Instantiate the stemmer.
-            include_once $path;
-            if (class_exists($class)) {
-                $instances[$adapter] = new $class;
-            } else {
-                COM_errorLog("Searcher:: Stemmer class $class not found");
-                return NULL;
-            }
+            COM_errorLog("Searcher:: Stemmer class $class not found");
+            return NULL;
         }
         return $instances[$adapter];
     }
+
 
     /**
     *   Method to stem a token and return the root.
