@@ -88,20 +88,6 @@ spl_autoload_register(function ($class)
     }
 });
 
-/*
-spl_autoload_register('searcher_autoloader');
-
-function searcher_autoloader($class) {
-    global $_CONF;
-    if (strpos($class, 'Searcher\\') === 0) {
-        $class = str_replace('Searcher\\', '', $class);
-        $path = $_CONF['path'].'plugins/searcher/classes/' . $class . '.class.php';
-        if (file_exists($path)) {
-            include $path;
-        }
-    }
-}
- */
 
 /**
 *   Get the currently installed version.

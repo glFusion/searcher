@@ -100,6 +100,14 @@ function SRCH_do_upgrade($dvlp=false)
         if (!SRCH_do_set_version($current_ver)) return false;
     }
 
+    if (!COM_checkVersion($current_ver, '0.1.2')) {
+        // upgrade to 0.0.9
+        $current_ver = '0.1.2';
+        COM_errorLog("Updating Plugin to $current_ver");
+        if (!SRCH_do_upgrade_sql($current_ver, $dvlp)) return false;
+        if (!SRCH_do_set_version($current_ver)) return false;
+    }
+
     // Final version setting in case there was no upgrade process for
     // this version
     // Final extra check to catch code-only patch versions
