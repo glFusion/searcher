@@ -461,7 +461,7 @@ function plugin_IndexAll_comments($type, $pid, $perms=NULL)
 
     $type = DB_escapeString($type);
     $pid = DB_escapeString($pid);
-    $sql = "SELECT cid, sid, uid, title, comment
+    $sql = "SELECT cid, sid, uid, title, comment, UNIX_TIMESTAMP(date) AS unixdate
         FROM {$_TABLES['comments']}
         WHERE type = '$type' AND sid = '$pid'";
     //echo $sql;die;
@@ -479,6 +479,7 @@ function plugin_IndexAll_comments($type, $pid, $perms=NULL)
             //'title' => $A['title'],
             'author' => $A['uid'],
             'content' => $A['comment'],
+            'date' => $A['unixdate'],
         );
         if (is_array($perms)) {
             $props['perms'] = array(
