@@ -111,6 +111,9 @@ function SRCH_do_upgrade($dvlp=false)
     include_once __DIR__ . '/install_defaults.php';
     plugin_updateconfig_searcher();
 
+    // Remove deprecated files
+    SRCH_remove_old_files();
+
     return true;
 }
 
@@ -170,6 +173,26 @@ function SRCH_do_set_version($ver)
         return false;
     } else {
         return true;
+    }
+}
+
+
+/**
+ *   Remove deprecated files
+ *   Errors in unlink() and rmdir() are ignored.
+ */
+function SRCH_remove_old_files()
+{
+    global $_CONF;
+
+    $dir = __DIR__ . '/classes/stemmer';
+    if (is_dir($dir)) {
+        $files = array_diff(scandir($dir), array('.','..'));
+        foreach ($files as $file) {
+            $path = "$dir/$file";
+            if (is_file($path)) @unlink($path);
+        }
+        @rmdir($dir);
     }
 }
 
