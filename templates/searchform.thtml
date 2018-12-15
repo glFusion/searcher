@@ -1,5 +1,5 @@
 {# begin {templatelocation} #}
-<h2>{$LANG09[1]}</h2>
+<h2>{$LANG_SRCH['search_site']}</h2>
 <form id="srchform" class="uk-form uk-form-stacked uk-width-1-1" method="get" action="{site_url}/searcher/index.php">
 
 	<input class="uk-search required" type="search" id="query" name="q" value="{query}" placeholder="{$LANG09[10]}">

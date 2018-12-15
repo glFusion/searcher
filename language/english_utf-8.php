@@ -1,20 +1,21 @@
 <?php
 /**
-*   Default English Language file for the Searcher plugin.
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2017 Lee Garner
-*   @package    searcher
-*   @version    0.0.1
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Default English Language file for the Searcher plugin.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2017 Lee Garner
+ * @package     searcher
+ * @version     v0.0.1
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
+global $_CONF;
 
 /**
-*   The plugin's lang array
-*   @global array $LANG_SRCH
-*/
+ * The plugin's lang array.
+ * @global array $LANG_SRCH
+ */
 $LANG_SRCH = array(
     'menu_label'    => 'Searcher',
     'generate_all'  => 'Generate All',
@@ -36,6 +37,7 @@ $LANG_SRCH = array(
     'hlp_gen_all'   => 'Re-generate all indexes for the selected content types. Use this option after installing the plugin, or after changing certain key configuration items such as the minimum word length or changing the stemmer.',
     'hlp_counters'  => 'Here are the search queries made by site visitors, along with the number of times each query was made.',
     'hlp_reindex'   => 'Reindexing content will remove all existing search items for the content type and re-scan the content to rebuild the search word index. This can take a significant amount of time on large volume content types such as Forums.',
+    'search_site'       => "Search {$_CONF['site_name']}",
 );
 
 $LANG_SRCH_ADM = array(
