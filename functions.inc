@@ -288,6 +288,12 @@ function plugin_itemsaved_searcher($id, $type, $old_id = '')
         'id,date,parent_type,parent_id,title,searchidx,author,author_name,hits,perms,search_index,status'
     );
     if ( is_array($contentInfo) && count($contentInfo) > 0 ) {
+        if (!isset($contentInfo['searchidx']) || empty($contentInfo['searchidx'])) {
+            // This indicates that the plugin does not support searching
+            // and is not an error.
+            return;
+        }
+
         if (!isset($contentInfo['perms']) || empty($contentInfo['perms'])) {
             $contentInfo['perms'] = array(
                 'owner_id' => 2,
