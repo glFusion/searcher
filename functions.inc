@@ -287,12 +287,9 @@ function plugin_itemsaved_searcher($id, $type, $old_id = '')
         $type, $id,
         'id,date,parent_type,parent_id,title,searchidx,author,author_name,hits,perms,search_index,status'
     );
-    if ( is_array($contentInfo) && count($contentInfo) > 0 ) {
-        if (!isset($contentInfo['searchidx']) || empty($contentInfo['searchidx'])) {
-            // This indicates that the plugin does not support searching
-            // and is not an error.
-            return;
-        }
+    if ( is_array($contentInfo) && count($contentInfo) > 0 &&
+        isset($contentInfo['searchidx']) && !empty($contentInfo['searchidx'])
+    ) {
 
         if (!isset($contentInfo['perms']) || empty($contentInfo['perms'])) {
             $contentInfo['perms'] = array(
@@ -330,8 +327,6 @@ function plugin_itemsaved_searcher($id, $type, $old_id = '')
             // Index only if status is nonzero (i.e. not draft or disabled)
             \Searcher\Indexer::IndexDoc($props);
         }
-    } else {
-        COM_errorLog("Error retrieving content info - Type = $type, ID = $id");
     }
 }
 
