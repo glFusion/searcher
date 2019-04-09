@@ -5,7 +5,7 @@
 *   @author     Lee Garner <lee@leegarner.com>
 *   @copyright  Copyright (c) 2017 Lee Garner <lee@leegarner.com>
 *   @package    searcher
-*   @version    0.0.1
+*   @version    0.1.2
 *   @license    http://opensource.org/licenses/gpl-2.0.php
 *               GNU Public License v2 or later
 *   @filesource
@@ -260,6 +260,7 @@ class Common
     */
     private static function getStopwords()
     {
+        self::$stopwords = array();
         $langfile = 'english.php';
         $langpath = SRCH_PI_PATH . '/stopwords';
         if (is_file("$langpath/$langfile")) {
@@ -269,9 +270,10 @@ class Common
 
         // Include any custom language file, if found
         if (is_file("$langpath/custom/$langfile")) {
+            $stopwords = array();
             include_once "$langpath/custom/$langfile";
+            self::$stopwords = array_merge(self::$stopwords, $stopwords);
         }
-        self::$stopwords = array_merge(self::$stopwords, $stopwords);
     }
 
 }
