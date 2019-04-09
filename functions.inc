@@ -417,7 +417,7 @@ function plugin_configmanager_select_stemmer_searcher()
 
     $A = array($LANG_SRCH['none'] => '');
     // Collect the available stemmers
-    $results = @glob(__DIR__ . '/classes/stemmer/*.class.php');
+    $results = @glob(__DIR__ . '/classes/Stemmers/*.class.php');
     $installable = '';
     if (is_array($results)) {
         foreach ($results as $fullpath) {
