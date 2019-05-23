@@ -1,0 +1,32 @@
+{# begin {templatelocation} #}
+<h3>{$LANG_SRCH['alter_weights']}</h3>
+<div>{$LANG_SRCH['hlp_chgweights']}</div>
+<form action="{site_admin_url}/plugins/searcher/index.php" method="post" class="uk-form uk-form-horizontal">
+    <div class="uk-form-row">
+      <label class="uk-form-label">{lang_wt_title}</label>
+      <div class="uk-form-controls">
+        <input type="text" value="{wt_title}" name="title" />
+      </div>
+    </div>
+    <div class="uk-form-row">
+      <label class="uk-form-label">{lang_wt_author}</label>
+      <div class="uk-form-controls">
+        <input type="text" value="{wt_author}" name="author" />
+      </div>
+    </div>
+    <div class="uk-form-row">
+      <label class="uk-form-label">{lang_wt_content}</label>
+      <div class="uk-form-controls">
+        <input type="text" value="{wt_content}" name="content" />
+      </div>
+    </div>
+    <div class="uk-form-row">
+      <label class="uk-form-label"></label>
+      <div class="uk-form-controls">
+        <button type="submit" class="uk-button uk-button-success" name="dochgweights">{$LANG_ADMIN['submit']}</button>
+        <button type="reset" class="uk-button uk-button-primary">{$LANG_ADMIN['reset']}</button>
+        <button type="submit" class="uk-button" name="noop">{$LANG_ADMIN['cancel']}</button>
+      </div>
+    </div>
+</form>
+{# end {templatelocation} #}
