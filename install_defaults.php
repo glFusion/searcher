@@ -1,15 +1,15 @@
 <?php
 /**
-*   Configuration Defaults for the Searcher plugin for glFusion.
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2017-2018 Lee Garner
-*   @package    searcher
-*   @version    0.1.2
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Configuration Defaults for the Searcher plugin for glFusion.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2017-2019 Lee Garner
+ * @package     searcher
+ * @version     v1.0.1
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 
 // This file can't be used on its own
 if (!defined ('GVERSION')) {
@@ -55,7 +55,7 @@ $searcherConfigData = array(
     ),
     array(
         'name' => 'min_word_len',
-        'default_value' => 1,
+        'default_value' => 3,
         'type' => 'text',
         'subgroup' => 0,
         'fieldset' => 0,
