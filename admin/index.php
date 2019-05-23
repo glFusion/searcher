@@ -1,15 +1,15 @@
 <?php
 /**
-*   Admin functions for the Searcher plugin
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2017 Lee Garner <lee@leegarner.com>
-*   @package    searcher
-*   @version    0.0.1
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Admin functions for the Searcher plugin.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2017-2019 Lee Garner <lee@leegarner.com>
+ * @package     searcher
+ * @version     v1.0.0
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 require_once '../../../lib-common.php';
 require_once '../../auth.inc.php';
 require_once $_CONF['path'].'plugins/searcher/include/admin.inc.php';
@@ -28,10 +28,10 @@ if (!SEC_inGroup('Root')) {
 }
 
 /**
-*   View the search queries made by guests.
-*
-*   @return string  Admin list of search terms and counts
-*/
+ * View the search queries made by guests.
+ *
+ * @return  string  Admin list of search terms and counts
+ */
 function SRCH_admin_terms()
 {
     global $_CONF, $_SRCH_CONF, $_TABLES, $LANG_ADMIN, $LANG_SRCH, $LANG_LINKS_ADMIN;
@@ -87,15 +87,15 @@ function SRCH_admin_terms()
 
 
 /**
-*   Get the value for list fields in admin lists.
-*   For the search term list, just returns the field values.
-*
-*   @param  string  $fieldname  Name of field
-*   @param  mixed   $fieldvalue Field value
-*   @param  array   $A          Complete database record
-*   @param  array   $icon_arr   Icon array (not used)
-*   @param  string  $token      Admin token
-*/
+ * Get the value for list fields in admin lists.
+ * For the search term list, just returns the field values.
+ *
+ * @param  string  $fieldname  Name of field
+ * @param  mixed   $fieldvalue Field value
+ * @param  array   $A          Complete database record
+ * @param  array   $icon_arr   Icon array (not used)
+ * @param  string  $token      Admin token
+ */
 function SRCH_getListField_counters($fieldname, $fieldvalue, $A, $icon_arr, $token)
 {
     global $_CONF, $_USER, $LANG_ACCESS, $LANG_LINKS_ADMIN, $LANG_ADMIN;
@@ -114,14 +114,14 @@ function SRCH_getListField_counters($fieldname, $fieldvalue, $A, $icon_arr, $tok
     return $retval;
 }
 
-
+//var_dump($_POST);die;
 $view = '';
 $action = '';
 $expected = array(
     // Actions
-    'genindex', 'clearcounters',
+    'genindex', 'clearcounters', 'dochgweights',
     // Views, no action
-    'gen_all', 'counters',
+    'gen_all', 'counters', 'chgweights',
 );
 foreach($expected as $provided) {
     if (isset($_POST[$provided])) {
@@ -154,6 +154,28 @@ case 'clearcounters':
     $view = 'counters';
     break;
 
+case 'dochgweights':
+    $fld_sql = array();
+    foreach (array('content', 'title', 'author') as $fldname) {
+        $newval = (float)$_POST[$fldname];
+        $oldval = (float)$_SRCH_CONF['wt_' . $fldname];
+        if ($newval != $oldval) {
+            $factor = (int)($newval / $oldval);
+            $fld_sql[] = "$fldname = $fldname * $factor";
+            // Borrowing this variable from functions.inc where it gets
+            // set when reading in the config.
+            $searcher_config->set('wt_' . $fldname, $newval, $_SRCH_CONF['pi_name']);
+            $_SRCH_CONF['wt_' . $fldname] = $newval;
+        }
+    }
+    if (!empty($fld_sql)) {
+        $fld_sql = implode(', ', $fld_sql);
+        $sql = "UPDATE {$_TABLES['searcher_index']} SET " . $fld_sql;
+        //echo $sql;die;
+        DB_query($sql);
+    }
+    break;
+
 default:
     $view = $action;
     break;
@@ -180,6 +202,27 @@ case 'gen_all':
     $T->parse('output', 'admin');
     $content .= $T->finish($T->get_var('output'));
     break;
+
+case 'chgweights':
+    $content .= SRCH_adminMenu('gen_all');
+    $T = new Template(SRCH_PI_PATH . '/templates');
+    $T->set_file('admin', 'weightings.thtml');
+    $T->set_var(array(
+        'pi_url'    => SRCH_URL,
+        'header'    => $_SRCH_CONF['pi_display_name'],
+        'version'   => $_SRCH_CONF['pi_version'],
+        'pi_icon'   => plugin_geticon_searcher(),
+        'wt_content' => $_SRCH_CONF['wt_content'],
+        'wt_author' => $_SRCH_CONF['wt_author'],
+        'wt_title'  => $_SRCH_CONF['wt_title'],
+        'lang_wt_title' => $LANG_confignames['searcher']['wt_title'],
+        'lang_wt_content' => $LANG_confignames['searcher']['wt_content'],
+        'lang_wt_author' => $LANG_confignames['searcher']['wt_author'],
+    ) );
+    $T->parse('output', 'admin');
+    $content .= $T->finish($T->get_var('output'));
+    break;
+
 case 'counters':
 default:
     $content .= SRCH_admin_terms();

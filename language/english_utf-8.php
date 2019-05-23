@@ -3,9 +3,9 @@
  * Default English Language file for the Searcher plugin.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2017 Lee Garner
+ * @copyright   Copyright (c) 2017-2019 Lee Garner
  * @package     searcher
- * @version     v0.0.1
+ * @version     v1.0.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
@@ -38,6 +38,7 @@ $LANG_SRCH = array(
     'hlp_counters'  => 'Here are the search queries made by site visitors, along with the number of times each query was made.',
     'hlp_reindex'   => 'Reindexing content will remove all existing search items for the content type and re-scan the content to rebuild the search word index. This can take a significant amount of time on large volume content types such as Forums.',
     'search_site'       => "Search {$_CONF['site_name']}",
+    'hlp_chgweights' => 'Changing field weightings through the plugin configuration requires re-indexing your entire site. This interface provides a method to update the field weightings in the search index quickly. Clicking the Submit button will update the weights in the index and will also update the plugin configuration.',
 );
 
 $LANG_SRCH_ADM = array(
@@ -60,6 +61,7 @@ $LANG_SRCH_ADM = array(
     'remove_fail'       => 'Failed to remove existing index entries.',
     'retrieve_content_list' => 'Retrieving content list for ',
     'chk_unchk_all'     => 'Check/Uncheck All',
+    'chg_weights'       => 'Change Weights',
 );
 
 // Localization of the Admin Configuration UI

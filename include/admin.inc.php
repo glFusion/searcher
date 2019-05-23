@@ -1,15 +1,15 @@
 <?php
 /**
-*   Admin functions for the Searcher plugin
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2017 Lee Garner <lee@leegarner.com>
-*   @package    searcher
-*   @version    0.0.1
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Admin functions for the Searcher plugin.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2017-2019 Lee Garner <lee@leegarner.com>
+ * @package     searcher
+ * @version     v1.0.0
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 
 // this file can't be used on its own
 if (!defined ('GVERSION')) {
@@ -17,11 +17,11 @@ if (!defined ('GVERSION')) {
 }
 
 /**
-*   Create the main menu
-*
-*   @param  string  $sel    Selected option
-*   @return string  HTML for menu area
-*/
+ * Create the main menu.
+ *
+ * @param   string  $sel    Selected option
+ * @return  string  HTML for menu area
+ */
 function SRCH_adminMenu($sel = 'default')
 {
 
@@ -36,19 +36,24 @@ function SRCH_adminMenu($sel = 'default')
 
     $menu_arr = array(
         array(
-                'url'  => $_CONF['site_admin_url'].'/plugins/searcher/index.php',
-                'text' => $LANG_SRCH_ADM['searcher_admin'],
-                'active' => $sel == 'counters' ? true : false,
-                ),
+            'url'   => $_CONF['site_admin_url'].'/plugins/searcher/index.php',
+            'text'  => $LANG_SRCH_ADM['searcher_admin'],
+            'active' => $sel == 'counters' ? true : false,
+        ),
         array(
-                'url'   => $_CONF['site_admin_url'].'/plugins/searcher/reindex.php',
-                'text'  => $LANG_SRCH_ADM['reindex_title'],
-                'active' => $sel == 'reindex' ? true : false,
-                ),
+            'url'   => $_CONF['site_admin_url'].'/plugins/searcher/reindex.php',
+            'text'  => $LANG_SRCH_ADM['reindex_title'],
+            'active' => $sel == 'reindex' ? true : false,
+        ),
         array(
-                'url' => $_CONF['site_admin_url'],
-                'text' => $LANG_ADMIN['admin_home']
-                )
+            'url'   => $_CONF['site_admin_url'].'/plugins/searcher/index.php?chgweights=x',
+            'text'  => $LANG_SRCH_ADM['chg_weights'],
+            'active' => $sel == 'chgweights' ? true : false,
+        ),
+        array(
+            'url'   => $_CONF['site_admin_url'],
+            'text'  => $LANG_ADMIN['admin_home']
+        ),
     );
 
     $explanation =  $LANG_SRCH['hlp_' . $sel];

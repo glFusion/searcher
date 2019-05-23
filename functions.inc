@@ -1,23 +1,23 @@
 <?php
 /**
-*   glFusion API functions for the Searcher plugin.
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2012-2017 Lee Garner <lee@leegarner.com>
-*   @package    searcher
-*   @version    1.0.5
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * glFusion API functions for the Searcher plugin.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2017-2019 Lee Garner <lee@leegarner.com>
+ * @package     searcher
+ * @version     v1.0.0
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 
 if (!defined('GVERSION')) {
     die('This file can not be used on its own.');
 }
 
 /** Import configuration-handling class */
-$lgu_config = \config::get_instance();
-$_SRCH_CONF = $lgu_config->get_config('searcher');
+$searcher_config = \config::get_instance();
+$_SRCH_CONF = $searcher_config->get_config('searcher');
 
 /** Additional config items and table definitions are added here */
 require_once __DIR__ . '/searcher.php';

@@ -117,6 +117,11 @@ terms that appear in the title than in the content or author name.
 
 Higher weights will cause the articles to float higher in the search results.
 
+If you change any of the weightings in the Configuration area you will need to
+re-index your site to use the new values. For a quicker update there is a menu
+option in the plugin administration area where you can update the weightings
+and apply them directly to the existing index.
+
 Defaults:
     Title: 1.5
     Author: 1.2
