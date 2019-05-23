@@ -1,18 +1,18 @@
 <?php
 /**
-*   Global configuration items for the Searcher plugin.
-*   These are either static items, such as the plugin name and table
-*   definitions, or are items that don't lend themselves well to the
-*   glFusion configuration system, such as allowed file types.
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2017-2018 Lee Garner <lee@leegarner.com>
-*   @package    searcher
-*   @version    0.1.2
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Global configuration items for the Searcher plugin.
+ * These are either static items, such as the plugin name and table
+ * definitions, or are items that don't lend themselves well to the
+ * glFusion configuration system, such as allowed file types.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2017-2019 Lee Garner <lee@leegarner.com>
+ * @package     searcher
+ * @version     v1.0.0
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 
 if (!defined ('GVERSION')) {
     die ('This file can not be used on its own.');
@@ -23,7 +23,7 @@ global $_SRCH_CONF;
 
 $_SRCH_CONF['pi_name']            = 'searcher';
 $_SRCH_CONF['pi_display_name']    = 'Searcher';
-$_SRCH_CONF['pi_version']         = '0.1.2';
+$_SRCH_CONF['pi_version']         = '1.0.0';
 $_SRCH_CONF['gl_version']         = '1.7.0';
 $_SRCH_CONF['pi_url']             = 'http://www.glfusion.org';
 
