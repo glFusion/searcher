@@ -1,28 +1,40 @@
 <?php
 /**
-*   Common functions and variables used by both Indexer and Searcher
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2017 Lee Garner <lee@leegarner.com>
-*   @package    searcher
-*   @version    0.1.2
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Common functions and variables used by both Indexer and Searcher.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2017-2020 Lee Garner <lee@leegarner.com>
+ * @package     searcher
+ * @version     v1.0.0
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 namespace Searcher;
 
+
 /**
-*   Common elements for the Searcher plugin
-*   @package searcher
-*/
+ * Common elements for the Searcher plugin.
+ * @package searcher
+ */
 class Common
 {
+    /** Minimum word length to be considered.
+     * @var integer */
     protected static $min_word_len = 3; // default
+
+    /** Array of ignored words.
+     * @var array */
     public static $stopwords = array();
+
+    /** Array of fields and assigned weights from the plugin configuration.
+     * @var array */
     protected static $fields = array();
 
 
+    /**
+     * Initialize the Searcher or Indexer class.
+     */
     public function __construct()
     {
         self::Init();
@@ -30,7 +42,7 @@ class Common
 
 
     /**
-    *   Initialize static variables
+    * Initialize static variables.
     */
     protected static function Init()
     {
@@ -49,11 +61,11 @@ class Common
 
 
     /**
-    *   Trim characters, allowing for multibyte
-    *
-    *   @param  string  $string     String to modify
-    *   @return string      Modified string
-    */
+     * Trim characters, allowing for multibyte.
+     *
+     * @param   string  $string     String to modify
+     * @return  string      Modified string
+     */
     protected static function _mb_trim($string)
     {
         $string = str_replace(chr(194) . chr(160), '', $string);
@@ -63,11 +75,11 @@ class Common
 
 
     /**
-    *   Remove puncuation and other special characters from strings
-    *
-    *   @param  string  $str    String to modify, e.g. content page
-    *   @return string      Modified version
-    */
+     * Remove puncuation and other special characters from strings.
+     *
+     * @param   string  $str    String to modify, e.g. content page
+     * @return  string      Modified version
+     */
     protected static function _remove_punctuation($str)
     {
         if (!is_string($str)) return '';
@@ -80,12 +92,12 @@ class Common
 
 
     /**
-    *   Callback function to sort strings by length
-    *
-    *   @param  string  $a  First string
-    *   @param  string  $b  Second string
-    *   @return integer     Length difference (b - a)
-    */
+     * Callback function to sort strings by length.
+     *
+     * @param   string  $a  First string
+     * @param   string  $b  Second string
+     * @return  integer     Length difference (b - a)
+     */
     protected static function _strlen_sort($a, $b)
     {
         return utf8_strlen($b) - utf8_strlen($a);
@@ -93,13 +105,13 @@ class Common
 
 
     /**
-    *   Split a string into individual words.
-    *   Optionally skip any "stop words"
-    *
-    *   @param  string  $str        Base string to split
-    *   @param  boolean $query      True if querying, False if indexing
-    *   @return array       Array of tokens
-    */
+     * Split a string into individual words.
+     * Optionally skip any "stop words"
+     *
+     * @param   string  $str        Base string to split
+     * @param   boolean $query      True if querying, False if indexing
+     * @return  array       Array of tokens
+     */
     public static function Tokenize($str, $query = false)
     {
         global $_SRCH_CONF;
@@ -198,13 +210,13 @@ class Common
 
 
     /**
-    *   Remove autotags before indexing (optional) and before showing results.
-    *   This option is to prevent search hits on hidden fields that don't
-    *   actually appear in the content.
-    *
-    *   @param  string  $content    Content to examine
-    *   @return string      Content withoug autotags
-    */
+     * Remove autotags before indexing (optional) and before showing results.
+     * This option is to prevent search hits on hidden fields that don't
+     * actually appear in the content.
+     *
+     * @param   string  $content    Content to examine
+     * @return  string      Content withoug autotags
+     */
     protected static function removeAutoTags($content)
     {
         static $autolinkModules = NULL;
@@ -235,13 +247,13 @@ class Common
 
 
     /**
-    *   Check if the internal comment engine is used.
-    *   Searcher doesn't index or search external comments on disqus, etc. so
-    *   comments can be considered "disabled" if anything but the internal
-    *   engine is used.
-    *
-    *   @return boolean     True if internal comments are enabled, False if not
-    */
+     * Check if the internal comment engine is used.
+     * Searcher doesn't index or search external comments on disqus, etc. so
+     * comments can be considered "disabled" if anything but the internal
+     * engine is used.
+     *
+     * @return  boolean     True if internal comments are enabled, False if not
+     */
     public static function CommentsEnabled()
     {
         global $_CONF;
@@ -251,13 +263,13 @@ class Common
 
 
     /**
-    *   Load the stopwords into the static array variable.
-    *   Only English is currrently supported, but additional stopwords can be
-    *   added by creating a "english.php" file in the "stopwords/custom" subdirectory
-    *   and adding strings in any language.
-    *
-    *   @return void    No return, sets the static $stopwords variable
-    */
+     * Load the stopwords into the static array variable.
+     * Only English is currrently supported, but additional stopwords can be
+     * added by creating a "english.php" file in the "stopwords/custom" subdirectory
+     * and adding strings in any language.
+     *
+     * @return  void    No return, sets the static $stopwords variable
+     */
     private static function getStopwords()
     {
         self::$stopwords = array();

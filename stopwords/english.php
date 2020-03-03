@@ -1,4 +1,8 @@
 <?php
+/**
+ * Array of words to ignore when indexing and searching.
+ * @var array
+ */
 $stopwords = array(
 "a",
 "about",

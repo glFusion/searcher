@@ -1,31 +1,31 @@
 <?php
 /**
-*   Maintain an index table for the Searcher plugin
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2017-2018 Lee Garner <lee@leegarner.com>
-*   @package    searcher
-*   @version    0.1.2
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Maintain an index table for the Searcher plugin.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2017-2018 Lee Garner <lee@leegarner.com>
+ * @package     searcher
+ * @version     v0.1.2
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 namespace Searcher;
 
 /**
-*   Indexing class
-*   @package searcher
-*/
+ * Indexing class.
+ * @package searcher
+ */
 class Indexer extends Common
 {
 
     /**
-    *   Index a single document
-    *
-    *   @param  array   $content    Array of item elements
-    *   @param  boolean $use_queue  True to queue the DB inserts
-    *   @return boolean     True on success, False on DB error
-    */
+     * Index a single document.
+     *
+     * @param   array   $content    Array of item elements
+     * @param   boolean $use_queue  True to queue the DB inserts
+     * @return  boolean     True on success, False on DB error
+     */
     public static function IndexDoc($content, $use_queue = false)
     {
         global $_SRCH_CONF;
@@ -123,15 +123,15 @@ class Indexer extends Common
 
 
     /**
-    *   Save the search data in the DB.
-    *   If provided, $values is expectedd to be an array of ('x', 'y', ...)
-    *   items that will be concatenated into a single SQL statement.
-    *   If $values is not provided then the values are obtained from the
-    *   session var.
-    *   Values must already be SQL-safe.
-    *
-    *   @param  mixed   $values     Array of value clauses, NULL if not used
-    */
+     * Save the search data in the DB.
+     * If provided, $values is expectedd to be an array of ('x', 'y', ...)
+     * items that will be concatenated into a single SQL statement.
+     * If $values is not provided then the values are obtained from the
+     * session var.
+     * Values must already be SQL-safe.
+     *
+     * @param   mixed   $values     Array of value clauses, NULL if not used
+     */
     public static function FlushQueue($values = NULL)
     {
         global $_TABLES;
@@ -159,13 +159,13 @@ class Indexer extends Common
 
 
     /**
-    *   Remove a document from the index
-    *   Deletes all records that match $type and $item_id
-    *
-    *   @param  string  $type       Type of document
-    *   @param  mixed   $item_id    Document ID, single or array
-    *   @return boolean     True on success, False on failure
-    */
+     * Remove a document from the index.
+     * Deletes all records that match $type and $item_id.
+     *
+     * @param   string  $type       Type of document
+     * @param   mixed   $item_id    Document ID, single or array
+     * @return  boolean     True on success, False on failure
+     */
     public static function RemoveDoc($type, $item_id)
     {
         global $_TABLES;
@@ -197,12 +197,12 @@ class Indexer extends Common
 
 
     /**
-    *   Remove all index records, normally of a specific type.
-    *   Specify "all" as the type to truncate the table.
-    *
-    *   @param  string  $type   Type (article, staticpages, etc.)
-    *   @return boolean     True on success, False on DB error
-    */
+     * Remove all index records, normally of a specific type.
+     * Specify "all" as the type to truncate the table.
+     *
+     * @param   string  $type   Type (article, staticpages, etc.)
+     * @return  boolean     True on success, False on DB error
+     */
     public static function RemoveAll($type = 'all')
     {
         global $_TABLES;
@@ -222,15 +222,15 @@ class Indexer extends Common
 
 
     /**
-    *   Remove all comments for a specific parent type and optional id
-    *   $item_id may be a single value or an array, leave as NULL to remove
-    *   all comments for all content items of type $type.
-    *
-    *   @param  string  $type       Type of content (article, staticpage, etc.)
-    *   @param  mixed   $item_id    ID of article, page, etc.
-    *   @param  boolean $sanitized  True if the item_id is already SQL-safe
-    *   @return boolean             True on success, False on failure
-    */
+     * Remove all comments for a specific parent type and optional id.
+     * $item_id may be a single value or an array, leave as NULL to remove
+     * all comments for all content items of type $type.
+     *
+     * @param   string  $parent_type    Type of content (article, staticpage, etc.)
+     * @param   mixed   $item_id        ID of article, page, etc.
+     * @param   boolean $sanitized      True if the item_id is already SQL-safe
+     * @return  boolean             True on success, False on failure
+     */
     public static function RemoveComments($parent_type, $item_id=NULL, $sanitized=false)
     {
         global $_TABLES;
@@ -262,7 +262,7 @@ class Indexer extends Common
 
     /**
      * Protect against DB errors if an index function is called after the table
-     * has been removed. This may happen during callbacks during plugin removal
+     * has been removed. This may happen during callbacks during plugin removal.
      *
      * @return  boolean     Results from DB_checkTableExists()
      */

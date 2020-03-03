@@ -1,15 +1,15 @@
 <?php
 /**
-*   Searcher Plugin for glFusion CMS - reindex site content
-*
-*   @author     Mark R. Evans <mark@glfusion.org>
-*   @copyright  Copyright (c) 2017 Mark R. Evans <mark AT glFusion DOT org>
-*   @package    searcher
-*   @version    0.0.3
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Searcher Plugin for glFusion CMS - reindex site content.
+ *
+ * @author      Mark R. Evans <mark@glfusion.org>
+ * @copyright   Copyright (c) 2017 Mark R. Evans <mark AT glFusion DOT org>
+ * @package     searcher
+ * @version     v0.0.3
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 require_once '../../../lib-common.php';
 require_once '../../auth.inc.php';
 require_once $_CONF['path'].'plugins/searcher/include/admin.inc.php';
@@ -17,6 +17,11 @@ require_once $_CONF['path'].'plugins/searcher/include/reindex.ajax.php';
 
 USES_lib_admin();
 
+/**
+ * Create the reindexing options page.
+ *
+ * @return  string  HTML for the options page
+ */
 function SRCHER_reindex()
 {
     global $_CONF, $_SRCH_CONF, $_PLUGINS, $LANG01, $LANG_ADMIN, $LANG_SRCH, $LANG_SRCH_ADM, $_IMAGE_TYPE;

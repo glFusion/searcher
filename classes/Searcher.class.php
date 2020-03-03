@@ -1,42 +1,77 @@
 <?php
 /**
-*   Perform searches from the index maintained by the Indexer class
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2017 Lee Garner <lee@leegarner.com>
-*   @package    searcher
-*   @version    0.1.2
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Perform searches from the index maintained by the Indexer class.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2017-2020 Lee Garner <lee@leegarner.com>
+ * @package     searcher
+ * @version     v0.1.2
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 namespace Searcher;
 
 /**
-*   Searcher class
-*   @package searcher
-*/
+ * Searcher class.
+ * @package searcher
+ */
 class Searcher extends Common
 {
-    protected $count = NULL;
-    protected $results = array();   // array of results information
-    protected $_page = 1;           // number of displayed results page
-    protected $_searchDays = 0;     // number of days to limit search
-    protected $_type = '';          // item type filter
-    protected $_style = 'inline';   // only supported results template style
-    protected $_keys = array();     // Array of search keys (content, author)
-    protected $query = '';          // sanitized query string from user input
-    protected $tokens = array();    // tokenized query string
-    protected $sql_tokens = '';     // sql-safe query string for searching
-    protected $_search_title   = 0; // whether to consider title in search
-    protected $_search_content = 0; // whether to consider content in search
-    protected $_search_author  = 0; // whether to consider author in search
+    /** Search results.
+     * @var array */
+    protected $results = array();
+
+    /** Current results page number.
+     * @var integer */
+    protected $_page = 1;
+
+    /** Number of days to limit search, 0 = unlimited.
+     * @var integer */
+    protected $_searchDays = 0;
+
+    /** Item type filter.
+     * @var string */
+    protected $_type = '';
+
+    /** Display style. Only `inline` currently supported.
+     * @var string */
+    protected $_style = 'inline';
+
+    /** Array of search keys (content, author).
+     * @var array */
+    protected $_keys = array();
+
+    /** Sanitized query string from user input.
+     * @var string */
+    protected $query = '';
+
+    /** Tokenized query string.
+     * @var array() */
+    protected $tokens = array();
+
+    /** SQL-safe query string for searching.
+     * @var string */
+    protected $sql_tokens = '';
+
+    /** Whether to consider title in search.
+     * @var boolean */
+    protected $_search_title   = 0;
+
+    /** Whether to consider content in search.
+     * @var boolean */
+    protected $_search_content = 0;
+
+    /** Whether to consider author in search.
+     * @var boolean */
+    protected $_search_author  = 0;
+
 
     /**
-    *   Consrtructer. Call Parent initializer and set the query string
-    *
-    *   @param  string  $query  Optional query string
-    */
+     * Consrtructer. Call Parent initializer and set the query string.
+     *
+     * @param   string  $query  Optional query string
+     */
     public function __construct($query='')
     {
         parent::__construct();
@@ -104,10 +139,11 @@ class Searcher extends Common
 
 
     /**
-    *   Sets the query string and extracts tokens.
-    *
-    *   @param  string  $query  Query string
-    */
+     * Sets the query string and extracts tokens.
+     *
+     * @param   string  $query  Query string
+     * @return  object  $this
+     */
     public function setQuery($query)
     {
         $tokens = array();
@@ -121,14 +157,16 @@ class Searcher extends Common
         if (!empty($tokens)) {
             $this->sql_tokens = "'" . implode("','", $tokens) . "'";
         }
+        return $this;
     }
 
 
     /**
-    *   Set the search scope by item type (article, staticpage, etc)
-    *
-    *   @param  string  $type   Type of item
-    */
+     * Set the search scope by item type (article, staticpage, etc).
+     *
+     * @param   string  $type   Type of item
+     * @return  object  $this
+     */
     public function setType($type)
     {
         switch ($type) {
@@ -145,27 +183,31 @@ class Searcher extends Common
         default:
             $this->_type = DB_escapeString($type);
         }
+        return $this;
     }
 
 
     /**
-    *   Set the number of days to limit search
-    *
-    *   @param  int  $days   Number of days to limit search or 0 for no limit
-    */
+     * Set the number of days to limit search.
+     *
+     * @param   integer $days   Number of days to limit search or 0 for no limit
+     * @return  object  $this
+     */
     public function setDays($days)
     {
         $days = (int)$days;
         if ($days < 0) $days = 0;
         $this->_searchDays = $days;
+        return $this;
     }
 
 
     /**
-    *   Set the key fields to only consider certain keys
-    *
-    *   @param  array   $keys   Array of key names
-    */
+     * Set the key fields to only consider certain keys.
+     *
+     * @param   array   $keys   Array of key names
+     * @return  object  $this
+     */
     public function setKeys($keys)
     {
         // Reset the keys array
@@ -178,53 +220,61 @@ class Searcher extends Common
         foreach ($keys as $key) {
             $this->_keys[$key] = self::$fields[$key];
         }
+        return $this;
     }
 
 
     /**
-    *   Set the search page number, minimum is "1"
-    *
-    *   @param  int $page   Page number
-    */
+     * Set the search page number, minimum is "1".
+     *
+     * @param   integer $page   Page number
+     * @return  object  $this
+     */
     public function setPage($page = 1)
     {
         $this->_page = $page > 0 ? (int)$page : 1;
+        return $this;
     }
 
+
     /**
-    *   Set search keys
-    *
-    *   @param  char $tiem  Search key (content, title, author)
-    *   @param  int  $value value to search
-    */
-    public function setSearchKey($item,$value)
+     * Set search keys.
+     *
+     * @param   string  $item   Search key (content, title, author)
+     * @param   integer $value  value to search
+     * @return  object  $this
+     */
+    public function setSearchKey($item, $value)
     {
         switch ( $item ) {
-            case 'author' :
-                // set _search_author to UID to search
-                // UID is only used if query is blank in which case
-                // Searcher will populate query with results of COM_getDisplayName()
-                $value = (int)$value;
-                if ($value < 0) $value = 0;
-                $this->_search_author = $value;
-                break;
-            case 'content' :
-                $this->_search_content = 1;
-                break;
-            case 'title' :
-                $this->_search_title = 1;
-                break;
+        case 'author' :
+            // set _search_author to UID to search
+            // UID is only used if query is blank in which case
+            // Searcher will populate query with results of COM_getDisplayName()
+            $value = (int)$value;
+            if ($value < 0) {
+                $value = 0;
+            }
+            $this->_search_author = $value;
+            break;
+        case 'content' :
+            $this->_search_content = 1;
+            break;
+        case 'title' :
+            $this->_search_title = 1;
+            break;
         }
+        return $this;
     }
 
 
     /**
-    *   Get the "where" and "group by" clauses for sql statements.
-    *   Where clause is common to totalResults() and doSearch() so it's
-    *   centralized here.
-    *
-    *   @return string      SQL where clause for queries
-    */
+     * Get the "where" and "group by" clauses for sql statements.
+     * Where clause is common to totalResults() and doSearch() so it's
+     * centralized here.
+     *
+     * @return  string  SQL where clause for queries
+     */
     private function _sql_where()
     {
         if (!empty($this->sql_tokens)) {
@@ -268,11 +318,12 @@ class Searcher extends Common
 
 
     /**
-    *   Perform the search
-    *
-    *   @return array           Array of results (item_id, url, excerpt, etc.)
-    */
-    public function doSearch()
+     * Perform the search.
+     *
+     * @param   boolean $api    True to return raw results array (TESTING)
+     * @return  array   Array of results (item_id, url, excerpt, etc.)
+     */
+    public function doSearch($api=false)
     {
         global $_TABLES, $_SRCH_CONF, $_USER;
 
@@ -282,7 +333,8 @@ class Searcher extends Common
             return $this->showForm($x);
         }
 
-        $start = ($this->_page - 1) * $_SRCH_CONF['perpage'];
+        // Set the starting record limt. `$this->_page` should never be less than one.
+        $start = (max($this->_page, 1) - 1) * $_SRCH_CONF['perpage'];
         foreach ($this->_keys as $fld=>$weight) {
             if ($_SRCH_CONF['max_occurrences'] > 0) {
                 $wts[] = '(LEAST(' . $fld . ',' .
@@ -356,20 +408,24 @@ class Searcher extends Common
                 );
             }
         }
-        $this->updateCounter();
-        $retval = $this->showForm();
-        $retval .= $this->Display();
-        return $retval;
+        if ($api) {
+            return $this->results;
+        } else {
+            $this->updateCounter();
+            $retval = $this->showForm();
+            $retval .= $this->Display();
+            return $retval;
+        }
     }
 
 
     /**
-    *   Get permissions clause for SQL.
-    *   Saves in a static var to eliminate repetitive calls
-    *   Always uses "AND".
-    *
-    *   @return string  Permissions SQL
-    */
+     * Get permissions clause for SQL.
+     * Saves in a static var to eliminate repetitive calls
+     * Always uses "AND".
+     *
+     * @return  string  Permissions SQL
+     */
     private function _getPermSQL()
     {
         static $perms = NULL;
@@ -381,10 +437,10 @@ class Searcher extends Common
 
 
     /**
-    *   Get a count of the results on the current page
-    *
-    *   @return integer     Count of results
-    */
+     * Get a count of the results on the current page.
+     *
+     * @return  integer     Count of results
+     */
     public function countResults()
     {
         return count($this->results);
@@ -392,32 +448,33 @@ class Searcher extends Common
 
 
     /**
-    *   Get a count of all possible results for pagination
-    *
-    *   @return integer     Total number of results
-    */
+     * Get a count of all possible results for pagination.
+     *
+     * @return  integer     Total number of results
+     */
     public function totalResults()
     {
         global $_TABLES;
+        static $count = NULL;
 
-        if ($this->count === NULL) {
+        if ($count === NULL) {
             $sql = "SELECT count(*) AS cnt
                 FROM {$_TABLES['searcher_index']}
                 WHERE " . $this->_sql_where();
             //echo $sql;die;
             $res = DB_query($sql);
-            $this->count = (int)DB_numRows($res);
+            $count = (int)DB_numRows($res);
          }
-         return $this->count;
+         return $count;
     }
 
 
     /**
-    *   Get the excerpt to display in the search results.
-    *
-    *   @param  string  $content    Entire article/page content
-    *   @return string      highlighted excerpt
-    */
+     * Get the excerpt to display in the search results.
+     *
+     * @param   string  $content    Entire article/page content
+     * @return  string      highlighted excerpt
+     */
     public function getExcerpt($content)
     {
         global $_SRCH_CONF;
@@ -478,12 +535,18 @@ class Searcher extends Common
     }
 
 
-    // Work out which is the most relevant portion to display
-    // This is done by looping over each match and finding the smallest distance between two found
-    // strings. The idea being that the closer the terms are the better match the snippet would be.
-    // When checking for matches we only change the location if there is a better match.
-    // The only exception is where we have only two matches in which case we just take the
-    // first as will be equally distant.
+    /**
+     * Work out which is the most relevant portion to display.
+     * This is done by looping over each match and finding the smallest distance between two found
+     * strings. The idea being that the closer the terms are the better match the snippet would be.
+     * When checking for matches we only change the location if there is a better match.
+     * The only exception is where we have only two matches in which case we just take the
+     * first as will be equally distant.
+     *
+     * @param   array   $locations  Array of locations where a result is found.
+     * @param   integer $prevcount  Location of previous instance of the result.
+     * @return  integer     Starting position within the text for the snippet.
+     */
     protected static function _snip_location($locations, $prevcount)
     {
         if (!is_array($locations) || empty($locations)) return 0;
@@ -515,14 +578,17 @@ class Searcher extends Common
     }
 
 
-    /******
+    /**
      * This code originally written by Ben Boyter
      * http://www.boyter.org/2013/04/building-a-search-result-extract-generator-in-php/
+     * Find the locations of each of the words.
+     * Nothing exciting here. The array_unique is required
+     * unless you decide to make the words unique before passing in.
+     *
+     * @param   array   $words      Array of words to find
+     * @param   string  $fulltext   Full text being searched
+     * @return  array       Locations where words were found
      */
-
-    // find the locations of each of the words
-    // Nothing exciting here. The array_unique is required
-    // unless you decide to make the words unique before passing in
     protected static function _extract_locations($words, $fulltext)
     {
         $locations = array();
@@ -541,12 +607,22 @@ class Searcher extends Common
 
 
 
-    // 1/6 ratio on prevcount tends to work pretty well and puts the terms
-    // in the middle of the extract
+    /**
+     * Extract the relevent text for display.
+     * 1/6 ratio on prevcount tends to work pretty well and puts the terms
+     * in the middle of the extract.
+     *
+     * @param   array   $words      Words to locate in the text
+     * @param   string  $fulltext   Full text
+     * @param   integer $rellength  Desired character length of the excerpt
+     * @param   integer $prevcount  Desired number of characters before the words
+     * @return  array       Array of (excerpt, number of hits, start indicator))
+     */
     protected static function _extract_relevant($words, $fulltext, $rellength=300, $prevcount=50)
     {
         $textlength = utf8_strlen($fulltext);
 
+        // If the excerpt 
         if ($textlength <= $rellength) {
             return array($fulltext, 1, 0);
         }
@@ -566,14 +642,19 @@ class Searcher extends Common
             $reltext = utf8_substr($reltext, 0, utf8_strrpos($reltext, " ")); // remove last word
         }
 
-        $start = false;
-        if ($startpos == 0) $start = true;
-
+        $start = $startpos == 0 ? true : false;
         $besthits = count(self::_extract_locations($words, $reltext));
 
         return array($reltext, $besthits, $start);
     }
 
+
+    /**
+     * Extract quoted phrases from the query.
+     *
+     * @param   string  $q      Query string
+     * @return  array       Array of quoted phrases
+     */
     protected static function _extract_phrases($q)
     {
         $pos = utf8_strpos($q, '"');
@@ -589,25 +670,27 @@ class Searcher extends Common
             $phrase = utf8_substr($q, $start + 1, $end - $start - 1);
             $phrase = utf8_trim($phrase);
 
-            if (!empty($phrase)) $phrases[] = $phrase;
+            if (!empty($phrase)) {
+                $phrases[] = $phrase;
+            }
+            // move past this phrase and check for the next one
             $pos = $end;
         }
         return $phrases;
     }
 
+
+    /**
+     * Count the number of matches in the text for the search words.
+     *
+     * @param   array   $words      Array of words to find
+     * @param   string  $fulltext   Full text to search
+     * @return  integer     Count of matches
+     */
     protected static function _count_matches($words, $fulltext)
     {
         $count = 0;
         foreach ($words as $word ) {
-            //        $word = relevanssi_add_accent_variations($word);
-
-            /*if (get_option('relevanssi_fuzzy') == 'never') {
-                $pattern = '/([\s,\.:;\?!\']'.$word.'[\s,\.:;\?!\'])/i';
-                if (preg_match($pattern, $fulltext, $matches, PREG_OFFSET_CAPTURE)) {
-                    $count += count($matches) - 1;
-                }
-            }
-            else {*/
             $pattern = '/([\s,\.:;\?!\']'.$word.')/i';
             if (preg_match($pattern, $fulltext, $matches, PREG_OFFSET_CAPTURE)) {
                 $count += count($matches) - 1;
@@ -616,18 +699,18 @@ class Searcher extends Common
             if (preg_match($pattern, $fulltext, $matches, PREG_OFFSET_CAPTURE)) {
                 $count += count($matches) - 1;
             }
-            //}
         }
         return $count;
     }
 
 
-    /*
-    *   Apply highlighting style for terms found in content
-    *
-    *   @param  string  $content    Content to scan, e.g. excerpt
-    *   @param  array   $terms      Terms to highlight
-    */
+    /**
+     * Apply highlighting style for terms found in content.
+     *
+     * @param   string  $content    Content to scan, e.g. excerpt
+     * @param   array   $terms      Terms to highlight
+     * @return  string      Highlighted content
+     */
     public static function Highlight($content, $terms)
     {
         // Get all the unique search words from the phrases
@@ -668,10 +751,10 @@ class Searcher extends Common
 
 
     /**
-    *   Display the search results
-    *
-    *   @return string      Results display
-    */
+     * Display the search results.
+     *
+     * @return  string      Results display
+     */
     public function Display()
     {
         global $_CONF, $_SRCH_CONF, $LANG_ADMIN, $LANG09,$LANG05, $LANG_SRCH;
@@ -768,8 +851,8 @@ class Searcher extends Common
 
 
     /**
-    *   Update the search term counter table.
-    */
+     * Update the search term counter table.
+     */
     private function updateCounter()
     {
         global $_TABLES;
@@ -789,13 +872,13 @@ class Searcher extends Common
 
 
     /**
-    *   Shows search form.
-    *   If the query_len is >=0 but less than min_word_len, then also show
-    *   an error message.
-    *
-    *   @param  integer $query_len  Length of current query
-    *   @return string  HTML output for form
-    */
+     * Shows search form.
+     * If the query_len is >=0 but less than min_word_len, then also show
+     * an error message.
+     *
+     * @param   integer $query_len  Length of current query
+     * @return  string  HTML output for form
+     */
     public function showForm($query_len = -1)
     {
         global $LANG09, $LANG_SRCH;
@@ -849,14 +932,14 @@ class Searcher extends Common
 
 
     /**
-    *   Determines if user is allowed to perform a search
-    *
-    *   glFusion has a number of settings that may prevent
-    *   the access anonymous users have to the search engine.
-    *   This performs those checks
-    *
-    *   @return boolean True if search is allowed, otherwise false
-    */
+     * Determines if user is allowed to perform a search.
+     *
+     * glFusion has a number of settings that may prevent
+     * the access anonymous users have to the search engine.
+     * This performs those checks.
+     *
+     * @return  boolean     True if search is allowed, otherwise false
+     */
     public static function SearchAllowed()
     {
         global $_CONF;
@@ -866,8 +949,10 @@ class Searcher extends Common
         static $isAllowed = NULL;
 
         if ($isAllowed === NULL) {
-            if ( COM_isAnonUser() &&
-                ( $_CONF['loginrequired'] || $_CONF['searchloginrequired'] ) ) {
+            if (
+                COM_isAnonUser() &&
+                ( $_CONF['loginrequired'] || $_CONF['searchloginrequired'] )
+            ) {
                 $isAllowed = false;
             } else {
                 $isAllowed = true;
@@ -878,12 +963,12 @@ class Searcher extends Common
 
 
     /**
-    *   Shows an error message if search is not allowed.
-    *   Search access is only disallowed is if the user is anonymous, so show
-    *   the login form as the "error message".
-    *
-    *   @return string  HTML output for error message
-    */
+     * Shows an error message if search is not allowed.
+     * Search access is only disallowed is if the user is anonymous, so show
+     * the login form as the "error message".
+     *
+     * @return  string  HTML output for error message
+     */
     public static function getAccessDeniedMessage()
     {
         return SEC_loginRequiredForm();

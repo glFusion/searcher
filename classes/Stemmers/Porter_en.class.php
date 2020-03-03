@@ -1,49 +1,49 @@
 <?php
 /**
-*   Uses the Porter Stemmer algorithm to find word roots.
-*
-*   Adapted from Joomla com_finder component.
-*   Based on the Porter stemmer algorithm:
-*   <https://tartarus.org/martin/PorterStemmer/c.txt>
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (C) 2017 Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (C) 2005 - 2017 Open Source Matters, Inc. All rights reserved.
-*   @package    searcher
-*   @version    0.0.1
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Uses the Porter Stemmer algorithm to find word roots.
+ *
+ * Adapted from Joomla com_finder component.
+ * Based on the Porter stemmer algorithm:
+ * <https://tartarus.org/martin/PorterStemmer/c.txt>
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (C) 2017-2020 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (C) 2005-2017 Open Source Matters, Inc. All rights reserved.
+ * @package     searcher
+ * @version     v1.0.09
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 namespace Searcher\Stemmers;
 
+
 /**
-*   Porter English stemmer class for the Finder indexer package.
-*
-*   This class was adapted from one written by Richard Heyes.
-*   See copyright and link information above.
-*/
+ * Porter English stemmer class for the Searcher indexer package.
+ *
+ * This class was adapted from one written by Richard Heyes.
+ * See copyright and link information above.
+ *
+ * @package searcher
+ */
 class Porter_en extends \Searcher\Stemmer
 {
-    /**
-    *   Regex for matching a consonant.
-    *   @var    string
-    */
+    /** Regex for matching a consonant.
+     * @var string */
     private static $regex_consonant = '(?:[bcdfghjklmnpqrstvwxz]|(?<=[aeiou])y|^y)';
 
-    /**
-    * Regex for matching a vowel
-    * @var    string
-    */
+    /** Regex for matching a vowel
+     * @var string */
     private static $regex_vowel = '(?:[aeiou]|(?<![aeiou])y)';
 
+
     /**
-    *   Method to stem a token and return the root.
-    *
-    *   @param  string  $token  The token to stem.
-    *   @param  string  $lang   The language of the token.
-    *   @return string  The root token.
-    */
+     * Method to stem a token and return the root.
+     *
+     * @param   string  $token  The token to stem.
+     * @param   string  $lang   The language of the token.
+     * @return  string  The root token.
+     */
     public function stem($token, $lang='en')
     {
         global $_CONF;
@@ -80,28 +80,28 @@ class Porter_en extends \Searcher\Stemmer
 
 
     /**
-    *   step1ab() gets rid of plurals and -ed or -ing. e.g.
-    *
-    *   caresses  ->  caress
-    *   ponies    ->  poni
-    *   ties      ->  ti
-    *   caress    ->  caress
-    *   cats      ->  cat
-    *
-    *   feed      ->  feed
-    *   agreed    ->  agree
-    *   disabled  ->  disable
-    *
-    *   matting   ->  mat
-    *   mating    ->  mate
-    *   meeting   ->  meet
-    *   milling   ->  mill
-    *   messing   ->  mess
-    *   meetings  ->  meet
-    *
-    *   @param   string  $word  The token to stem.
-    *   @return  string
-    */
+     * step1ab() gets rid of plurals and -ed or -ing. e.g.
+     *
+     * caresses  ->  caress
+     * ponies    ->  poni
+     * ties      ->  ti
+     * caress    ->  caress
+     * cats      ->  cat
+     *
+     * feed      ->  feed
+     * agreed    ->  agree
+     * disabled  ->  disable
+     *
+     * matting   ->  mat
+     * mating    ->  mate
+     * meeting   ->  meet
+     * milling   ->  mill
+     * messing   ->  mess
+     * meetings  ->  meet
+     *
+     * @param   string  $word  The token to stem.
+     * @return  string      The stemmed version of $word
+     */
     private static function step1ab($word)
     {
         // Part a
@@ -145,11 +145,11 @@ class Porter_en extends \Searcher\Stemmer
 
 
     /**
-    *   step1c() turns terminal y to i when there is another vowel in the stem.
-    *
-    *   @param  string  $word  The token to stem.
-    *   @return string
-    */
+     * step1c() turns terminal y to i when there is another vowel in the stem.
+     *
+     * @param   string  $word  The token to stem.
+     * @return  string
+     */
     private static function step1c($word)
     {
         $v = self::$regex_vowel;
@@ -164,13 +164,13 @@ class Porter_en extends \Searcher\Stemmer
 
 
     /**
-    *   step2() maps double suffices to single ones. so -izationi
-    *   ( = -ize plus -ation) maps to -ize etc.
-    *   Note that the string before the suffix must give m() > 0.
-    *
-    *   @param  string  $word  The token to stem.
-    *   @return string
-    */
+     * step2() maps double suffices to single ones. so -izationi.
+     * ( = -ize plus -ation) maps to -ize etc.
+     * Note that the string before the suffix must give m() > 0.
+     *
+     * @param   string  $word  The token to stem.
+     * @return  string      The stemmed version.
+     */
     private static function step2($word)
     {
         switch (substr($word, -2, 1))
@@ -218,11 +218,11 @@ class Porter_en extends \Searcher\Stemmer
 
 
     /**
-    *   step3() deals with -ic-, -full, -ness etc. similar strategy to step2.
-    *
-    *   @param  string  $word  The token to stem.
-    *   @return string
-    */
+     * step3() deals with -ic-, -full, -ness etc. similar strategy to step2.
+     *
+     * @param   string  $word  The token to stem.
+     * @return  string      The stemmed version.
+     */
     private static function step3($word)
     {
         switch (substr($word, -2, 1))
@@ -252,11 +252,11 @@ class Porter_en extends \Searcher\Stemmer
 
 
     /**
-    *   step4() takes off -ant, -ence etc., in context <c>vcvc<v>.
-    *
-    *   @param  string  $word  The token to stem.
-    *   @return string
-    */
+     * step4() takes off -ant, -ence etc., in context <c>vcvc<v>.
+     *
+     * @param   string  $word  The token to stem.
+     * @return  string      The stemmed version.
+     */
     private static function step4($word)
     {
         switch (substr($word, -2, 1))
@@ -316,11 +316,11 @@ class Porter_en extends \Searcher\Stemmer
 
 
     /**
-    *   step5() removes a final -e if m() > 1, and changes -ll to -l if m() > 1.
-    *
-    *   @param  string  $word  The token to stem.
-    *   @return string
-    */
+     * step5() removes a final -e if m() > 1, and changes -ll to -l if m() > 1.
+     *
+     * @param   string  $word  The token to stem.
+     * @return  string      The stemmed version.
+     */
     private static function step5($word)
     {
         // Part a
@@ -350,19 +350,18 @@ class Porter_en extends \Searcher\Stemmer
 
 
     /**
-    *   Replaces the first string with the second, at the end of the string. If
-    *   third arg is given, then the preceding string must match that m count
-    *   at least.
-    *
-    *   @param  string  &$str   String to check
-    *   @param  string  $check  Ending to check for
-    *   @param  string  $repl   Replacement string
-    *   @param  integer $m      Optional minimum number of m() to meet
-    *
-    *   @return boolean Whether the $check string was at the end
-    *                   of the $str string. True does not necessarily mean
-    *                   that it was replaced.
-    */
+     * Replaces the first string with the second, at the end of the string.
+     * If third arg is given, then the preceding string must match that m count
+     * at least.
+     *
+     * @param   string  &$str   String to check
+     * @param   string  $check  Ending to check for
+     * @param   string  $repl   Replacement string
+     * @param   integer $m      Optional minimum number of m() to meet
+     * @return boolean Whether the $check string was at the end
+     *                   of the $str string. True does not necessarily mean
+     *                   that it was replaced.
+     */
     private static function replace(&$str, $check, $repl, $m = null)
     {
         $len = 0 - strlen($check);
@@ -382,18 +381,18 @@ class Porter_en extends \Searcher\Stemmer
 
 
     /**
-    *   m() - measures the number of consonant sequences in $str. if c is
-    *   a consonant sequence and v a vowel sequence, and <..> indicates
-    *   arbitrary presence,
-    *
-    *   <c><v>       gives 0
-    *   <c>vc<v>     gives 1
-    *   <c>vcvc<v>   gives 2
-    *   <c>vcvcvc<v> gives 3
-    *
-    *   @param  string  $str  The string to return the m count for
-    *   @return integer The m count
-    */
+     * m() - measures the number of consonant sequences in $str.
+     * if c is a consonant sequence and v a vowel sequence, and <..> indicates
+     * arbitrary presence,
+     *
+     * - <c><v>       gives 0
+     * - <c>vc<v>     gives 1
+     * - <c>vcvc<v>   gives 2
+     * - <c>vcvcvc<v> gives 3
+     *
+     * @param  string  $str  The string to return the m count for
+     * @return integer The m count
+     */
     private static function m($str)
     {
         $c = self::$regex_consonant;
@@ -409,12 +408,12 @@ class Porter_en extends \Searcher\Stemmer
 
 
     /**
-    *   Returns true/false as to whether the given string contains two
-    *   of the same consonant next to each other at the end of the string.
-    *
-    *   @param  string  $str  String to check
-    *   @return boolean Result
-    */
+     * Returns true/false as to whether the given string contains two
+     * of the same consonant next to each other at the end of the string.
+     *
+     * @param   string  $str  String to check
+     * @return  boolean Result
+     */
     private static function doubleConsonant($str)
     {
         $c = self::$regex_consonant;
@@ -424,11 +423,11 @@ class Porter_en extends \Searcher\Stemmer
 
 
     /**
-    *   Checks for ending CVC sequence where second C is not W, X or Y
-    *
-    *   @param  string  $str  String to check
-    *   @return boolean Result
-    */
+     * Checks for ending CVC sequence where second C is not W, X or Y.
+     *
+     * @param   string  $str  String to check
+     * @return  boolean Result
+     */
     private static function cvc($str)
     {
         $c = self::$regex_consonant;

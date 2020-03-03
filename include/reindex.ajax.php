@@ -1,15 +1,15 @@
 <?php
 /**
-*   Searcher Plugin for glFusion CMS - reindex site content
-*
-*   @author     Mark R. Evans <mark@glfusion.org>
-*   @copyright  Copyright (c) 2017 Mark R. Evans <mark AT glFusion DOT org>
-*   @package    searcher
-*   @version    0.0.3
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Searcher Plugin for glFusion CMS - reindex site content.
+ *
+ * @author      Mark R. Evans <mark@glfusion.org>
+ * @copyright   Copyright (c) 2017 Mark R. Evans <mark AT glFusion DOT org>
+ * @package     searcher
+ * @version     v0.0.3
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 
 // this file can't be used on its own
 if (!defined ('GVERSION')) {

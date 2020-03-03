@@ -1,15 +1,15 @@
 <?php
 /**
-*   Upgrade routines for the Searcher plugin
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2017 Lee Garner <lee@leegarner.com>
-*   @package    searcher
-*   @version    0.0.4
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Upgrade routines for the Searcher plugin.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2017 Lee Garner <lee@leegarner.com>
+ * @package     searcher
+ * @version     v0.0.4
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 
 // Required to get the config values
 global $_CONF, $_SRCH_CONF, $_DB_dbms;
@@ -18,10 +18,11 @@ global $_CONF, $_SRCH_CONF, $_DB_dbms;
 require_once __DIR__ . "/sql/mysql_install.php";
 
 /**
-*   Perform the upgrade starting at the current version.
-*
-*   @return boolean     True on success, False on failure
-*/
+ * Perform the upgrade starting at the current version.
+ *
+ * @param   boolean $dvlp   True if this is a development update
+ * @return  boolean True on success, False on failure
+ */
 function SRCH_do_upgrade($dvlp=false)
 {
     global $_SRCH_DEFAULTS, $_SRCH_CONF, $_PLUGIN_INFO;
@@ -127,12 +128,12 @@ function SRCH_do_upgrade($dvlp=false)
 
 
 /**
-*   Actually perform any sql updates.
-*
-*   @param  string  $version    Version being upgraded TO
-*   @param  boolean $ignore_erros   True to ignore errors for dvlpupdate
-*   @return boolean         True on success, False on failure
-*/
+ * Actually perform any sql updates.
+ *
+ * @param   string  $version    Version being upgraded TO
+ * @param   boolean $ignore_errors  True to ignore errors for dvlpupdate
+ * @return  boolean         True on success, False on failure
+ */
 function SRCH_do_upgrade_sql($version, $ignore_errors=false)
 {
     global $_TABLES, $_SRCH_CONF, $_UPGRADE_SQL;
@@ -157,13 +158,13 @@ function SRCH_do_upgrade_sql($version, $ignore_errors=false)
 
 
 /**
-*   Update the plugin version number in the database.
-*   Called at each version upgrade to keep up to date with
-*   successful upgrades.
-*
-*   @param  string  $ver    New version to set
-*   @return boolean         True on success, False on failure
-*/
+ * Update the plugin version number in the database.
+ * Called at each version upgrade to keep up to date with
+ * successful upgrades.
+ *
+ * @param   string  $ver    New version to set
+ * @return  boolean         True on success, False on failure
+ */
 function SRCH_do_set_version($ver)
 {
     global $_TABLES, $_SRCH_CONF;
@@ -186,8 +187,8 @@ function SRCH_do_set_version($ver)
 
 
 /**
- *   Remove deprecated files
- *   Errors in unlink() and rmdir() are ignored.
+ * Remove deprecated files
+ * Errors in unlink() and rmdir() are ignored.
  */
 function SRCH_remove_old_files()
 {
