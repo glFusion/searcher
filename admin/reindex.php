@@ -5,17 +5,14 @@
  * @author      Mark R. Evans <mark@glfusion.org>
  * @copyright   Copyright (c) 2017 Mark R. Evans <mark AT glFusion DOT org>
  * @package     searcher
- * @version     v0.0.3
+ * @version     v1.0.1
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
  */
 require_once '../../../lib-common.php';
 require_once '../../auth.inc.php';
-require_once $_CONF['path'].'plugins/searcher/include/admin.inc.php';
 require_once $_CONF['path'].'plugins/searcher/include/reindex.ajax.php';
-
-USES_lib_admin();
 
 /**
  * Create the reindexing options page.
@@ -31,7 +28,7 @@ function SRCHER_reindex()
     $T = new \Template(SRCH_PI_PATH . '/templates');
     $T->set_file('page','reindex.thtml');
 
-    $retval .= SRCH_adminMenu('reindex');
+    $retval .= Searcher\Menu::Admin('reindex');
 
     $T->set_var('lang_title',$LANG_SRCH_ADM['reindex_title']);
 

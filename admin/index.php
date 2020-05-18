@@ -12,9 +12,6 @@
  */
 require_once '../../../lib-common.php';
 require_once '../../auth.inc.php';
-require_once $_CONF['path'].'plugins/searcher/include/admin.inc.php';
-
-USES_lib_admin();
 
 $display = '';
 $pi_title = $_SRCH_CONF['pi_display_name'] . ' ' .
@@ -61,7 +58,7 @@ function SRCH_admin_terms()
         ),
     );
 
-    $retval .= SRCH_adminMenu('counters');
+    $retval .= Searcher\Menu::Admin('counters');
 
     $defsort_arr = array('field' => 'hits', 'direction' => 'desc');
     $options = array();
@@ -183,7 +180,7 @@ default:
 
 switch ($view) {
 case 'gen_all':
-    $content .= SRCH_adminMenu('gen_all');
+    $content .= Searcher\Menu::Admin('gen_all');
     $T = new Template(SRCH_PI_PATH . '/templates');
     $T->set_file('admin', 'admin.thtml');
     $T->set_var(array(
@@ -204,7 +201,7 @@ case 'gen_all':
     break;
 
 case 'chgweights':
-    $content .= SRCH_adminMenu('gen_all');
+    $content .= Searcher\Menu::Admin('chgweights');
     $T = new Template(SRCH_PI_PATH . '/templates');
     $T->set_file('admin', 'weightings.thtml');
     $T->set_var(array(
