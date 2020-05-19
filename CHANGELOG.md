@@ -1,5 +1,11 @@
 # Changelog - Searcher plugin for glFusion
 
+## Version 1.1.0
+Release TBD
+- Remove censored words during Tokenize() before saving in the index
+- Add the `Libs` stemmer used by Indexer
+- Keep content from certain autotags (meta and tag)
+
 ## Version 1.0.0
 Release 2019-05-23
 - Add `type_item` key for more efficient reindexing

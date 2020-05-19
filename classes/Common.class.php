@@ -31,6 +31,13 @@ class Common
      * @var array */
     protected static $fields = array();
 
+    /** Array of autotag module names to keep.
+     * When autotags are removed, these will not be affected because they
+     * may provide useful search assistance.
+     * Metatags and the Tag Cloud plugin are good candidates.
+     * @var array */
+    protected static $keepAutotags = array('meta', 'tag');
+
 
     /**
      * Initialize the Searcher or Indexer class.
@@ -222,6 +229,7 @@ class Common
      * Remove autotags before indexing (optional) and before showing results.
      * This option is to prevent search hits on hidden fields that don't
      * actually appear in the content.
+     * Some tags can be kept if they provide useful information for searching.
      *
      * @param   string  $content    Content to examine
      * @return  string      Content withoug autotags
@@ -240,7 +248,9 @@ class Common
         if ($autolinkModules === NULL) {
             $autolinkModules = PLG_collectTags();
             foreach ($autolinkModules as $moduletag => $module) {
-                $tags[] = $moduletag;
+                if (!in_array($moduletag, self::$keepAutotags)) {
+                    $tags[] = $moduletag;
+                }
             }
             $tags = implode('|', $tags);
         }
