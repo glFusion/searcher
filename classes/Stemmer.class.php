@@ -19,17 +19,29 @@ namespace Searcher;
  * Stemmer base class for the Searcher indexer package.
  * @package Searcher
  */
-abstract class Stemmer
+class Stemmer
 {
-    /**
-     * An internal cache of stemmed tokens.
+    /** An internal cache of stemmed tokens.
      * @var array */
     public $cache = array();
 
-    /**
-     * Minimum word length to consider when indexint.
+    /** Minimum word length to consider when indexint.
      * @var integer */
     protected static $min_word_len = 3;
+
+    /** Name of the stemmer class, populated if instantiated.
+     * If the name remains 'Stemmer' then the requested stemmer was not found.
+     * @var string */
+    protected $name = 'Stemmer';
+
+
+    /**
+     * Set the instantiated stemmer name into a local property.
+     */
+    public function __construct()
+    {
+        $this->name = (new \ReflectionClass($this))->getShortName();
+    }
 
 
     /**
@@ -56,7 +68,7 @@ abstract class Stemmer
             $instances[$adapter] = new $class;
         } else {
             COM_errorLog("Searcher:: Stemmer class $class not found");
-            return NULL;
+            return new self;
         }
         return $instances[$adapter];
     }
@@ -64,12 +76,29 @@ abstract class Stemmer
 
     /**
      * Method to stem a token and return the root.
+     * This default function just returns the token to prevent errors if
+     * the requested stemmer is unavailable.
      *
      * @param   string  $token  The token to stem.
      * @param   string  $lang   The language of the token.
      * @return  string  The root token.
      */
-    abstract public function stem($token, $lang='en');
+    public function stem($token, $lang='en')
+    {
+        return $token;
+    }
+
+
+    /**
+     * Check if a valid stemmer was instantiated.
+     * Used in case an invalid stemmer is requested or none is configured.
+     *
+     * @return  boolean     True if valid, False if not
+     */
+    public function isValid()
+    {
+        return $this->name !== 'Stemmer' ? true : false;
+    }
 
 }
 
