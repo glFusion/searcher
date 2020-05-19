@@ -3,14 +3,15 @@
  * Maintain an index table for the Searcher plugin.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2017-2018 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2017-2020 Lee Garner <lee@leegarner.com>
  * @package     searcher
- * @version     v0.1.2
+ * @version     v1.0.1
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
  */
 namespace Searcher;
+
 
 /**
  * Indexing class.
@@ -41,8 +42,10 @@ class Indexer extends Common
 
         // Remove autotags if so configured and the content field is used.
         // There's a small chance that only title and/or author are used here.
-        if ($_SRCH_CONF['ignore_autotags'] &&
-            isset($content['content']) && !empty($content['content'])) {
+        if (
+            $_SRCH_CONF['ignore_autotags'] &&
+            isset($content['content']) && !empty($content['content'])
+        ) {
             $content['content'] = self::removeAutoTags($content['content']);
         }
 

@@ -119,10 +119,13 @@ class Common
         $tokens = array();
         if (is_array($str)) {
             foreach ($str as $part) {
+                $part = self::removeCensored($part);
                 $tokens = array_merge($tokens, self::Tokenize($part));
             }
         }
-        if (is_array($str)) return $tokens;
+        if (is_array($str)) {
+            return $tokens;
+        }
 
         if (function_exists('mb_internal_encoding'))
             mb_internal_encoding('UTF-8');
@@ -140,8 +143,10 @@ class Common
         // stopword status
         $tmp = array();
         foreach ($terms as $term) {
-            if (in_array($term, self::$stopwords) ||
-                    utf8_strlen($term) < self::$min_word_len) {
+            if (
+                in_array($term, self::$stopwords) ||
+                utf8_strlen($term) < self::$min_word_len
+            ) {
                 continue;
             }
             $tmp[] = $term;
@@ -159,11 +164,14 @@ class Common
                 for ($i = 0; $i < $total_terms; $i++) {
                     $terms[$i] = $S->stem($terms[$i]);
                 }
+                // Remove censored words
+                $terms = self::removeCensored($terms);
+
                 // If this is a query string, add the original non-stemmed
                 // words into the terms array. This is mostly for highlighting.
                 if ($query) {
-                    foreach ($tmp as $word) {
-                        if (!in_array($word, $terms)) {
+                    foreach ($tmp as $idx=>$word) {
+                        if (isset($terms[$idx]) && !in_array($word, $terms)) {
                             $terms[] = $word;
                         }
                     }
@@ -174,6 +182,7 @@ class Common
         }
 
         // Step 3: Create token array, removes duplicates
+        $terms = array_values($terms);
         $tokens = array();
         for ($i = 0; $i < $total_terms; $i++) {
             // Set the term alone in the token array
@@ -243,6 +252,49 @@ class Common
             }
         }
         return $result;
+    }
+
+
+    /**
+     * Get the list of censored words and pass through teh stemmer.
+     *
+     * @param   string  $content    Original content
+     * @return  string      Sanitized content
+     */
+    protected static function getCensorList()
+    {
+        global $_CONF, $_SRCH_CONF;
+        static $censorlist = NULL;
+
+        if ($censorlist === NULL) {
+            $censorlist = $_CONF['censorlist'];
+            if (!empty($_SRCH_CONF['stemmer'])) {
+                $S = Stemmer::getInstance($_SRCH_CONF['stemmer']);
+                if ($S->isValid()) {
+                    foreach ($censorlist as $idx=>$word) {
+                        $censorlist[$idx] = $S->stem($word);
+                    }
+                    $censorlist = array_unique($censorlist);
+                }
+            }
+        }
+        return $censorlist;
+    }
+
+
+    /**
+     * Remove censored words from the array of terms.
+     *
+     * @param   array   $terms  Array of terms
+     * @return  array       Array of terms with censored words removed
+     */
+    protected static function removeCensored($terms)
+    {
+        if (is_array($terms)) {
+            return array_diff($terms, self::getCensorList());
+        } else {
+            return in_array($terms, self::getCensorList()) ? '' : $terms;
+        }
     }
 
 
