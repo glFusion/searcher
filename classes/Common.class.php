@@ -190,6 +190,7 @@ class Common
 
         // Step 3: Create token array, removes duplicates
         $terms = array_values($terms);
+        $total_terms = count($terms);   // reset count
         $tokens = array();
         for ($i = 0; $i < $total_terms; $i++) {
             // Set the term alone in the token array
