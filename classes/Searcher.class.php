@@ -792,7 +792,7 @@ class Searcher extends Common
         foreach ($this->results as $row) {
             $fieldvalue = $row['title'] . '<br />' . $row['excerpt'];
             $dt = new \Date($row['ts'], $_CONF['timezone']);
-            $row['excerpt'] = self::removeAutoTags($row['excerpt']);
+            $row['excerpt'] = self::removeAutoTags($row['excerpt'], true);
             $T->set_var(array(
                 'title' => self::Highlight($row['title'], $this->tokens),
                 'excerpt' => self::Highlight($row['excerpt'], $this->tokens),

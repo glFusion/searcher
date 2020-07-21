@@ -233,9 +233,10 @@ class Common
      * Some tags can be kept if they provide useful information for searching.
      *
      * @param   string  $content    Content to examine
+     * @param   boolean $force_all  True to remove all tags, ignore $keepAutotags
      * @return  string      Content withoug autotags
      */
-    protected static function removeAutoTags($content)
+    protected static function removeAutoTags($content, $force_all = false)
     {
         static $autolinkModules = NULL;
         static $tags = array();
@@ -245,11 +246,10 @@ class Common
             return $content;
         }
 
-        $result = $content;
         if ($autolinkModules === NULL) {
             $autolinkModules = PLG_collectTags();
             foreach ($autolinkModules as $moduletag => $module) {
-                if (!in_array($moduletag, self::$keepAutotags)) {
+                if ($force_all || !in_array($moduletag, self::$keepAutotags)) {
                     $tags[] = $moduletag;
                 }
             }
@@ -259,10 +259,13 @@ class Common
             $result = preg_filter("/\[(($tags):.[^\]]*\])/i", '', $content);
             if ($result === NULL) {
                 // Just means no match found
-                $result = $content;
+                return $content;
+            } else {
+                return $result;
             }
+        } else {
+            return $content;
         }
-        return $result;
     }
 
 
