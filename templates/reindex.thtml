@@ -65,7 +65,7 @@ function checkAll(ele) {
 		<h3 class="uk-margin-bottom uk-margin-remove-top">{lang_ajax_status}</h3>
 
 		<div class="uk-margin">
-			<span id="t" class="tm-updating" style="display:none;">&nbsp;</span>
+			<span id="t" style="display:none;"><i class="uk-icon uk-icon-refresh uk-icon-spin"></i></span>
 			<span class="msg" id="batchinterface_msg">&nbsp;</span>
 		</div>
 
