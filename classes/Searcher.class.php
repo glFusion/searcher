@@ -345,7 +345,8 @@ class Searcher extends Common
             }
         }
         $wts = implode(' + ' , $wts);
-        $sql = "SELECT type, item_id, term, sum($wts) as relevance
+        $sql = "SELECT type, MAX(item_id) AS item_id, MAX(term) AS term,
+            SUM($wts) AS relevance
             FROM {$_TABLES['searcher_index']}
             WHERE " . $this->_sql_where() .
             " ORDER BY relevance DESC, ts DESC
@@ -365,6 +366,9 @@ class Searcher extends Common
                 $date = $exc['date-created'];
             } else {
                     $date = NULL;
+            }
+            if (!$exc) {
+                continue;
             }
             $excerpt = self::getExcerpt($exc['description']);
             $hits = isset($exc['hits']) ? $exc['hits'] : NULL;
