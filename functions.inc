@@ -283,12 +283,29 @@ function plugin_itemsaved_searcher($id, $type, $old_id = '')
 
     $contentInfo = PLG_getItemInfo(
         $type, $id,
-        'id,date,parent_type,parent_id,title,searchidx,author,author_name,hits,perms,search_index,status'
+        'id,date,parent_type,parent_id,title,searchidx,author,author_name,hits,perms,search_index,status',
+        2
     );
-    if ( is_array($contentInfo) && count($contentInfo) > 0 &&
-        isset($contentInfo['searchidx']) && !empty($contentInfo['searchidx'])
+    if (
+        is_array($contentInfo) &&
+        count($contentInfo) > 0 &&
+        isset($contentInfo['searchidx']) &&
+        !empty($contentInfo['searchidx'])
     ) {
+        if ($type == 'comment') {
+            // For comments, get the parent item's permissions as "root".
+            $parent = PLG_getItemInfo(
+                $contentInfo['parent_type'],
+                $contentInfo['parent_id'],
+                'id,perms',
+                2
+            );
+            if (is_array($parent) && isset($parent['perms']) && is_array($parent['perms'])) {
+                $contentInfo['perms'] = $parent['perms'];
+            }
+        }
 
+        // If no permissions returned, use defaults
         if (!isset($contentInfo['perms']) || empty($contentInfo['perms'])) {
             $contentInfo['perms'] = array(
                 'owner_id' => 2,

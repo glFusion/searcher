@@ -92,9 +92,15 @@ class Indexer extends Common
                 $grp_access = 2;    // anon users
             } elseif ($content['perms']['perm_members'] == 2) {
                 $grp_access = 13;   // loged-in users
-            } elseif (!empty($content['perms']['group_id'])) {
+            } elseif (
+                $content['perms']['perm_group'] >= 2 &&
+                !empty($content['perms']['group_id'])
+            ) {
                 // limit to specific group
                 $grp_access = (int)$content['perms']['group_id'];
+            } else {
+                // limit to root if no other group can view
+                $grp_access = 1;
             }
         }
 
