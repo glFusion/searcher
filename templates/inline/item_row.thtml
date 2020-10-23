@@ -1,6 +1,6 @@
 {# begin {templatelocation} #}
 <div class="uk-panel uk-panel-box uk-panel-box-secondary uk-margin-small srch_result_row">
-  <div class="uk-text-left uk-text-truncate">
+  <div class="uk-text-left">
     <span class="srch_result_title"><a href="{item_url}">{title}</a></span><br />
     {excerpt}<br />
 {!if author}
