@@ -6,9 +6,9 @@
  * glFusion configuration system, such as allowed file types.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2017-2019 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2017-2020 Lee Garner <lee@leegarner.com>
  * @package     searcher
- * @version     v1.0.0
+ * @version     v1.1.0
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
@@ -23,8 +23,8 @@ global $_SRCH_CONF;
 
 $_SRCH_CONF['pi_name']            = 'searcher';
 $_SRCH_CONF['pi_display_name']    = 'Searcher';
-$_SRCH_CONF['pi_version']         = '1.0.0';
-$_SRCH_CONF['gl_version']         = '1.7.0';
+$_SRCH_CONF['pi_version']         = '1.0.1';
+$_SRCH_CONF['gl_version']         = '1.7.8';
 $_SRCH_CONF['pi_url']             = 'http://www.glfusion.org';
 
 $_table_prefix = $_DB_table_prefix . 'searcher_';

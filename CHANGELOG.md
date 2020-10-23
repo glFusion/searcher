@@ -5,6 +5,8 @@ Release TBD
 - Remove censored words during Tokenize() before saving in the index
 - Add the `Libs` stemmer used by Indexer
 - Keep content from certain autotags (meta and tag)
+- Deprecate non-UTF language files
+- Fix permission when indexing comments
 
 ## Version 1.0.0
 Release 2019-05-23
