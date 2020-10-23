@@ -88,7 +88,7 @@ $searcherConfigData = array(
     ),
     array(
         'name' => 'excerpt_len',
-        'default_value' => 50,
+        'default_value' => 20,
         'type' => 'text',
         'subgroup' => 0,
         'fieldset' => 0,
