@@ -60,7 +60,7 @@ class Menu
                 'text'  => $LANG_ADMIN['admin_home']
             ),
         );
-        $explanation =  $LANG_SRCH['hlp_' . $sel];
+        $explanation =  $LANG_SRCH['hlp_' . $view];
 
         $T->set_var(
             'start_block',
