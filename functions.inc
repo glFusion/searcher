@@ -30,13 +30,13 @@ $_SRCH_CONF['_is_uikit'] = $_SYSTEM['framework'] == 'uikit' ? true : false;
 /**
  * Include the plugin-specific language file, and the corresponding
  * admin-created custom language file, if any.  Looks for the site
- * language first, then defaults to english.php if nothing else found.
+ * language first, then defaults to english_utf-8.php if nothing else found.
  */
 $langpath = SRCH_PI_PATH . '/language';
 if (is_file("$langpath/{$_CONF['language']}.php")) {
     $langfile = "{$_CONF['language']}.php";
 } else {
-    $langfile = 'english.php';
+    $langfile = 'english_utf-8.php';
 }
 require_once "$langpath/$langfile";
 
