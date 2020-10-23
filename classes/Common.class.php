@@ -339,7 +339,7 @@ class Common
     private static function getStopwords()
     {
         self::$stopwords = array();
-        $langfile = 'english.php';
+        $langfile = 'english_utf-8.php';
         $langpath = SRCH_PI_PATH . '/stopwords';
         if (is_file("$langpath/$langfile")) {
             require_once "$langpath/$langfile";
