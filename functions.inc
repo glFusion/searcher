@@ -286,6 +286,14 @@ function plugin_itemsaved_searcher($id, $type, $old_id = '')
         'id,date,parent_type,parent_id,title,searchidx,author,author_name,hits,perms,search_index,status',
         2
     );
+
+    // Document is always removed before indexing anyway,
+    // just remove it here in case contentInfo is invalid.
+    if ( $old_id != '' && $id != $old_id ) {
+        \Searcher\Indexer::RemoveDoc($type, $old_id);
+    }
+    \Searcher\Indexer::RemoveDoc($type, $id);
+
     if (
         is_array($contentInfo) &&
         count($contentInfo) > 0 &&
@@ -334,10 +342,6 @@ function plugin_itemsaved_searcher($id, $type, $old_id = '')
             'parent_id' => $contentInfo['parent_id'],
             'parent_type' => $contentInfo['parent_type'],
         );
-        if ( $old_id != '' && $id != $old_id ) {
-            \Searcher\Indexer::RemoveDoc($type, $old_id);
-        }
-        \Searcher\Indexer::RemoveDoc($type, $id);
         if ($contentInfo['status']) {
             // Index only if status is nonzero (i.e. not draft or disabled)
             \Searcher\Indexer::IndexDoc($props);
