@@ -56,17 +56,17 @@ class Indexer extends Common
         ) {
             $content['author_name'] = COM_getDisplayName($content['author']);
         }
-        // TODO: uid is not currently used, but save it anyway for future use.
-        // Indexer uses 'author' for the author name.
-        // May save numeric author ID in the future...
-        //$content['uid'] = (int)$content['author'];
-        $content['author'] = $content['author_name'];
 
         $insert_data = array();     // data to be inserted into DB
         foreach(self::$fields as $fld=>$weight) {
             // index content fields and get a count of tokens
             if ( isset($content[$fld])) {
-                $tokens = self::Tokenize($content[$fld]);
+                if ($fld == 'author') {
+                    // hack to get the author name into the "author" index
+                    $tokens = self::Tokenize($content['author_name']);
+                } else {
+                    $tokens = self::Tokenize($content[$fld]);
+                }
                 foreach ($tokens as $token=>$data) {
                     if (isset($insert_data[$token])) {
                         $insert_data[$token][$fld] = $data['count'];
@@ -86,6 +86,7 @@ class Indexer extends Common
         $parent_type = isset($content['parent_type']) && !empty($content['parent_type']) ?
             DB_escapeString($content['parent_type']) : $type;
         $ts = isset($content['date']) ? (int)$content['date'] : time();
+        $owner_id = isset($content['author']) ? (int)$content['author'] : 0;
         $grp_access = 2;    // default to all users access if no perms sent
         if (isset($content['perms']) && is_array($content['perms'])) {
             if ($content['perms']['perm_anon'] == 2) {
@@ -111,8 +112,10 @@ class Indexer extends Common
             }
             $term = DB_escapeString(trim($term));
             $weight = (float)$data['weight'];
-            $values[] = "('$type', '$item_id', '$term', '$parent_id', '$parent_type',
-                    $ts, $content, $title, $author, $grp_access, $weight)";
+            $values[] = "(" .
+                "'$type','$item_id','$term','$parent_id','$parent_type'," .
+                "$ts,$content,$title,$author,$owner_id,$grp_access,$weight" .
+                ")";
             $insertCount++;
 
             if ( $insertCount > 2000 ) {
@@ -153,7 +156,7 @@ class Indexer extends Common
         $values = implode(', ', $values);
         $sql = "INSERT IGNORE INTO {$_TABLES['searcher_index']} (
                     type, item_id, term, parent_id, parent_type, ts,
-                    content, title, author, grp_access, weight
+                    content, title, author, owner_id, grp_access, weight
                 ) VALUES $values";
         //echo $sql;die;
         $res = DB_query($sql);

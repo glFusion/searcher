@@ -23,7 +23,7 @@ global $_SRCH_CONF;
 
 $_SRCH_CONF['pi_name']            = 'searcher';
 $_SRCH_CONF['pi_display_name']    = 'Searcher';
-$_SRCH_CONF['pi_version']         = '1.0.1';
+$_SRCH_CONF['pi_version']         = '1.1.0';
 $_SRCH_CONF['gl_version']         = '1.7.8';
 $_SRCH_CONF['pi_url']             = 'http://www.glfusion.org';
 

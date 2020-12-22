@@ -21,6 +21,7 @@ $_SQL['searcher_index'] = "CREATE TABLE `{$_TABLES['searcher_index']}` (
   `parent_id` varchar(128) NOT NULL DEFAULT '',
   `parent_type` varchar(50) NOT NULL DEFAULT '',
   `ts` int(11) unsigned NOT NULL DEFAULT '0',
+  `owner_id` int(11) unsigned NOT NULL DEFAULT '0',
   `grp_access` mediumint(8) NOT NULL DEFAULT '2',
   `content` mediumint(9) NOT NULL DEFAULT '0',
   `title` mediumint(9) NOT NULL DEFAULT '0',
@@ -77,6 +78,9 @@ $_UPGRADE_SQL = array(
     '0.1.2' => array(
         "ALTER TABLE {$_TABLES['searcher_index']} DROP KEY `terms`",
         "ALTER TABLE {$_TABLES['searcher_index']} ADD KEY `type_item` (`type`, `item_id`)",
+    ),
+    '1.1.0' => array(
+        "ALTER TABLE {$_TABLES['searcher_index']} ADD owner_id int(11) unsigned NOT NULL DEFAULT '0' AFTER `ts`",
     ),
 );
 

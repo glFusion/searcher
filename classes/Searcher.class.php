@@ -130,7 +130,7 @@ class Searcher extends Common
         // failsafe - if no search keys checked then enable all
         if ( count($searchKeys) == 0 ) {
             $searchKeys = array('content','title','author');
-            $this->setSearchKey('author',1);
+            $this->setSearchKey('author',0);
             $this->setSearchKey('content',1);
             $this->setSearchKey('title',1);
         }
@@ -287,6 +287,10 @@ class Searcher extends Common
             $where .= " AND type = '{$this->_type}' ";
         }
 
+        if ($this->_search_author > 0) {
+            $where .= " AND owner_id = " . (int)$this->_search_author;
+        }
+
         // Don't search comments if internal comments are disabled
         if ( ! self::CommentsEnabled() ) {
             $where .= " AND type <> 'comment' ";
@@ -312,7 +316,6 @@ class Searcher extends Common
 
         $where .= $this->_getPermSQL() .
             ' GROUP BY type, item_id ';
-
         return $where;
     }
 
@@ -328,7 +331,10 @@ class Searcher extends Common
         global $_TABLES, $_SRCH_CONF, $_USER;
 
         $x = strlen($this->query);
-        if (! self::SearchAllowed() || ( $x < self::$min_word_len && count($this->_keys) == 3 ) ) {
+        if (
+            !self::SearchAllowed() ||
+            ($x < self::$min_word_len && count($this->_keys) == 3)
+        ) {
             // no query and all keys enabled - return search form only - no search
             return $this->showForm($x);
         }
@@ -358,6 +364,9 @@ class Searcher extends Common
         $what = 'id,title,description,author,author_name,date,date-created,date-modified,hits,url';
         while ($A = DB_fetchArray($res, false)) {
             $exc = PLG_getItemInfo($A['type'], $A['item_id'], $what, $_USER['uid']);
+            if (!$exc) {
+                continue;
+            }
             if (!empty($exc['date'])) {
                 $date = $exc['date'];
             } elseif (!empty($exc['date-modified'])) {
@@ -366,9 +375,6 @@ class Searcher extends Common
                 $date = $exc['date-created'];
             } else {
                     $date = NULL;
-            }
-            if (!$exc) {
-                continue;
             }
             $excerpt = self::getExcerpt($exc['description']);
             $hits = isset($exc['hits']) ? $exc['hits'] : NULL;
