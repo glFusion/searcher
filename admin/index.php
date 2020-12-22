@@ -132,7 +132,6 @@ foreach($expected as $provided) {
 
 $content = '';
 $message = '';
-$view = '';
 switch ($action) {
 case 'genindex':
     if (!isset($_POST['pi']) || empty($_POST['pi'])) {
