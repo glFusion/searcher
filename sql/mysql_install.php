@@ -17,18 +17,16 @@ global $_TABLES, $_SQL, $_UPGRADE_SQL;
 $_SQL['searcher_index'] = "CREATE TABLE `{$_TABLES['searcher_index']}` (
   `item_id` varchar(128) NOT NULL DEFAULT '',
   `type` varchar(20) NOT NULL DEFAULT '',
-  `term` varchar(50) NOT NULL DEFAULT '',
   `parent_id` varchar(128) NOT NULL DEFAULT '',
   `parent_type` varchar(50) NOT NULL DEFAULT '',
   `ts` int(11) unsigned NOT NULL DEFAULT '0',
   `owner_id` int(11) unsigned NOT NULL DEFAULT '0',
   `grp_access` mediumint(8) NOT NULL DEFAULT '2',
-  `content` mediumint(9) NOT NULL DEFAULT '0',
-  `title` mediumint(9) NOT NULL DEFAULT '0',
-  `author` mediumint(9) NOT NULL DEFAULT '0',
+  `content` mediumtext,
+  `title` varchar(128),
+  `author` varchar(128),
   `weight` float unsigned NOT NULL DEFAULT '1',
   KEY `type_item` (`type`, `item_id`),
-  KEY `terms_pid` (`term`,`parent_id`),
   KEY `type_pid` (`type`,`parent_id`),
   KEY `parent` (`parent_type`,`parent_id`)
 ) ENGINE=MyISAM";
@@ -86,5 +84,6 @@ $_UPGRADE_SQL = array(
         "ALTER TABLE {$_TABLES['searcher_index']} CHANGE content content mediumtext",
         "ALTER TABLE {$_TABLES['searcher_index']} CHANGE author author varchar(128)",
         "ALTER TABLE {$_TABLES['searcher_index']} CHANGE title title varchar(128)",
+        "ALTER TABLE {$_TABLES['searcher_index']} DROP terms",
     ),
 );
