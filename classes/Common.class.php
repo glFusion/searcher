@@ -89,11 +89,32 @@ class Common
      */
     protected static function _remove_punctuation($str)
     {
-        if (!is_string($str)) return '';
+        if (!is_string($str)){
+            // Invalid non-text content, return nothing
+            return '';
+        }
+
+        // Remove any raw HTML tags (a, img, div, span, etc.),
+        // leaving the text between them.
         $str = strip_tags($str);
+
+        // Convert any HTML endities like `&nbsp;` to their text values
         $str = html_entity_decode($str);
-        $str = preg_replace("/[^\p{L}\p{N}]/", ' ', $str);
-        $str = preg_replace('/\s\s+/', ' ', $str);
+
+        // Remove all numeric words, not likely to offer relevance.
+        $str = preg_replace('/\b[[:digit:]]+\b/', '', $str);
+
+        // Convert all punctuation to spaces.
+        $str = preg_replace('/\p{P}+/', ' ', $str);
+
+        // Remove characters that are not alphanumeric
+        //$str = preg_replace('/[^\p{L}\p{N} ]+/', ' ', $str);
+
+        // Get rid of duplicate spaces (for explode() to work properly)
+        // Punctuation was converted to spaces, so there will be many dups
+        $str = preg_replace('/\s+/', ' ', $str);
+
+        // Remove leading and trailing spaces and return
         return trim($str);
     }
 
@@ -134,11 +155,11 @@ class Common
             return $tokens;
         }
 
-        if (function_exists('mb_internal_encoding'))
+        if (function_exists('mb_internal_encoding')) {
             mb_internal_encoding('UTF-8');
+        }
 
         $str = self::_remove_punctuation($str);
-
         $str = function_exists('mb_strtolower') ?
                 mb_strtolower($str) : strtolower($str);
 
@@ -187,6 +208,7 @@ class Common
                 }
             }
         }
+        return $terms;
 
         // Step 3: Create token array, removes duplicates
         $terms = array_values($terms);
@@ -221,7 +243,6 @@ class Common
                 }
             }
         }
-
         return $tokens;
     }
 
@@ -355,5 +376,3 @@ class Common
     }
 
 }
-
-?>

@@ -82,6 +82,9 @@ $_UPGRADE_SQL = array(
     '1.1.0' => array(
         "ALTER TABLE {$_TABLES['searcher_index']} ADD owner_id int(11) unsigned NOT NULL DEFAULT '0' AFTER `ts`",
     ),
+    '2.0.0' => array(
+        "ALTER TABLE {$_TABLES['searcher_index']} CHANGE content content mediumtext",
+        "ALTER TABLE {$_TABLES['searcher_index']} CHANGE author author varchar(128)",
+        "ALTER TABLE {$_TABLES['searcher_index']} CHANGE title title varchar(128)",
+    ),
 );
-
-?>

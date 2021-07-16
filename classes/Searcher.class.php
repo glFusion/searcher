@@ -106,10 +106,10 @@ class Searcher extends Common
         $searchKeys = array();
 
         // check to see which search keys are enabled
-        if ( isset($_GET['author'])) {
-            $this->setSearchKey('author',COM_applyFilter($_GET['author']));
-            if ( $this->_search_author > 1 ) {
-                if ( $this->query == '' || empty($this->query)) {
+        if (isset($_GET['author'])) {
+            $this->setSearchKey('author', COM_applyFilter($_GET['author']));
+            if ($this->_search_author > 1) {
+                if ($this->query == '' || empty($this->query)) {
                     $authorName = COM_getDisplayName($this->_search_author);
                     if ( $authorName != '' ) {
                         $this->setQuery($authorName);
@@ -118,21 +118,21 @@ class Searcher extends Common
             }
             $searchKeys[] = 'author';
         }
-        if ( isset($_GET['title']) ) {
-              $searchKeys[] = 'title';
-              $this->setSearchKey('title',1);
+        if (isset($_GET['title'])) {
+            $searchKeys[] = 'title';
+            $this->setSearchKey('title', 1);
         }
-        if ( isset($_GET['content'])) {
+        if (isset($_GET['content'])) {
             $searchKeys[] = 'content';
-            $this->setSearchKey('content',1);
+            $this->setSearchKey('content', 1);
         }
 
         // failsafe - if no search keys checked then enable all
-        if ( count($searchKeys) == 0 ) {
-            $searchKeys = array('content','title','author');
-            $this->setSearchKey('author',0);
-            $this->setSearchKey('content',1);
-            $this->setSearchKey('title',1);
+        if (count($searchKeys) == 0) {
+            $searchKeys = array('content', 'title', 'author');
+            $this->setSearchKey('author', 0);
+            $this->setSearchKey('content', 1);
+            $this->setSearchKey('title', 1);
         }
         $this->setKeys($searchKeys);
     }
@@ -151,11 +151,28 @@ class Searcher extends Common
         $this->tokens = self::Tokenize($query, true);
         // longest search terms first, because those are generally more significant
         uksort($this->tokens, array(__CLASS__, '_strlen_sort'));
-        foreach ($this->tokens as $token=>$dummy) {
-            $tokens[] = DB_escapeString($token);
+        $tok_cnt = count($this->tokens);
+        for ($i = 0; $i < $tok_cnt; $i++) {
+            //$foreach ($this->tokens as $token) {
+            $tokens[DB_escapeString($this->tokens[$i])] = 1;
+                $str = '';
+            for ($j = $i+1, $c = 0; $j < $tok_cnt - $i, $c < 4; $j++, $c++) {
+                //for ($x = 0; $x < 4; $x++) {
+                    if (isset($this->tokens[$j])) {
+                        $str .= ' ' . $this->tokens[$j];
+                    } else {
+                        break;
+                    }
+                //}
+                if ($str != '') {
+                    $tok = DB_escapeString($this->tokens[$i] . $str);
+                    $tokens[$tok] = $c +2;
+                }
+            }
         }
         if (!empty($tokens)) {
-            $this->sql_tokens = "'" . implode("','", $tokens) . "'";
+            //$this->sql_tokens = "'" . implode("','", array_keys($tokens)) . "'";
+            $this->sql_tokens = $tokens;
         }
         return $this;
     }
@@ -278,7 +295,9 @@ class Searcher extends Common
     private function _sql_where()
     {
         if (!empty($this->sql_tokens)) {
-            $where = " term in ({$this->sql_tokens}) ";
+            $tokens = "'" . implode("','", array_keys($this->sql_tokens)) . "'";
+            //$where = " term in ({$this->sql_tokens}) ";
+            $where = " term in ({$tokens}) ";
         } else {
             $where = ' 1=1 ';
         }
@@ -333,15 +352,25 @@ class Searcher extends Common
         $x = strlen($this->query);
         if (
             !self::SearchAllowed() ||
-            ($x < self::$min_word_len && count($this->_keys) == 3)
+            ($x < self::$min_word_len && count($this->_keys) == 3) ||
+            $this->sql_tokens == ''
         ) {
             // no query and all keys enabled - return search form only - no search
-            return $this->showForm($x);
+            return $this->showForm(0);
+        }
+
+        foreach($this->sql_tokens as $key=>$weight) {
+            if (!empty($key)) {     // just prevent errors
+                $wt = $weight * $this->_keys['title'];
+                $titleSQL[] = "if (title LIKE '%".DB_escapeString($key)."%',$wt ,0)";
+                $wt = $weight * $this->_keys['content'];
+                $postSQL[] = "if (content LIKE '%".DB_escapeString($key)."%',$wt,0)";
+            }
         }
 
         // Set the starting record limt. `$this->_page` should never be less than one.
         $start = (max($this->_page, 1) - 1) * $_SRCH_CONF['perpage'];
-        foreach ($this->_keys as $fld=>$weight) {
+        /*foreach ($this->_keys as $fld=>$weight) {
             if ($_SRCH_CONF['max_occurrences'] > 0) {
                 $wts[] = '(LEAST(' . $fld . ',' .
                     (int)$_SRCH_CONF['max_occurrences'] .
@@ -352,11 +381,25 @@ class Searcher extends Common
         }
         $wts = implode(' + ' , $wts);
         $sql = "SELECT type, MAX(item_id) AS item_id, MAX(term) AS term,
-            SUM($wts) AS relevance
+            SUM($wts) AS relevance*/
+                $sql = "SELECT type,item_id,
+                            (
+                                (
+                                ".implode(" + ", $titleSQL)."
+                                )+
+                                (
+                                ".implode(" + ", $postSQL)."
+                                )
+                            ) as relevance
             FROM {$_TABLES['searcher_index']}
-            WHERE " . $this->_sql_where() .
+                            HAVING relevance > 0
+                            ORDER BY relevance DESC, ts DESC
+                            LIMIT " .  $start . ", ".$_SRCH_CONF['perpage'];
+
+/*            WHERE " . $this->_sql_where() .
             " ORDER BY relevance DESC, ts DESC
-            LIMIT $start, {$_SRCH_CONF['perpage']}";
+            LIMIT $start, {$_SRCH_CONF['perpage']}";*/
+//echo $sql;die;
         $res = DB_query($sql);
         $this->results = array();
         // Set field array for PLG_getItemInfo.
@@ -724,14 +767,16 @@ class Searcher extends Common
     public static function Highlight($content, $terms)
     {
         // Get all the unique search words from the phrases
-        $arr = array();
-        foreach ($terms as $term=>$count) {
+        //$arr = array();
+        //$words = $terms;
+        /*foreach ($terms as $term=>$count) {
             $words = explode(' ', $term);
             foreach ($words as $word) {
                 $arr[$word] = $word;
             }
-        }
-        $terms = $arr;
+        }*/
+
+        //$terms = $arr;
         // Sort again because long phrases might have shorter words.
         // Highlighting short terms within words prevents highlighting the
         // whole word.
@@ -742,15 +787,16 @@ class Searcher extends Common
         foreach ($terms as $word) {
             $before = "/(?!(?:[^<]+>|[^>]+<\/a>))\b";
             $after = "/i";
-            if ($word <> utf8_encode($word)) {
+            /*if ($word <> utf8_encode($word)) {
                 if (@preg_match('/^\pL$/u', urldecode('%C3%B1'))) { // Unicode property support
                     $before = "/(?<!\p{L})";
                     $after = "(?!\p{L})/u";
+                    //$after = '/\p{P}/u';
                 } else {
                     $before = "/";
                     $after = "/u";
                 }
-            }
+            }*/
             $HLtext = @preg_replace($before . $word. $after, "<span class=\"highlight\">\\0</span>", $content);
             if ($HLtext !== NULL) {
                 $content = $HLtext;
@@ -985,5 +1031,3 @@ class Searcher extends Common
     }
 
 }
-
-?>

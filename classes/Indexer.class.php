@@ -29,7 +29,7 @@ class Indexer extends Common
      */
     public static function IndexDoc($content, $use_queue = false)
     {
-        global $_SRCH_CONF;
+        global $_SRCH_CONF, $_TABLES;
 
         if (empty(self::$stopwords)) {
             self::Init();
@@ -51,23 +51,42 @@ class Indexer extends Common
 
         // Set author name for the index if not provided and author field
         // is a numeric ID
-        if ( (!isset($content['author_name']) || empty($content['author_name']) )
-              && is_numeric($content['author']) && $content['author'] > 0
+        if (
+            (!isset($content['author_name']) || empty($content['author_name'])) &&
+            isset($content['author']) &&
+            !empty($content['author'])
         ) {
-            $content['author_name'] = COM_getDisplayName($content['author']);
+            if (is_numeric($content['author']) && $content['author'] > 0) {
+                $content['author_name'] = COM_getDisplayName($content['author']);
+            } else {
+                $content['author_name'] = $content['author'];
+            }
         }
-
         $insert_data = array();     // data to be inserted into DB
+//        var_dumP(self::$fields);
+//        COM_errorLog(var_export($content,true));
+        $index = array(
+            'author' => '',
+            'title' => '',
+            'content' => '',
+            'owner_id' => (int)$content['author'],
+        );
         foreach(self::$fields as $fld=>$weight) {
             // index content fields and get a count of tokens
-            if ( isset($content[$fld])) {
-                if ($fld == 'author') {
+            if (isset($content[$fld])) {
+                switch ($fld) {
+                case 'author':
                     // hack to get the author name into the "author" index
-                    $tokens = self::Tokenize($content['author_name']);
-                } else {
-                    $tokens = self::Tokenize($content[$fld]);
+                    $index[$fld] = strtolower($content['author_name']);
+                    break;
+                case 'title':
+                    $index[$fld] = self::Tokenize($content[$fld]);
+                    break;
+                default:
+                    $index[$fld] = self::Tokenize($content[$fld]);
+                    break;
                 }
-                foreach ($tokens as $token=>$data) {
+                /*foreach ($tokens as $token=>$data) {
                     if (isset($insert_data[$token])) {
                         $insert_data[$token][$fld] = $data['count'];
                     } else {
@@ -76,9 +95,10 @@ class Indexer extends Common
                             $fld => $data['count'],
                         );
                     }
-                }
+                }*/
             }
         }
+
         $item_id = DB_escapeString($content['item_id']);
         $type = DB_escapeString($content['type']);
         $parent_id = isset($content['parent_id']) && !empty($content['parent_id']) ?
@@ -88,6 +108,11 @@ class Indexer extends Common
         $ts = isset($content['date']) ? (int)$content['date'] : time();
         $owner_id = isset($content['author']) ? (int)$content['author'] : 0;
         $grp_access = 2;    // default to all users access if no perms sent
+        /*if (isset($content['title'])) {
+            $indexTitle = self::Tokenize($content['title']);
+        } else {
+            $indexTitle = '';
+        }*/
         if (isset($content['perms']) && is_array($content['perms'])) {
             if ($content['perms']['perm_anon'] == 2) {
                 $grp_access = 2;    // anon users
@@ -105,7 +130,34 @@ class Indexer extends Common
             }
         }
 
-        $insertCount = count($values);
+        $sql = "REPLACE INTO `{$_TABLES['searcher_index']}` (
+            `item_id`,
+            `type`,
+            `content`,
+            `parent_id`,
+            `parent_type`,
+            `ts`,
+            `grp_access`,
+            `title`,
+            `owner_id`,
+            `author`)
+            VALUES
+            (
+                '".DB_escapeString($item_id)."',
+                '".DB_escapeString($type)."',
+                '".DB_escapeString($index['content'])."',
+                '".DB_escapeString($parent_id)."',
+                '".DB_escapeString($parent_type)."',
+                '".DB_escapeString($ts)."',
+                '".DB_escapeString($grp_access)."',
+                '".DB_escapeString($index['title'])."',
+                ".(int) $index['owner_id'].",
+                '".DB_escapeString($index['author'])."'
+            )
+";
+//echo $sql;die;
+        DB_query($sql);
+        /*$insertCount = count($values);
         foreach ($insert_data as $term => $data) {
             foreach (self::$fields as $var=>$weight) {
                 $$var = isset($data[$var]) ? (int)$data[$var] : 0;
@@ -124,7 +176,7 @@ class Indexer extends Common
                 $values = array();
                 $insertCount = 0;
             }
-        }
+        }*/
         if ($use_queue) {
             SESS_setVar('searcher_queue', $values);
             return true;
@@ -288,6 +340,11 @@ class Indexer extends Common
         return $exists;
     }
 
-}
 
-?>
+    public static function Tokenize($str, $query=false)
+    {
+        $str = parent::Tokenize($str, $query);
+        return implode(' ', $str);
+    }
+
+}
