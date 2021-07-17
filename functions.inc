@@ -293,7 +293,7 @@ function plugin_itemsaved_searcher($id, $type, $old_id = '')
         );
         $status = PLG_callFunctionForOnePlugin('plugin_pushjob_lglib', $args);
     } else {
-        $status = true;
+        $status = false;
     }
     if (!$status) {
         // Index immediately
