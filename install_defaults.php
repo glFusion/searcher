@@ -152,6 +152,17 @@ $searcherConfigData = array(
         'set' => true,
         'group' => 'searcher',
     ),
+    array(
+        'name' => 'queue_indexing',
+        'default_value' => 0,
+        'type' => 'select',
+        'subgroup' => 0,
+        'fieldset' => 0,
+        'selection_array' => 1,
+        'sort' => 110,
+        'set' => true,
+        'group' => 'searcher',
+    ),
 
     // Relevance weights
     array(

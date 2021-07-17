@@ -32,7 +32,7 @@ $LANG_SRCH = array(
     'search_title'  => 'Search Title',
     'search_author' => 'Search Author',
     'search_content'=> 'Search Content',
-    'query_too_short' => 'Query must contain at least %d letters',
+    'query_too_short' => 'Query must contain at least %d letters. Some common words may have been removed from your query.',
     'showing_results' => 'Showing %1$d - %2$d of %3$d Results',
     'hlp_gen_all'   => 'Re-generate all indexes for the selected content types. Use this option after installing the plugin, or after changing certain key configuration items such as the minimum word length or changing the stemmer.',
     'hlp_counters'  => 'Here are the search queries made by site visitors, along with the number of times each query was made.',
@@ -84,6 +84,7 @@ $LANG_confignames['searcher'] = array(
     'ignore_autotags'   => 'Ignore Auto Tags',
     'max_word_phrase'   => 'Max words in a phrase',
     'replace_stock_search' => 'Replace stock glFusion search?',
+    'queue_indexing'    => 'Queue Indexing',
 );
 
 $LANG_configsubgroups['searcher'] = array(

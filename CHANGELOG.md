@@ -1,5 +1,10 @@
 # Changelog - Searcher plugin for glFusion
 
+## Version 1.1.1
+Release 2021-07-17
+- Change regex to remove punctuation to leave all letters and numbers alone.
+- Allow use of LGLib job queue to index docs in the background.
+
 ## Version 1.1.0
 Release 2020-12-24
 - Remove censored words during Tokenize() before saving in the index
@@ -8,6 +13,7 @@ Release 2020-12-24
 - Deprecate non-UTF language files
 - Fix permission when indexing comments
 - Remove index for items returning no content from `PLG_getItemInfo()`
+- Add Owner ID field to index to properly search by actual author
 
 ## Version 1.0.0
 Release 2019-05-23

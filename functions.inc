@@ -279,73 +279,25 @@ function plugin_getheadercss_searcher()
  */
 function plugin_itemsaved_searcher($id, $type, $old_id = '')
 {
-    global $_TABLES;
+    global $_SRCH_CONF;
 
-    $contentInfo = PLG_getItemInfo(
-        $type, $id,
-        'id,date,parent_type,parent_id,title,searchidx,author,author_name,hits,perms,search_index,status',
-        2
-    );
-
-    // Document is always removed before indexing anyway,
-    // just remove it here in case contentInfo is invalid.
-    if ( $old_id != '' && $id != $old_id ) {
-        \Searcher\Indexer::RemoveDoc($type, $old_id);
-    }
-    \Searcher\Indexer::RemoveDoc($type, $id);
-
-    if (
-        is_array($contentInfo) &&
-        count($contentInfo) > 0 &&
-        isset($contentInfo['searchidx']) &&
-        !empty($contentInfo['searchidx'])
-    ) {
-        if ($type == 'comment') {
-            // For comments, get the parent item's permissions as "root".
-            $parent = PLG_getItemInfo(
-                $contentInfo['parent_type'],
-                $contentInfo['parent_id'],
-                'id,perms',
-                2
-            );
-            if (is_array($parent) && isset($parent['perms']) && is_array($parent['perms'])) {
-                $contentInfo['perms'] = $parent['perms'];
-            }
-        }
-
-        // If no permissions returned, use defaults
-        if (!isset($contentInfo['perms']) || empty($contentInfo['perms'])) {
-            $contentInfo['perms'] = array(
-                'owner_id' => 2,
-                'group_id' => 1,
-                'perm_owner' => 3,
-                'perm_group' => 2,
-                'perm_members' => 2,
-                'perm_anon' => 2,
-            );
-        }
-        // If an "enabled" status isn't returned by the plugin, assume enabled
-        if (!isset($contentInfo['status']) || is_null($contentInfo['status'])) {
-            $contentInfo['status'] = 1;
-        }
-
-        $props = array(
-            'item_id' => $contentInfo['id'],
-            'type'  => $type,
-            'author' => $contentInfo['author'],
-            'author_name' => $contentInfo['author_name'],
-            // Hack to avoid indexing comment titles which don't show anyway
-            'title' => $type == 'comment' ? NULL : $contentInfo['title'],
-            'content' => $contentInfo['searchidx'],
-            'date' => $contentInfo['date'],
-            'perms' => $contentInfo['perms'],
-            'parent_id' => $contentInfo['parent_id'],
-            'parent_type' => $contentInfo['parent_type'],
+    if ($_SRCH_CONF['queue_indexing']) {
+        $args = array(
+            1 => 'searcher',
+            2 => 'indexdoc',
+            3 => array(
+                'type' => $type,
+                'item_id' => $id,
+                'old_id' => $old_id,
+            ),
         );
-        if ($contentInfo['status']) {
-            // Index only if status is nonzero (i.e. not draft or disabled)
-            \Searcher\Indexer::IndexDoc($props);
-        }
+        $status = PLG_callFunctionForOnePlugin('plugin_pushjob_lglib', $args);
+    } else {
+        $status = true;
+    }
+    if (!$status) {
+        // Index immediately
+        Searcher\Indexer::indexById($id, $type, $old_id);
     }
 }
 
@@ -504,4 +456,30 @@ function plugin_IndexAll_comments($type, $pid, $perms=NULL)
     return $count;
 }
 
-?>
+
+/**
+ * Index a single document.
+ * Called by LGLib job queue processor.
+ *
+ * @param   array   $args   Array of arguments
+ * @param   mixed   $output Pointer to output (not used)
+ * @param   string  $svc_msg    Pointer to service message (not used)
+ * @return  integer     Status from Indexer::indexById
+ */
+function service_indexdoc_searcher($args, &$output, &$svc_msg)
+{
+    $status = PLG_RET_ERROR;    // misc error within jobrunner
+
+    // Decode the JSON paramaters to get the document type and ID.
+    // Return error if decoding failed
+    $params = json_decode($args['params'],true);
+    if (
+        $params === NULL ||
+        !isset($params['type']) || empty($params['type']) || 
+        !isset($params['item_id']) || empty($params['item_id'])
+    ) {
+        return $status;
+    }
+    $old_id = isset($params['old_id']) ? $params['old_id'] : '';
+    return Searcher\Indexer::indexById($params['item_id'], $params['type'], $old_id);
+}
