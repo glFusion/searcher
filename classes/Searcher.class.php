@@ -315,7 +315,7 @@ class Searcher extends Common
         }
 
         $where .= $this->_getPermSQL() .
-            ' GROUP BY type, item_id ';
+            ' GROUP BY type, si.item_id ';
         return $where;
     }
 
@@ -351,9 +351,9 @@ class Searcher extends Common
             }
         }
         $wts = implode(' + ' , $wts);
-        $sql = "SELECT type, MAX(item_id) AS item_id, MAX(term) AS term,
+        $sql = "SELECT type, MAX(si.item_id) AS item_id,
             SUM($wts) AS relevance
-            FROM {$_TABLES['searcher_index']}
+            FROM {$_TABLES['searcher_index']} si
             WHERE " . $this->_sql_where() .
             " ORDER BY relevance DESC, ts DESC
             LIMIT $start, {$_SRCH_CONF['perpage']}";
@@ -469,7 +469,7 @@ class Searcher extends Common
 
         if ($count === NULL) {
             $sql = "SELECT count(*) AS cnt
-                FROM {$_TABLES['searcher_index']}
+                FROM {$_TABLES['searcher_index']} si
                 WHERE " . $this->_sql_where();
             //echo $sql;die;
             $res = DB_query($sql);
