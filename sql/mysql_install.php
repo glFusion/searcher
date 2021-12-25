@@ -1,19 +1,20 @@
 <?php
 /**
-*   Table definitions for the lgLib plugin
-*
-*   @author     Lee Garner <lee@leegarner.com>
-*   @copyright  Copyright (c) 2012 Lee Garner <lee@leegarner.com>
-*   @package    lglib
-*   @version    0.0.1
-*   @license    http://opensource.org/licenses/gpl-2.0.php
-*               GNU Public License v2 or later
-*   @filesource
-*/
+ * Table definitions for the Searcher plugin.
+ *
+ * @author      Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2017-2021 Lee Garner <lee@leegarner.com>
+ * @package     searcher
+ * @version     v1.1.1
+ * @license     http://opensource.org/licenses/gpl-2.0.php
+ *              GNU Public License v2 or later
+ * @filesource
+ */
 
 /** @global array $_TABLES */
 global $_TABLES, $_SQL, $_UPGRADE_SQL;
 
+$_SQL = array();
 $_SQL['searcher_index'] = "CREATE TABLE `{$_TABLES['searcher_index']}` (
   `item_id` varchar(128) NOT NULL DEFAULT '',
   `type` varchar(20) NOT NULL DEFAULT '',
