@@ -159,11 +159,10 @@ class Indexer extends Common
                     type, item_id, term, parent_id, parent_type, ts,
                     content, title, author, owner_id, grp_access, weight
                 ) VALUES $values";
-        //echo $sql;die;
         $res = DB_query($sql);
         SESS_setVar('searcher_queue', array());
         if (DB_error()) {
-            COM_errorLog("Searcher Indexing Error: $sql");
+            COM_errorLog(__NAMESPACE__ . '::' . __FUNCTION__ . "- Indexing Error: $sql");
             return false;
         } else {
             return true;
@@ -201,7 +200,7 @@ class Indexer extends Common
                 AND item_id IN ('$item_id_str')";
         DB_query($sql);
         if (DB_error()) {
-            COM_errorLog("Searcher: Error removing $type, ID $item_id_str");
+            COM_errorLog(__NAMESPACE__ . '::' . __FUNCTION__ . "- Error removing $type, ID $item_id_str");
             return false;
         } else {
             return self::RemoveComments($type, $item_id_str, true);
@@ -265,7 +264,7 @@ class Indexer extends Common
         }
         DB_query($sql);
         if (DB_error()) {
-            COM_errorLog("Searcher RemoveComments Error: $parent_type, ID $item_id");
+            COM_errorLog(__NAMESPACE__ . '::' . __FUNCTION__ . "- Error: $parent_type, ID $item_id");
             return false;
         } else {
             return true;
