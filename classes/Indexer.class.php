@@ -49,6 +49,8 @@ class Indexer extends Common
         ) {
             $content['content'] = self::removeAutoTags($content['content']);
         }
+        // Strip the specified tags
+        $content['content'] = self::stripTags($content['content'], false);
 
         // Set author name for the index if not provided and author field
         // is a numeric ID
@@ -90,9 +92,9 @@ class Indexer extends Common
         $owner_id = isset($content['author']) ? (int)$content['author'] : 0;
         $grp_access = 2;    // default to all users access if no perms sent
         if (isset($content['perms']) && is_array($content['perms'])) {
-            if ($content['perms']['perm_anon'] == 2) {
+            if ($content['perms']['perm_anon'] >= 2) {
                 $grp_access = 2;    // anon users
-            } elseif ($content['perms']['perm_members'] == 2) {
+            } elseif ($content['perms']['perm_members'] >= 2) {
                 $grp_access = 13;   // loged-in users
             } elseif (
                 $content['perms']['perm_group'] >= 2 &&
