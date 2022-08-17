@@ -497,7 +497,7 @@ class Searcher extends Common
         $excerpt = "";
 
         $content = preg_replace('/\s+/u', ' ', $content);
-        $content = strip_tags($content);
+        $content = self::stripTags($content);
         $content = " $content";
 
         $start = false;

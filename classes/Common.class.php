@@ -3,9 +3,9 @@
  * Common functions and variables used by both Indexer and Searcher.
  *
  * @author      Lee Garner <lee@leegarner.com>
- * @copyright   Copyright (c) 2017-2020 Lee Garner <lee@leegarner.com>
+ * @copyright   Copyright (c) 2017-2022 Lee Garner <lee@leegarner.com>
  * @package     searcher
- * @version     v1.0.0
+ * @version     v1.1.2
  * @license     http://opensource.org/licenses/gpl-2.0.php
  *              GNU Public License v2 or later
  * @filesource
@@ -90,7 +90,7 @@ class Common
     protected static function _remove_punctuation($str)
     {
         if (!is_string($str)) return '';
-        $str = strip_tags($str);
+        $str = self::stripTags($str);
         $str = html_entity_decode($str);
         $str = preg_replace("/[^\p{L}\p{N}]/", ' ', $str);
         $str = preg_replace('/\s\s+/', ' ', $str);
@@ -263,6 +263,51 @@ class Common
             } else {
                 return $result;
             }
+        } else {
+            return $content;
+        }
+    }
+
+
+    /**
+     * Strip specified tags from the content.
+     *
+     * @param   string  $content    Original content
+     * @param   boolean $all        False to strip only $_SRCH_CONF tags
+     * @return  string      Updated content after removing tags
+     */
+    protected static function stripTags(string $content, bool $all=true)
+    {
+        global $_SRCH_CONF;
+
+        if ($all) {
+            return strip_tags($content);
+        } elseif (isset($_SRCH_CONF['strip_tags']) && !empty($_SRCH_CONF['strip_tags'])) {
+            $tags = array('script', 'style');
+            $dom = new \DOMDocument;
+            $dom->loadHTML(
+                '<html>' . $content . '</html>',
+                LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+            );
+
+            foreach ($_SRCH_CONF['strip_tags'] as $tag) {
+                foreach ($dom->getElementsByTagName($tag) as $places) {
+                    $places->parentNode->removeChild($places);
+                }
+            }
+            $res = $dom->saveHTML();
+            return preg_replace(
+                // Remove HTML tags and paragraph tags added by Dom.
+                // Slash after question mark is just to avoid messing up
+                // syntax highlighting.
+                '/(^<!DOCTYPE.+?\>|^<p>|<\/p>$)/',
+                '',
+                str_replace(
+                    array('<html>', '</html>', '<body>', '</body>'),
+                    array('', '', '', ''),
+                    $dom->saveHTML()
+                )
+            );
         } else {
             return $content;
         }
