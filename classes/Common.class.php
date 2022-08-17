@@ -283,7 +283,6 @@ class Common
         if ($all) {
             return strip_tags($content);
         } elseif (isset($_SRCH_CONF['strip_tags']) && !empty($_SRCH_CONF['strip_tags'])) {
-            $tags = array('script', 'style');
             $dom = new \DOMDocument;
             $dom->loadHTML(
                 '<html>' . $content . '</html>',

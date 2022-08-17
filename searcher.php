@@ -37,4 +37,5 @@ $_TABLES['searcher_counters']   = $_table_prefix . 'counters';
 // Single words always have a multiplier of "1".
 $_SRCH_CONF['phraseweight'] = 1;
 
-?>
+// Tags to strip from content to avoid including in results.
+$_SRCH_CONF['strip_tags'] = array('script', 'style');
