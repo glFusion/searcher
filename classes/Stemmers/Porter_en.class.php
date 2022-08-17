@@ -418,7 +418,7 @@ class Porter_en extends \Searcher\Stemmer
     {
         $c = self::$regex_consonant;
 
-        return preg_match("#$c{2}$#", $str, $matches) and $matches[0]{0} == $matches[0]{1};
+        return preg_match("#$c{2}$#", $str, $matches) and $matches[0][0] == $matches[0][1];
     }
 
 
@@ -435,9 +435,9 @@ class Porter_en extends \Searcher\Stemmer
 
         return preg_match("#($c$v$c)$#", $str, $matches)
             && strlen($matches[1]) == 3
-            && $matches[1]{2} != 'w'
-            && $matches[1]{2} != 'x'
-            && $matches[1]{2} != 'y';
+            && $matches[1][2] != 'w'
+            && $matches[1][2] != 'x'
+            && $matches[1][2] != 'y';
     }
 
 }

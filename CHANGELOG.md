@@ -1,5 +1,9 @@
 # Changelog - Searcher plugin for glFusion
 
+## Version 1.1.2
+Release TBD
+- Update `Porter_en` stemmer to remove array access via curly braces.
+
 ## Version 1.1.1
 Release 2021-07-17
 - Change regex to remove punctuation to leave all letters and numbers alone.
