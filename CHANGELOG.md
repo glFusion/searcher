@@ -1,7 +1,7 @@
 # Changelog - Searcher plugin for glFusion
 
 ## Version 1.1.2
-Release TBD
+Release 2022-08-28
 - Update `Porter_en` stemmer to remove array access via curly braces.
 
 ## Version 1.1.1
